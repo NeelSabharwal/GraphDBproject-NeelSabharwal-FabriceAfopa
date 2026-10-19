@@ -1,0 +1,31 @@
+
+# Local environment, caches, generated/downloaded data, and credentials
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+/data/raw/**
+/data/processed/**
+*.pdf
+credentials
+credentials.*
+*credentials*.json
+*credentials*.yaml
+*credentials*.yml
+secrets/
+.secrets/
+secrets.*
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local model weights and generated coverage reports
+.ollama/
+*.gguf
+*.safetensors
+.coverage*
+htmlcov/

@@ -1,0 +1,16 @@
+*
+!Dockerfile
+!docker/
+!docker/neo4j.Dockerfile
+!requirements.txt
+!requirements-dev.txt
+!requirements.lock.txt
+!pyproject.toml
+!app/
+!app/**
+!scripts/
+!scripts/**
+!tests/
+!tests/**
+**/__pycache__/
+**/*.pyc
