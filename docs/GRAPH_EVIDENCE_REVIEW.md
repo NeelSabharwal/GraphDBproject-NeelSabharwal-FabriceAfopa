@@ -101,4 +101,19 @@ No candidate was rejected solely for sharing vocabulary with another paper. Conv
 - [ ] **Reproducibility:** rerun source text hash and offset verification under the specified `pypdf==6.10.0`; investigate rather than silently edit any discrepancy.
 - [ ] **Review record:** decide on each candidate and alias with actual reviewer identity, timestamp, source notes, accepted qualifiers and resolved chunk IDs, then obtain teammate review of this Markdown PR. None of these actions is marked complete here.
 
+### Independent passage inspection — 20 October 2026
+
+**Personally inspected:**
+
+- **C03:** RAG bibliography, PDF page 13, reference [22]. Confirmed that RAG cites the DPR work; the cited version is unspecified.
+- **C09:** GraphRAG bibliography, PDF page 13. Confirmed that GraphRAG cites Lewis et al.'s RAG work; the cited version is unspecified.
+- **GE03–GE06:** DPR, PDF page 6, Table 2. Confirmed evaluation results for the four named datasets. DPR §4.2 should also be checked if not yet inspected.
+- **GE11–GE14:** RAG, PDF page 4, §3.1, and page 6, Table 1. Confirmed four named QA datasets and the distinct TriviaQA evaluation splits.
+
+**AI-assisted checks:** Reviewed recommendations for GE01–GE20 and entity aliases. Technical qualifications remain in the review document. These are not recorded as independently approved database claims.
+
+**Outstanding:** Personal checks of remaining passages and aliases, pypdf 6.10.0 coordinate verification, formal claim approval, and Neo4j testing.
+
+No claims were promoted to `SOURCE_VERIFIED`, and no alias merges were performed.
+
 **Overall decision:** **DRAFT FOR INDEPENDENT STUDENT REVIEW**. Both citations and the eight priority dataset candidates are supported at the named-work/named-dataset level, but nothing has been human approved or demonstrated in the live graph.
