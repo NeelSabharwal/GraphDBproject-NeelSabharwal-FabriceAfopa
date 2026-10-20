@@ -1,6 +1,71 @@
 # Proposed architecture — AI Research GraphRAG Assistant
 
-**Status: infrastructure and initial ingestion implemented; remaining application architecture PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+**Status: infrastructure, ingestion and the bounded retrieval/agent slice implemented; advanced APIs, GDS analytics and ML remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+
+### Implemented retrieval slice — prompt #6
+
+D21 (prompt #6.3) restores the uncommitted application integration to the review
+scope: router, lifespan lock, bounded environment settings, dependencies and Compose
+configuration must be committed together with the agent. Working-tree/image tests
+do not establish that a pushed commit works. The fresh application factory is tested
+without replacing its router or agent dependency.
+
+Paper-filtered retrieval uses the existing Paper ID index and at most 257 adjacent
+Chunk rows. More than 256 rejects the request before ranking; otherwise Neo4j's
+native cosine function ranks eligible pinned embeddings within that paper. The bound
+is applied before vector scoring/sorting, with no global graph scan. Unfiltered
+retrieval retains the approximate global top-64 candidate limit. Exact ranking only
+covers eligible stored embeddings, not missing/stale vectors or semantic relevance.
+Scientific expansion requires a distinct target Paper sharing the exact approved
+Entity; self-only evidence returns unavailable. Approval and source-support checks
+remain mandatory on both sides. See D21 and the current evidence in AGENT.md.
+
+D20 (prompt #6.2) supersedes D19's free-paraphrase answer stage. A bounded read-only
+Paper catalog and `resolve_papers` LangGraph node resolve explicitly named endpoints
+before tool selection, preserving direction and rejecting unknown/ambiguous names.
+Catalog identities do not depend on ANN hits. Ordinary source questions use one
+search and one/two source reads, then conditional early stopping; graph expansion is
+excluded unless the question explicitly requests cross-paper comparison/shared evidence.
+Qwen selects exact passage IDs for extractive answers instead of independently
+writing a factual statement and its quote. Lexical candidate filtering/deduplication
+is a relevance heuristic, not semantic validation. Full provenance and final
+quote/hash/page checks remain. No second LLM verification pass is added.
+
+D18 supersedes the historical retrieval/agent proposals below for this milestone.
+`make embed` prepares pinned Nomic v1.5 embeddings (768 dimensions, cosine index,
+query/document prefixes, input hashes and model digest), reusing matching vectors.
+The privileged preparation command is not an agent tool. Four typed read tools use
+fixed Cypher: `search_chunks`, `get_source_excerpt`, `find_citation_path` (at most
+three directed CITES edges), and `expand_verified_evidence` (one reviewed entity join).
+Every factual graph hop requires explicit human approval and exact source support.
+
+`GET /api/ask` runs a real typed LangGraph with select_tool → execute_tool → select_tool
+conditional loops, followed by generate → validate_answer. D19 replaces unreliable
+native tool selection with local Ollama JSON-schema-constrained next actions, still
+chosen by the model. The schema permits four typed read tools or explicit `FINISH`.
+State checks reject premature FINISH and duplicate searches; one corrective selection
+retry per request is allowed before safe abstention. Per-turn schemas enumerate only
+discovered Chunk/Paper IDs; the application independently checks those memberships.
+Two distinct chunks must be explicitly read when multiple candidates exist; this is
+a coverage gate, not proof of semantic completeness. Already attempted paper
+expansions are excluded. Unavailable citation paths route
+directly to an honest abstention. Defaults: six calls, 180-second overall deadline,
+45-second model deadline, five-second database deadline, 6500-character context,
+one concurrent request. Model context is 4096 tokens; passage selection is capped
+at 80 tokens (240 for next actions). JSON schemas, database-assigned source IDs/coordinates and exact quote
+membership constrain output. A generated answer remains HYPOTHESIS; parsed excerpts
+are SOURCE_LOCATED, not approved assertions. Private model reasoning is not returned.
+The current D20 answer decoder selects up to three integer passage IDs from at most
+12 candidates, with an 80-token output cap. Sentence spans are bounded at 550 characters;
+statement and supporting quote are identical source text. The independent validator
+still rejects identity/quote/hash mismatches and unsupported paraphrases.
+
+Vector and reviewed graph results are deduplicated by Chunk ID; rank fusion and
+comparative evaluation are deferred. Claims, aliases and research annotations are
+not changed. No ingestion rewrite, GDS algorithm or ML training is part of this slice.
+Operational traces and measured limits are documented in [AGENT.md](AGENT.md).
+The historical health readiness probe still checks dependencies/model presence;
+`/api/ask` separately validates vector-index readiness. Health does not imply answer quality.
 
 ### Implemented ingestion scope — 2026-10-20
 

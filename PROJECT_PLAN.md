@@ -33,6 +33,36 @@ and 96-label proposals remain conditional. This task does not train ML or implem
 an agent/GDS. Historical planning claims below remain historical; no grading points
 are awarded for this update.
 
+## Agent scope update — prompt #6
+
+M04's bounded local implementation is authorized on `feat/agent-evidence`: embeddings
+for the existing chunks, four typed retrieval tools, conditional LangGraph orchestration,
+`/api/ask`, guardrails, tests and real local acceptance requests. See D18 and
+[AGENT.md](docs/AGENT.md) for implementation and actual outcomes. The original rubric
+allocations/statuses below remain a planning map, not an award of grading credit.
+Verified graph demonstrations remain conditional on actual student approval; model
+failure and abstention must be recorded. M05/M06 advanced endpoint/GDS work and M07
+ML remain separate milestones. Teammate evaluation-metric files are reserved and untouched.
+
+Prompt #6.1 authorizes only M04 reliability corrections (D19): schema-constrained
+model-selected actions, discovered-ID validation, explicit source reads before FINISH,
+bounded selection recovery and repeat-search prevention. Actual Q01/Q04/Q08/Q14 runs,
+the synthetic Q15 citation-boundary check and regression results are recorded in
+[AGENT.md](docs/AGENT.md). These development cases do not establish held-out accuracy
+or rubric completion; pending human claim reviews remain a separate gate.
+
+Prompt #6.2 (D20) further bounds M04: independent read-only Paper endpoint resolution,
+extractive passage selection, duplicate filtering and early stopping for ordinary
+source questions. Live statement/quote pairs, path arguments, latency and remaining
+manual-review needs are recorded in AGENT.md. No GDS/ML, corpus expansion, review
+approval or grading completion is inferred.
+
+Prompt #6.3 (D21) corrects PR #4 completeness, excludes scientific self-matches and
+bounds paper-local vector ranking. Include the previously omitted main/config,
+Compose, dependency, Makefile and README changes in the eventual student commit.
+Fresh working-tree builds and tests are recorded in AGENT.md; the pushed commit
+must be rebuilt and tested again after publication. No grading status changes.
+
 ## Observed starting point (historical planning baseline)
 
 Repository inspection on 2026-10-19 found `main` tracking `origin/main`, a tracked one-line README, an existing untracked `.gitignore`, four empty planning placeholders, both professor documents, and the requested empty application/data/script/test folders. `.git/`, `.agents/`, `.aws/` and `.codex/` were also present. No application, Docker setup, tests, CI workflows or implementation evidence was found. Git status already included untracked planning and requirements files before this task. Remote reviews, branch activity and contributions have not been audited.

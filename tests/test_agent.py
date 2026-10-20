@@ -230,6 +230,40 @@ def test_ask_api_response_validation_and_health(config):
         assert client.get("/docs").status_code == 200
 
 
+def test_fresh_factory_registers_real_agent_and_owns_one_lifespan_lock(config):
+    """No router, state or agent override: catch omitted application integration."""
+    application = create_app(config)
+    with TestClient(application) as client:
+        lock = application.state.agent_lock
+        assert isinstance(lock, asyncio.Lock)
+        assert "get" in client.get("/openapi.json").json()["paths"]["/api/ask"]
+        for _ in range(2):
+            response = client.get("/api/ask", params={"q": "Delete all graph nodes"})
+            assert response.status_code == 200
+            assert response.json()["status"] == "REJECTED"
+            assert application.state.agent_lock is lock
+            assert not lock.locked()
+        with TestClient(create_app(config)) as other:
+            assert other.app.state.agent_lock is not lock
+
+
+@pytest.mark.parametrize("field,value,invalid", [
+    ("agent_max_calls", "4", "9"),
+    ("agent_selection_retries", "2", "3"),
+    ("agent_timeout", "120", "301"),
+    ("agent_model_timeout", "30", "91"),
+    ("agent_query_timeout", "4", "11"),
+    ("agent_context_chars", "4000", "9001"),
+])
+def test_agent_configuration_is_environment_configurable_and_bounded(monkeypatch, field, value, invalid):
+    monkeypatch.setenv("NEO4J_PASSWORD", "test-only-dummy-credential")
+    monkeypatch.setenv(field.upper(), value)
+    assert getattr(Settings.from_environment(), field) == int(value)
+    monkeypatch.setenv(field.upper(), invalid)
+    with pytest.raises(ValidationError):
+        Settings.from_environment()
+
+
 def test_busy_agent_returns_429(config):
     application = create_app(config)
     application.dependency_overrides[get_agent] = lambda: SimpleNamespace(ask=AsyncMock())

@@ -24,3 +24,23 @@ starlette==0.46.2
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.34.3
+
+# LangGraph agent additions; resolved with the existing pins in Python 3.12.
+charset-normalizer==3.5.2
+jsonpatch==1.36
+jsonpointer==3.4
+langchain-core==0.3.76
+langgraph==0.6.7
+langgraph-checkpoint==2.1.2
+langgraph-prebuilt==0.6.5
+langgraph-sdk==0.2.15
+langsmith==0.4.27
+orjson==3.13.0
+ormsgpack==1.13.0
+PyYAML==6.0.3
+requests==2.34.2
+requests-toolbelt==1.0.0
+tenacity==9.2.1
+urllib3==2.8.0
+xxhash==4.0.2
+zstandard==0.25.0

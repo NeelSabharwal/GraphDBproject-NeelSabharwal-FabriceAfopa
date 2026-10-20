@@ -46,6 +46,30 @@ RETURN [p IN nodes(path) | p.id] AS papers,
        [r IN relationships(path) | r.claim_ids] AS edge_claim_ids
 ORDER BY length(path), papers LIMIT 1
 """
+PAPER_CANDIDATE_LIMIT = 256
+# Start with the existing Paper identity index, then stop adjacency enumeration
+# before ranking. Overflow returns no matches, never a silently truncated ranking.
+PAPER_SEARCH_QUERY = """
+MATCH (p:Paper {id:$paper}) USING INDEX p:Paper(id)
+CALL (p) {
+ MATCH (p)<-[:PART_OF]-(node:Chunk)
+ WITH node LIMIT $probe
+ RETURN collect(node) AS nodes
+}
+CALL (p, nodes) {
+ UNWIND CASE WHEN size(nodes)<=$cap THEN nodes ELSE [] END AS node
+ WITH p,node WHERE node.paper_id=p.id
+ AND node.embedding_model=$model AND node.embedding_digest=$digest
+ AND node.embedding_dimensions=$dimensions AND node.embedding_policy=$embedding_policy
+ AND node.embedding_text_sha256=node.text_sha256
+ AND size(node.embedding)=$dimensions
+ WITH p,node,vector.similarity.cosine(node.embedding,$vector) AS score
+ ORDER BY score DESC,node.id LIMIT $limit
+ RETURN collect({chunk_id:node.id, paper_id:p.id, title:p.title, page:node.page,
+                 preview:substring(node.text,0,300), score:score}) AS matches
+}
+RETURN size(nodes) AS candidate_count,matches
+"""
 
 
 def validate_call(name, arguments):
@@ -96,7 +120,7 @@ class RetrievalTools:
         return await getattr(self, name)(args)
 
     async def search_chunks(self, args):
-        """Bounded ANN candidates followed by provenance/model/optional-paper checks."""
+        """Bounded paper-local cosine ranking or global ANN, with provenance checks."""
         if args.paper_id:
             await self.paper(args.paper_id)
         rows = await self.read(
@@ -110,7 +134,19 @@ class RetrievalTools:
                 or str(config.get("vector.similarity_function")).lower() != "cosine"):
             raise ValueError("Incompatible vector index")
         vector = (await self.ollama.embed([args.query], query=True))[0]
-        rows = await self.read("""
+        parameters = dict(vector=vector, model=EMBED_MODEL, digest=EMBED_DIGEST,
+                          dimensions=DIMENSIONS, embedding_policy=EMBED_POLICY,
+                          paper=args.paper_id, limit=args.top_k)
+        if args.paper_id:
+            result = await self.read(PAPER_SEARCH_QUERY, **parameters,
+                                    cap=PAPER_CANDIDATE_LIMIT, probe=PAPER_CANDIDATE_LIMIT + 1)
+            if not result:
+                raise ValueError("Paper disappeared during retrieval")
+            if result[0]["candidate_count"] > PAPER_CANDIDATE_LIMIT:
+                raise ValueError("Paper exceeds the 256-chunk exact retrieval budget")
+            rows = result[0]["matches"]
+        else:
+            rows = await self.read("""
 CALL db.index.vector.queryNodes($index, $candidates, $vector) YIELD node, score
 MATCH (node)-[:PART_OF]->(p:Paper)
 WHERE node.paper_id=p.id AND node.embedding_model=$model AND node.embedding_digest=$digest
@@ -119,8 +155,7 @@ AND node.embedding_text_sha256=node.text_sha256 AND ($paper IS NULL OR p.id=$pap
 RETURN node.id AS chunk_id, p.id AS paper_id, p.title AS title, node.page AS page,
        substring(node.text,0,300) AS preview, score
 ORDER BY score DESC, chunk_id LIMIT $limit
-""", index=INDEX, candidates=64, vector=vector, model=EMBED_MODEL, digest=EMBED_DIGEST,
-            dimensions=DIMENSIONS, embedding_policy=EMBED_POLICY, paper=args.paper_id, limit=args.top_k)
+""", index=INDEX, candidates=64, **parameters)
         # Search results include authentic complete provenance for the trace, but must
         # still be explicitly read by get_source_excerpt before answer citation.
         evidence = [await self.excerpt(row["chunk_id"]) for row in rows]
@@ -130,7 +165,9 @@ ORDER BY score DESC, chunk_id LIMIT $limit
             if choices:
                 row["preview"] = choices[0]["quote"]
         return {"status": "ok" if rows else "unavailable", "matches": rows,
-                "evidence": evidence, "paths": [], "candidate_limit": 64}
+                "evidence": evidence, "paths": [],
+                "candidate_limit": PAPER_CANDIDATE_LIMIT if args.paper_id else 64,
+                "retrieval_mode": "paper_exact" if args.paper_id else "global_ann"}
 
     async def excerpt(self, chunk_id):
         """Identity and source provenance are always assigned from real graph records."""
@@ -203,7 +240,7 @@ AND seed.status='SOURCE_VERIFIED' AND seed.human_reviewed=true
 AND seed.student_review_status='approved' AND seed.review_policy=$policy
 AND trim(coalesce(seed.reviewer,''))<>'' AND seed.reviewed_at IS NOT NULL
 MATCH (c:Claim)-[:OBJECT]->(entity), (c)-[:SUBJECT]->(p:Paper), (c)-[:SUPPORTED_BY]->(:Chunk)
-WHERE c.predicate IN ['USES','EVALUATED_ON','ADDRESSES'] AND """ + APPROVED + """
+WHERE p.id<>$id AND c.predicate IN ['USES','EVALUATED_ON','ADDRESSES'] AND """ + APPROVED + """
 RETURN DISTINCT seed.id AS seed_id, c.id AS claim_id, entity.id AS entity_id
 ORDER BY seed_id, claim_id LIMIT $limit
 """, id=args.paper_id, limit=args.limit, policy=HUMAN_POLICY)

@@ -509,3 +509,183 @@ lexical rather than semantic relevance, incomplete answers and source fragments.
 All selected passages still require student review. A positive approved citation
 chain still requires actual C03/C09 review. Stop here; no further inference tuning,
 GDS, ML, new documents/services/models, ingestion, commits or pushes were performed.
+
+## PR #4 integration and retrieval corrections — prompt #6.3, 2026-10-21
+
+### Commit / working-tree / container audit
+
+Branch remains `feat/agent-evidence`. Local HEAD and its tracking ref both point to
+`bca43ca`; local main/origin/main point to `e605930`. The supplied review comments
+were used as the review source. A read-only remote hash check could not authenticate
+to GitHub, so the current remote tip is not independently confirmed this session.
+No branch, index, commit or remote was changed.
+
+The integration was present locally but absent from the commit. Each of these seven
+files is identical between local main and HEAD, with the following working-tree
+changes missing from HEAD:
+
+| Omitted file | Required local integration |
+| --- | --- |
+| `app/main.py` | Include the agent router; initialize one asyncio lock per app lifespan. |
+| `app/config.py` | Validated agent call/retry, deadline and evidence-context budgets. |
+| `docker-compose.yml` | Agent environment limits and disabled external tracing. |
+| `requirements.txt` | Pinned LangGraph and langchain-core direct dependencies. |
+| `requirements.lock.txt` | Resolved pinned agent/transitive dependencies. |
+| `Makefile` | Embedding command and isolated working-tree test/coverage command. |
+| `README.md` | Agent setup, API example and limitations. |
+
+Three more files had **partial omitted updates** (they already had other changes in
+the branch): `PROJECT_PLAN.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`. At entry
+all ten were unstaged modifications; there were no untracked files or staged changes.
+The agent code, smoke script and tests were committed, creating an internally
+inconsistent revision: factory/config/dependencies still described the older app.
+
+Before editing, running-container SHA-256 hashes for main/config/lockfile matched
+the dirty working tree, not HEAD. For example, `app/main.py` was
+`976712f17e7e72711f42db5ca69b66194de478143e4a6a40581e1f06a5ace4ca`
+in both the image and worktree, versus
+`b5a554e02e5e32cbb517679f16b4c61445194195b0a5d4fff5f5aec167908b95`
+in main/HEAD. The container already had LangGraph 0.6.7 and langchain-core 0.3.76,
+which HEAD's dependency files omitted. The local Make target copies current
+app/scripts/tests into a temporary container directory; HEAD's older target mounts
+current working files. Neither checks Git completeness. Earlier passing runs
+therefore verified the local source/image combination, **not the pushed commit**.
+The audit establishes the missing changes, not who or which staging command omitted them.
+
+### Focused corrections
+
+- Retain the existing local router/lifespan/dependency integration. A new actual
+  `create_app()` test uses no router/state/agent overrides: OpenAPI exposes the GET
+  route, two real input-guard requests use the same lock, and a separate application
+  owns a separate lock. Existing health/readiness tests remain unchanged.
+- Expose selection retries through environment/Compose alongside the other bounded
+  settings; `.env.example` now lists all six non-secret defaults. Parameterized tests
+  check overrides and upper-bound rejection. No secret is added or printed.
+- `expand_verified_evidence` requires `p.id <> $id`. A positive synthetic test joins
+  two distinct papers' approved USES claims to the same Entity and validates both
+  supporting sources. Self-only and pending-other-paper cases return unavailable;
+  corrupt support still fails. Synthetic UUID fixtures clean up; real reviews are untouched.
+- Paper-specific search bypasses global ANN truncation using bounded exact ranking
+  (D21). An indexed Paper lookup enumerates at most 257 incoming Chunk rows; above
+  256 it returns no candidates and raises a clear budget error before cosine ranking.
+  Eligible embeddings retain model/digest/dimension/policy/text-hash checks and full
+  source validation. Results identify `paper_exact` versus `global_ann` retrieval.
+  Unfiltered ANN stays at 64 candidates. Large papers fail rather than silently
+  claim complete recall. No new index, service, model or arbitrary Cypher capability.
+- The real Neo4j test proves 80 synthetic chunks in another paper have strictly
+  higher cosine scores, yet the requested paper's source is retrieved. Its EXPLAIN
+  plan has NodeUniqueIndexSeek and no AllNodesScan/NodeByLabelScan. Empty papers,
+  256-row boundaries, 257-row overflow and ineligible vectors are exercised.
+
+### New verification (working tree, not a corrected pushed commit)
+
+- `docker compose build api` and `docker compose up -d --no-deps api` rebuilt and
+  recreated only the API. Final image ID:
+  `sha256:d543540c695e0442fd15ba6eb0231126be6f8f4b643e0cccc7becb2551d794b3`.
+  Neo4j and Ollama data volumes/services were retained.
+- Final `make test`: **246 passed, 0 failed, 0 skipped, 1 existing Starlette/AnyIO
+  deprecation warning, 10.79 s; 96% reported coverage** (1085/1136 statements,
+  95.51% before rounding). All prior 233 cases remain passing, with the expansion
+  test corrected to require distinct papers. There are 13 additional cases.
+- Two earlier full runs each had 245 passed / 1 failed. First, the new competitor
+  fixture briefly assigned an existing Chunk ID and correctly hit the uniqueness
+  constraint. The fix assigns a unique ID in the initial property map. Second,
+  the test assumed all fresh competitors must immediately appear in approximate
+  ANN results; that assumption failed. The final test establishes 80 higher exact
+  scores and checks paper-local retrieval without assuming perfect or immediately
+  visible ANN results. These were fixture/assertion corrections, not weakened
+  application provenance or approval checks.
+- After the final rebuild, two focused tests ran directly from `/workspace` in the
+  image: fresh factory integration and Q15 against real DPR evidence, **2 passed in
+  0.91 s**. Q15 rejects synthetic page 999 and accepts actual PDF page 3; no PDF,
+  gold entry or graph property is changed.
+- All 39 application/script/test Python and dependency/config files match between
+  worktree and rebuilt image. Aggregate SHA-256 over sorted path + NUL + bytes:
+  `dbaa4e4fabab9b4644f26a26d536b142c9d023eed1ff03f0baf6f5eaf35fa368`.
+- All installed distributions match `requirements.lock.txt`; `python -m pip check`
+  reports `No broken requirements found.` Compose configuration validates quietly.
+  All six agent environment values and both disabled tracing flags are present.
+  Evaluation gold is absent from the image.
+- Newly started HTTP `/health/live`, `/health/ready`, `/docs`, `/openapi.json` all
+  returned 200. Readiness reports `neo4j_gds: ok`, `ollama: ok`; OpenAPI has GET
+  `/api/ask`. Native cosine availability and Paper ID index ONLINE were checked
+  against Neo4j **5.26.32** before implementation.
+
+The student must stage the full correction set, commit/push when separately ready,
+then rebuild and rerun checks from that pushed revision before claiming PR verification.
+No staging, commit, push or teammate review submission was performed here.
+
+### Fresh live API results and remaining limits
+
+Command: `python3 scripts/agent_smoke.py --output data/processed/agent/smoke-pr4-review-1.json`.
+This new ignored artifact retains full responses, quotes, hashes, tool arguments and
+timing. Only question strings were sent to the service, not gold answers or labels.
+
+| Case | HTTP / result | Wall time | Actual operations after paper_catalog |
+| --- | --- | ---: | --- |
+| Q01 | 200 / ANSWERED, partial | 55.251 s | DPR paper_exact search → two source reads |
+| Q04 | 200 / ANSWERED, extractive | 44.916 s | GraphRAG paper_exact search → two source reads |
+| Q08 | 200 / ABSTAINED | 5.839 s | find_citation_path → unavailable |
+| Q14 | 200 / REJECTED | 0.011 s | input_guard only; no catalog, graph or model call |
+
+Saved Q08 arguments were independently asserted to be exactly:
+
+```json
+{"source_id":"arxiv:2404.16130v1","target_id":"arxiv:2004.04906v1","max_hops":3}
+```
+
+It returned empty paths/citations, correctly reflecting the lack of approved edges.
+Q01 read chunks `651d3ede4b76912d5aa04aecd2e6a7a4e42008cf3447e928cd13290d584eed0d`
+and `99d443f9eb46e05ca7393c5594be959c500c0fe7fdeba3a7e33ca8b135678df9`.
+Q04 read `89a28118047b792394b7e43a79104f782c319fd0b39080ff330b12c85d0e45a6`
+and `fefee3faa58b9ccc46ff8bc5bac7c7cdb6f2a134ac6136d83b015350ebc3de8e`.
+The newly observed statement/quote pairs equal the four pairs in the preceding
+prompt #6.2 table: DPR PDF p. 3 and GraphRAG PDF p. 5 respectively. The new artifact's
+answer/quote equality, exact quote offsets and text SHA-256 were checked directly.
+All citations remain SOURCE_LOCATED. **Semantic usefulness/completeness is still
+pending manual student review**; Q01 still omits a standalone passage-encoder
+explanation, and parser fragments remain in the extractive text. No new claim of
+semantic verification follows from these successful mechanical checks.
+
+Post-test graph: **3 Papers, 153 Chunks (153 embeddings), 3 Entities, 5 Claims all
+EXTRACTED/pending, 0 CITES, 0 remaining test-agent synthetic nodes**. Neo4j/GDS
+remain **5.26.32/2.13.2**. All three services are healthy. One live memory snapshot:
+API **89.71 MiB / 1 GiB**, Neo4j **1.816 GiB / 4 GiB**, Ollama **4.332 GiB / 6 GiB**;
+these are instantaneous readings, not peak-memory measurements.
+
+`git diff --check` passes. Professor documents, evaluation gold, corpus manifest/
+research files and teammate evaluation implementation remain unchanged from HEAD.
+No real claim review was altered. Global ANN recall is still approximate and
+post-filtered; paper-local ranking rejects overflow and does not cover ineligible
+embeddings. The small development smoke set does not establish held-out accuracy.
+
+### Exact correction set for eventual student staging
+
+No files were added. The following **15 modified files** comprise the correction
+set, including the ten pre-existing unstaged files that must not be omitted again:
+
+```text
+.env.example
+Makefile
+PROJECT_PLAN.md
+README.md
+app/agent/tools.py
+app/config.py
+app/main.py
+docker-compose.yml
+docs/AGENT.md
+docs/ARCHITECTURE.md
+docs/DECISIONS.md
+requirements.lock.txt
+requirements.txt
+tests/test_agent.py
+tests/test_retrieval_graph.py
+```
+
+The seven initially missing integration files are retained, with additional retry
+configuration/example documentation where needed. `tools.py` contains the two
+retrieval fixes; both agent test files cover the regressions. Architecture/decisions/
+plan record D21, and this document preserves the audit and actual verification.
+The local correction is ready for student inspection. PR re-review should follow
+the student's complete commit/push and a rebuild/test of that exact revision; the
+current pushed PR has not been changed or certified by these working-tree results.
