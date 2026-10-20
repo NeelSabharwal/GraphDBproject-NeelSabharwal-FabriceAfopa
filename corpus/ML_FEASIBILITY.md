@@ -1,0 +1,12 @@
+# Graph-based ML feasibility
+
+Status: proposed analysis only, checked 2026-10-20. No training or metrics have been produced. Read alongside `DATA_SOURCES.md` and the repository architecture.
+
+**Recommendation:** use citation paths for the prototype; do not rely on citation prediction for the deadline until the label gate passes. Twenty papers have 380 ordered non-self pairs; thirty have 870. Those are candidate pairs, not independent observations or verified labels. Fifty positives would require an average of 2.5 or 1.67 in-corpus outgoing citations respectively. This may be attainable, but the present 13 positives cannot establish it. A small, deliberately selected literature cluster gives unstable metrics and selection bias even if the gate passes.
+
+Before any citation experiment: completely audit outgoing references for included sources; resolve uncertain matches; define eligibility; verify absence before labeling negatives; freeze a 60/20/20 directed-pair split; remove held-out edges before *all* graph features. Exclude citation evidence, bibliography text and full-graph statistics from features. Use the existing proposed logistic-regression workflow, prevalence/preferential-attachment baselines, average precision and precision/recall@k. Report counts and uncertainty. None of this has been run.
+
+**Fallback proposal only:** classify existing `Chunk` nodes as **method description** versus **evaluation description** using graph-derived features. Target roughly 120 independently reviewed prose chunks across the ten papers; exclude ambiguous chunks and reference lists, record actual class counts, and annotate from source text rather than LLM guesses. Use label-free `MENTIONS` neighbor-kind counts, degree and neighboring-chunk entity overlap; do not encode the answer through section labels, paper IDs or label-derived edges. Split by whole paper (for example 6/2/2 papers), require both classes in each split, fit transformations only on training data, and compare a simple classifier with a majority baseline using macro-F1 and per-class recall. Keep predictions as hypotheses. This avoids requiring 50 citation edges but still needs annotation and measured evaluation; it is not guaranteed to perform well or satisfy the rubric. It is a proposed analysis on the existing schema, not an approved architecture change.
+
+
+The professor permits link prediction or node classification. Keep the current architecture unchanged until the student chooses the experiment. A source-research artifact alone does not satisfy the ML criterion.

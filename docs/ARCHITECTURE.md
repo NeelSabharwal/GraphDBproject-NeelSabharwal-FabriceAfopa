@@ -1,6 +1,40 @@
 # Proposed architecture — AI Research GraphRAG Assistant
 
-**Status: application architecture remains PROPOSED.** The user authorized only the local infrastructure milestone on 2026-10-19; see D13 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Runtime verification is recorded separately from proposed ingestion, retrieval, agent, GDS analytics and ML behavior.
+**Status: infrastructure and initial ingestion implemented; remaining application architecture PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+
+### Implemented ingestion scope — 2026-10-20
+
+Prompt #5 now authorizes the three-paper ingestion milestone. D14 in the
+[decision register](DECISIONS.md) supersedes the older ingestion proposals below
+where they differ. `python -m scripts.ingest` verifies the prototype manifest/PDFs,
+parses pages with pypdf 6.10.0, records raw/normalized offsets and hashes, and writes
+page-bounded character chunks and claims through parameterized UNWIND transactions.
+Four identity constraints and four lookup indexes are implemented; vector indexing
+and embeddings remain future work. The existing HTTP API remains health-only;
+the import is a local operator CLI.
+
+Prompt #5.1 restores independent student semantic review for every SOURCE_VERIFIED
+claim, including citations. Automated bibliography checks record
+`source_location_status=SOURCE_LOCATED` separately; claims remain EXTRACTED pending
+review. Legacy automatic approvals are downgraded without deleting evidence, with
+previous metadata retained in review history. A local explicit review action records
+a named reviewer, decision, note and time. CITES requires SOURCE_VERIFIED plus approved
+human-review metadata; neither quote matching nor status alone suffices. Target version
+as cited remains unspecified; the selected Paper is only the corpus representative.
+
+The bounded method sample now locates explicit use passages for BERT (DPR page 3),
+BART-large (RAG page 3) and Leiden (GraphRAG page 4), retaining original chunk IDs and
+coordinates. A method-specific schema embeds the entity once to avoid inconsistent
+copied target names. Exact quotes, typed predicates and pending semantic review remain
+mandatory. Import and optional extraction outcomes are separate in CLI reports; see
+D15 and INGESTION.md for the exit contract and actual results.
+
+Entity IDs initially include the source paper, kind and normalized surface name.
+Cross-paper scientific alias merging needs later review; no topic-similarity citation
+inference occurs. Normalized chunks are stored in Neo4j; full raw pages and character
+maps are retained in ignored local run artifacts. The pipeline preserves existing
+claim reviews on re-import and refuses changed PDF/parser/chunker identities without
+a migration. See [INGESTION.md](INGESTION.md) for schema, reproduction and actual results.
 
 ### Authorized infrastructure milestone
 

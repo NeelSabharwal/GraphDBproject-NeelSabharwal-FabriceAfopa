@@ -1,0 +1,683 @@
+{
+  "schema_version": 1,
+  "project": "Project 8 — AI Research GraphRAG Assistant",
+  "research_date_paris": "2026-10-20",
+  "deadline": "2026-10-23",
+  "budget_paid_services": 0,
+  "version_policy": "Pin v1 deliberately for this historical methods prototype, not latest-version coverage. Changing a version requires new hash, metadata, passage and citation checks.",
+  "scope": "Ten selected sources; PDFs downloaded and page text extracted for research, not imported into the application.",
+  "pdfs_bundled": false,
+  "raw_pdf_git_policy": "Keep downloaded PDFs and extracted full text outside Git; track this manifest and evidence pointers.",
+  "papers": [
+    {
+      "paper_id": "arxiv:2004.04906v1",
+      "work_id": "arxiv:2004.04906",
+      "short_name": "DPR",
+      "selection_stage": "prototype",
+      "ingestion_priority": 1,
+      "title": "Dense Passage Retrieval for Open-Domain Question Answering",
+      "authors": [
+        "Vladimir Karpukhin",
+        "Barlas Oğuz",
+        "Sewon Min",
+        "Ledell Wu",
+        "Sergey Edunov",
+        "Danqi Chen",
+        "Wen-tau Yih"
+      ],
+      "authors_landing_metadata_raw": [
+        "Karpukhin, Vladimir",
+        "Oğuz, Barlas",
+        "Min, Sewon",
+        "Wu, Ledell",
+        "Edunov, Sergey",
+        "Chen, Danqi",
+        "Yih, Wen-tau"
+      ],
+      "version": "v1",
+      "version_date": "2020-04-10",
+      "year": 2020,
+      "metadata_url": "https://arxiv.org/abs/2004.04906v1",
+      "pdf_url": "https://arxiv.org/pdf/2004.04906v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2004.04906v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2004.04906v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "pypdf extraction includes ligatures, line-break hyphenation and some control characters. A method page was visually checked; full-document quality is not certified."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:25.947102+00:00",
+        "sha256": "2b03fbde33c88fcf82091e6325806bd2656ca777032471e182c602c76ccdab01",
+        "size_bytes": 364271,
+        "page_count": 10,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 10,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2004.04906v1.pdf",
+      "selection_rationale": "Dense-retrieval foundation; inspect dual encoders and distinguish retrieval from generation.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2005.11401v1",
+      "work_id": "arxiv:2005.11401",
+      "short_name": "RAG",
+      "selection_stage": "prototype",
+      "ingestion_priority": 2,
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "authors": [
+        "Patrick Lewis",
+        "Ethan Perez",
+        "Aleksandra Piktus",
+        "Fabio Petroni",
+        "Vladimir Karpukhin",
+        "Naman Goyal",
+        "Heinrich Küttler",
+        "Mike Lewis",
+        "Wen-tau Yih",
+        "Tim Rocktäschel",
+        "Sebastian Riedel",
+        "Douwe Kiela"
+      ],
+      "authors_landing_metadata_raw": [
+        "Lewis, Patrick",
+        "Perez, Ethan",
+        "Piktus, Aleksandara",
+        "Petroni, Fabio",
+        "Karpukhin, Vladimir",
+        "Goyal, Naman",
+        "Küttler, Heinrich",
+        "Lewis, Mike",
+        "Yih, Wen-tau",
+        "Rocktäschel, Tim",
+        "Riedel, Sebastian",
+        "Kiela, Douwe"
+      ],
+      "version": "v1",
+      "version_date": "2020-05-22",
+      "year": 2020,
+      "metadata_url": "https://arxiv.org/abs/2005.11401v1",
+      "pdf_url": "https://arxiv.org/pdf/2005.11401v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2005.11401v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2005.11401v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "The v1 landing-page metadata spells one author Aleksandara Piktus; the PDF title page says Aleksandra Piktus. Canonical authors below follow the PDF; raw landing metadata is retained."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:26.002578+00:00",
+        "sha256": "25b55fd0f7c6c91cbe2c88690a33923077103e8f563d154faa1ce11d3527e601",
+        "size_bytes": 837243,
+        "page_count": 18,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 18,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2005.11401v1.pdf",
+      "selection_rationale": "Explicitly uses DPR; links retrieval to generation and supplies a verified prototype citation edge.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2404.16130v1",
+      "work_id": "arxiv:2404.16130",
+      "short_name": "GraphRAG",
+      "selection_stage": "prototype",
+      "ingestion_priority": 3,
+      "title": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
+      "authors": [
+        "Darren Edge",
+        "Ha Trinh",
+        "Newman Cheng",
+        "Joshua Bradley",
+        "Alex Chao",
+        "Apurva Mody",
+        "Steven Truitt",
+        "Jonathan Larson"
+      ],
+      "authors_landing_metadata_raw": [
+        "Edge, Darren",
+        "Trinh, Ha",
+        "Cheng, Newman",
+        "Bradley, Joshua",
+        "Chao, Alex",
+        "Mody, Apurva",
+        "Truitt, Steven",
+        "Larson, Jonathan"
+      ],
+      "version": "v1",
+      "version_date": "2024-04-24",
+      "year": 2024,
+      "metadata_url": "https://arxiv.org/abs/2404.16130v1",
+      "pdf_url": "https://arxiv.org/pdf/2404.16130v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2404.16130v1",
+      "license_id": "CC-BY-4.0",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2404.16130v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "Reuse subject to attribution, license link and change-notice requirements; see the linked license.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "This selected v1 has eight authors. Do not silently mix metadata or passages from later versions."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:26.052720+00:00",
+        "sha256": "33524b3b56910c513affdad8dbf67d14e68edf0572e4debdb09a9f1916463b06",
+        "size_bytes": 6782285,
+        "page_count": 15,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 15,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2404.16130v1.pdf",
+      "selection_rationale": "Graph-oriented anchor; supplies entity/community retrieval contrasts and a verified citation to RAG.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2002.08909v1",
+      "work_id": "arxiv:2002.08909",
+      "short_name": "REALM",
+      "selection_stage": "development",
+      "ingestion_priority": 4,
+      "title": "REALM: Retrieval-Augmented Language Model Pre-Training",
+      "authors": [
+        "Kelvin Guu",
+        "Kenton Lee",
+        "Zora Tung",
+        "Panupong Pasupat",
+        "Ming-Wei Chang"
+      ],
+      "authors_landing_metadata_raw": [
+        "Guu, Kelvin",
+        "Lee, Kenton",
+        "Tung, Zora",
+        "Pasupat, Panupong",
+        "Chang, Ming-Wei"
+      ],
+      "version": "v1",
+      "version_date": "2020-02-10",
+      "year": 2020,
+      "metadata_url": "https://arxiv.org/abs/2002.08909v1",
+      "pdf_url": "https://arxiv.org/pdf/2002.08909v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2002.08909v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2002.08909v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:35.130201+00:00",
+        "sha256": "0ec1a7ab3de5514c6d3baa8af0322816d4ee7cd4c14b9f2c450cbc9da9e6b363",
+        "size_bytes": 419037,
+        "page_count": 12,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 12,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2002.08909v1.pdf",
+      "selection_rationale": "Pretraining contrast; cited by DPR, RAG and FiD in the checked versions.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2007.01282v1",
+      "work_id": "arxiv:2007.01282",
+      "short_name": "FiD",
+      "selection_stage": "development",
+      "ingestion_priority": 5,
+      "title": "Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering",
+      "authors": [
+        "Gautier Izacard",
+        "Edouard Grave"
+      ],
+      "authors_landing_metadata_raw": [
+        "Izacard, Gautier",
+        "Grave, Edouard"
+      ],
+      "version": "v1",
+      "version_date": "2020-07-02",
+      "year": 2020,
+      "metadata_url": "https://arxiv.org/abs/2007.01282v1",
+      "pdf_url": "https://arxiv.org/pdf/2007.01282v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2007.01282v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2007.01282v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:35.106383+00:00",
+        "sha256": "5a28f8564317e773387a497c8d2978279e2ee5bccfec7c53dbfac4b826b33b99",
+        "size_bytes": 323223,
+        "page_count": 6,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 6,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2007.01282v1.pdf",
+      "selection_rationale": "Compact six-page source for comparing evidence combination with RAG.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2004.12832v1",
+      "work_id": "arxiv:2004.12832",
+      "short_name": "ColBERT",
+      "selection_stage": "development",
+      "ingestion_priority": 6,
+      "title": "ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT",
+      "authors": [
+        "Omar Khattab",
+        "Matei Zaharia"
+      ],
+      "authors_landing_metadata_raw": [
+        "Khattab, Omar",
+        "Zaharia, Matei"
+      ],
+      "version": "v1",
+      "version_date": "2020-04-27",
+      "year": 2020,
+      "metadata_url": "https://arxiv.org/abs/2004.12832v1",
+      "pdf_url": "https://arxiv.org/pdf/2004.12832v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2004.12832v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2004.12832v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "pypdf produced visible font/ligature artifacts such as /f_ and /t_ in prose and author text. Hold ingestion until extraction quality is reviewed or a different parser is checked."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:35.171714+00:00",
+        "sha256": "0f97faf9743e12d2f0108fc65a2639bc9447c09f1a185942ecd525f6de317a95",
+        "size_bytes": 2385219,
+        "page_count": 10,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 10,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2004.12832v1.pdf",
+      "selection_rationale": "Late-interaction retrieval contrast; selected for concept coverage, not to force citation connectivity.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2310.11511v1",
+      "work_id": "arxiv:2310.11511",
+      "short_name": "Self-RAG",
+      "selection_stage": "development",
+      "ingestion_priority": 7,
+      "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+      "authors": [
+        "Akari Asai",
+        "Zeqiu Wu",
+        "Yizhong Wang",
+        "Avirup Sil",
+        "Hannaneh Hajishirzi"
+      ],
+      "authors_landing_metadata_raw": [
+        "Asai, Akari",
+        "Wu, Zeqiu",
+        "Wang, Yizhong",
+        "Sil, Avirup",
+        "Hajishirzi, Hannaneh"
+      ],
+      "version": "v1",
+      "version_date": "2023-10-17",
+      "year": 2023,
+      "metadata_url": "https://arxiv.org/abs/2310.11511v1",
+      "pdf_url": "https://arxiv.org/pdf/2310.11511v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2310.11511v1",
+      "license_id": "CC-BY-4.0",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2310.11511v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "Reuse subject to attribution, license link and change-notice requirements; see the linked license.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:44.193197+00:00",
+        "sha256": "d9eaa1398abac0df67a9d0933a5bf8b6d9d83d2e72da2a486073cd842dd52978",
+        "size_bytes": 1405127,
+        "page_count": 30,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 30,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2310.11511v1.pdf",
+      "selection_rationale": "Adaptive retrieval and evidence criticism; useful for later reliability questions.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2405.14831v1",
+      "work_id": "arxiv:2405.14831",
+      "short_name": "HippoRAG",
+      "selection_stage": "development",
+      "ingestion_priority": 8,
+      "title": "HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models",
+      "authors": [
+        "Bernal Jiménez Gutiérrez",
+        "Yiheng Shu",
+        "Yu Gu",
+        "Michihiro Yasunaga",
+        "Yu Su"
+      ],
+      "authors_landing_metadata_raw": [
+        "Gutiérrez, Bernal Jiménez",
+        "Shu, Yiheng",
+        "Gu, Yu",
+        "Yasunaga, Michihiro",
+        "Su, Yu"
+      ],
+      "version": "v1",
+      "version_date": "2024-05-23",
+      "year": 2024,
+      "metadata_url": "https://arxiv.org/abs/2405.14831v1",
+      "pdf_url": "https://arxiv.org/pdf/2405.14831v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2405.14831v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2405.14831v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:44.157251+00:00",
+        "sha256": "43413f14b75989b41574a783c3d854643db768c6842eb4ae71daa5d8baeb8b32",
+        "size_bytes": 3374153,
+        "page_count": 28,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 28,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2405.14831v1.pdf",
+      "selection_rationale": "Knowledge-graph retrieval and Personalized PageRank; useful algorithm comparison with GraphRAG.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2402.07630v1",
+      "work_id": "arxiv:2402.07630",
+      "short_name": "G-Retriever",
+      "selection_stage": "development",
+      "ingestion_priority": 9,
+      "title": "G-Retriever: Retrieval-Augmented Generation for Textual Graph Understanding and Question Answering",
+      "authors": [
+        "Xiaoxin He",
+        "Yijun Tian",
+        "Yifei Sun",
+        "Nitesh V. Chawla",
+        "Thomas Laurent",
+        "Yann LeCun",
+        "Xavier Bresson",
+        "Bryan Hooi"
+      ],
+      "authors_landing_metadata_raw": [
+        "He, Xiaoxin",
+        "Tian, Yijun",
+        "Sun, Yifei",
+        "Chawla, Nitesh V.",
+        "Laurent, Thomas",
+        "LeCun, Yann",
+        "Bresson, Xavier",
+        "Hooi, Bryan"
+      ],
+      "version": "v1",
+      "version_date": "2024-02-12",
+      "year": 2024,
+      "metadata_url": "https://arxiv.org/abs/2402.07630v1",
+      "pdf_url": "https://arxiv.org/pdf/2402.07630v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2402.07630v1",
+      "license_id": "arXiv-nonexclusive-distrib-1.0",
+      "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2402.07630v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "The displayed license grants distribution rights to arXiv. General third-party redistribution permission is not established by this label.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "pypdf extraction includes control characters and figure/equation noise. Review prose boundaries before ingestion."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:44.283438+00:00",
+        "sha256": "35ad0997661d6f55752a74ac53844c99a83c2cf04f657883a94227ed4065c182",
+        "size_bytes": 4763676,
+        "page_count": 20,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 20,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2402.07630v1.pdf",
+      "selection_rationale": "Retrieval over textual graphs; contrasts an existing graph input with document-derived graphs.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    },
+    {
+      "paper_id": "arxiv:2410.05779v1",
+      "work_id": "arxiv:2410.05779",
+      "short_name": "LightRAG",
+      "selection_stage": "development",
+      "ingestion_priority": 10,
+      "title": "LightRAG: Simple and Fast Retrieval-Augmented Generation",
+      "authors": [
+        "Zirui Guo",
+        "Lianghao Xia",
+        "Yanhua Yu",
+        "Tu Ao",
+        "Chao Huang"
+      ],
+      "authors_landing_metadata_raw": [
+        "Guo, Zirui",
+        "Xia, Lianghao",
+        "Yu, Yanhua",
+        "Ao, Tu",
+        "Huang, Chao"
+      ],
+      "version": "v1",
+      "version_date": "2024-10-08",
+      "year": 2024,
+      "metadata_url": "https://arxiv.org/abs/2410.05779v1",
+      "pdf_url": "https://arxiv.org/pdf/2410.05779v1",
+      "resolved_pdf_url": "https://arxiv.org/pdf/2410.05779v1",
+      "license_id": "CC-BY-NC-SA-4.0",
+      "license_url": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "license_evidence_url": "https://arxiv.org/abs/2410.05779v1",
+      "license_status": "verified_displayed_label_on_version_landing_page",
+      "reuse_note": "Attribution, noncommercial use and share-alike conditions apply. Check the linked terms for redistribution or adaptation.",
+      "verification_status": "metadata_and_version_confirmed_pdf_downloaded_basic_text_extracted",
+      "metadata_notes": [
+        "pypdf extraction includes some control characters and table/figure noise."
+      ],
+      "pdf_access": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "magic_bytes_checked": true,
+        "downloaded_at_utc": "2026-10-19T22:49:53.233209+00:00",
+        "sha256": "430857127120ba1a0923afe56258c8fc87fd4ec503f9f8e284c5d1007ccf7001",
+        "size_bytes": 1123691,
+        "page_count": 16,
+        "version_marker_found_in_pdf_text": true
+      },
+      "text_extraction": {
+        "performed": true,
+        "parser": "pypdf",
+        "parser_version": "6.10.0",
+        "method": "PdfReader(path).pages[i].extract_text()",
+        "pages_with_nonempty_text": 16,
+        "quality_status": "partial_spot_check_only",
+        "student_review_status": "pending"
+      },
+      "application_ingested": false,
+      "pdf_included_in_handoff": false,
+      "suggested_download_path": "data/raw/2410.05779v1.pdf",
+      "selection_rationale": "Graph-assisted retrieval contrast; directly references GraphRAG.",
+      "unverified_items": [
+        "full-document extraction quality",
+        "student semantic evidence review",
+        "complete in-corpus citation/non-citation audit",
+        "third-party embedded material reuse permissions"
+      ]
+    }
+  ]
+}
