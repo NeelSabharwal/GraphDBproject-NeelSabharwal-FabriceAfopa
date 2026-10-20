@@ -107,6 +107,26 @@ def test_invalid_quote_never_writes_claims(graph_fixture):
     assert graph.counts(ids)["nodes"] == {"Paper": 2}
 
 
+@pytest.mark.parametrize("reference", ["missing", "foreign_existing", "different_paper"])
+def test_invalid_entity_source_rejects_entire_batch_before_writes(graph_fixture, reference):
+    driver, graph, ids = graph_fixture
+    chunks, entities, claims = fixture_records(ids)
+    invalid = {**entities[0], "id": ids[0] + "-invalid", "chunk_id": ids[0] + "-absent"}
+    if reference == "foreign_existing":
+        invalid["chunk_id"] = ids[1] + "-foreign-chunk"
+        driver.execute_query("CREATE (:Chunk {id:$id, paper_id:$paper})",
+                             id=invalid["chunk_id"], paper=ids[1])
+    elif reference == "different_paper":
+        invalid.update(chunk_id=chunks[0]["id"], paper_id=ids[1])
+    before = graph.fingerprint(ids)
+    with pytest.raises(ValueError, match="Entity source chunk|different source paper"):
+        graph.import_paper(ids[0], chunks, [*entities, invalid], claims, "FIXTURE")
+    assert graph.fingerprint(ids) == before
+    records, _, _ = driver.execute_query(
+        "MATCH (n) WHERE n.paper_id=$id RETURN labels(n) AS labels", id=ids[0])
+    assert records == []  # No chunks, valid entities, invalid entities or claims leaked through.
+
+
 def test_lookup_indexes_present(graph_fixture):
     driver, _, _ = graph_fixture
     rows, _, _ = driver.execute_query("SHOW INDEXES YIELD name RETURN name")

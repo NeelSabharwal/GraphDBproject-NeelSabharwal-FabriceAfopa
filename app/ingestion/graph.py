@@ -57,6 +57,10 @@ def validate_claims(chunks: list[dict], entities: list[dict], claims: list[dict]
     """Validate provenance again at the graph write boundary, including cached data."""
     by_id = {chunk["id"]: chunk for chunk in chunks}
     entity_ids = {entity["id"] for entity in entities}
+    for entity in entities:
+        chunk = by_id.get(entity.get("chunk_id"))
+        if chunk is None or entity["paper_id"] != chunk["paper_id"]:
+            raise ValueError("Entity source chunk must exist in the batch and belong to the same paper")
     for claim in claims:
         chunk = by_id.get(claim["chunk_id"])
         if chunk is None or claim["paper_id"] != chunk["paper_id"] or claim["subject_id"] != chunk["paper_id"]:

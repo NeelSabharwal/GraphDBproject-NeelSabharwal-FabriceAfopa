@@ -10,7 +10,7 @@ from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
 from app.ingestion.citations import verify_citation
 from app.ingestion.documents import (
-    digest, download_pdf, make_chunks, normalize, parse_pdf, prototype_manifest, verify_pdf,
+    digest, download_pdf, make_chunks, normalize, parse_pdf, prototype_manifest, save_pdf, verify_pdf,
 )
 from app.ingestion.extraction import extract_sample, ollama_schema, validate_extraction
 from app.ingestion.graph import validate_claims
@@ -136,6 +136,39 @@ def test_manifest_rejects_unapproved_prototype(tmp_path):
         prototype_manifest(tmp_path)
 
 
+@pytest.mark.parametrize("failure", ["interrupted_write", "publish", "short_write"])
+def test_atomic_save_failure_preserves_valid_pdf_and_cleans_temporary(paper_pdf, monkeypatch, failure):
+    import app.ingestion.documents as documents
+    path, paper = paper_pdf
+    previous = path.read_bytes()
+
+    def fail(*_args):
+        raise OSError("simulated interrupted save")
+
+    if failure == "interrupted_write":
+        monkeypatch.setattr(documents.os, "fsync", fail)
+    elif failure == "publish":
+        monkeypatch.setattr(documents.os, "replace", fail)
+    else:
+        monkeypatch.setattr(documents.os, "fsync", lambda fd: documents.os.ftruncate(fd, 10))
+    with pytest.raises((OSError, ValueError)):
+        save_pdf(path, previous, paper)
+    assert path.read_bytes() == previous
+    assert list(path.parent.glob(f".{path.name}.*.tmp")) == []
+
+
+def test_download_atomically_publishes_complete_pdf(tmp_path, paper_pdf):
+    original, paper = paper_pdf
+    data = original.read_bytes()
+    paper.update(pdf_url="https://example.invalid/fixture", suggested_download_path="data/raw/download.pdf")
+    with httpx.Client(transport=httpx.MockTransport(
+        lambda request: httpx.Response(200, content=data, headers={"content-type": "application/pdf"})
+    )) as client:
+        path = download_pdf(tmp_path, paper, client)
+    assert path.read_bytes() == data
+    assert list(path.parent.iterdir()) == [path]
+
+
 @pytest.fixture
 def extraction_case():
     chunk = {"id": "chunk", "paper_id": "paper", "text": "Our paper uses Widget for question answering."}
@@ -157,6 +190,20 @@ def test_valid_extraction_stays_unreviewed(extraction_case):
     claims[0]["status"] = "SOURCE_VERIFIED"
     with pytest.raises(ValueError, match="remain EXTRACTED"):
         validate_claims([chunk], entities, claims)
+
+
+@pytest.mark.parametrize("mutation", ["missing_chunk", "missing_chunk_id", "different_paper"])
+def test_entity_requires_same_paper_source_chunk_even_without_claims(extraction_case, mutation):
+    chunk, output, model = extraction_case
+    entities, _ = validate_extraction(json.dumps(output), chunk, model)
+    if mutation == "missing_chunk":
+        entities[0]["chunk_id"] = "absent"
+    elif mutation == "missing_chunk_id":
+        del entities[0]["chunk_id"]
+    else:
+        entities[0]["paper_id"] = "another-paper"
+    with pytest.raises(ValueError, match="Entity source chunk"):
+        validate_claims([chunk], entities, [])
 
 
 @pytest.mark.parametrize("mutation", ["not_json", "list", "status", "quote", "entity", "range", "unknown", "too_many"])

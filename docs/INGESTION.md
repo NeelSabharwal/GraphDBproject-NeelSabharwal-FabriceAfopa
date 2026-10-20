@@ -53,6 +53,22 @@ and unavailable sampling anchors are optional failures; they do not discard core
 imports. Model digest mismatches prevent inference. Saved failures are never relabeled
 as successful calls. Inspect `report.json` as well as the exit status.
 
+PR #2 correction: required in-corpus citations are preflighted before any graph
+writes, including schema creation and paper metadata registration. If any fails,
+the entire run aborts: affected papers are FAILED, other papers are NOT_STARTED,
+the overall/core status is FAILED, and both default and strict CLI modes exit 1.
+Audit details include the source paper, evidence ID and exact validation error.
+Already stored graph data remains unchanged, including on failed re-import. No LLM
+requests are made after a failed citation preflight. Valid citations and optional
+extraction failures retain the exit contract above.
+
+Entity validation also checks every entity, including those without claims: its
+chunk must exist in the import batch and belong to the same paper. A matching chunk
+elsewhere in Neo4j is insufficient. Invalid batches are rejected before writes.
+PDF saving now uses a same-directory temporary file, flush/fsync and complete-file
+verification before atomic replacement; failed saves clean up the temporary file
+and leave an existing valid destination unchanged.
+
 ## Pinned input and parsing
 
 | Paper | Version | SHA-256 | Pages | Chunks |
@@ -376,3 +392,18 @@ and the recorded evidence, then explicitly approve or reject each with a named
 review note. Review the RAG candidate spans and retained DPR/GraphRAG failures as
 well. No actual approval should be inferred from this report. Keep agent, GDS and ML
 work out of this correction milestone.
+
+## PR #2 review verification — prompt #5.3
+
+`make test`: **127 passed, 0 failed, 1 existing Starlette/AnyIO deprecation warning
+in 20.28 s**. Application coverage **93% (466 statements, 33 missed)**; XML generated
+at ignored `data/processed/coverage.xml`. All 113 existing tests still pass, alongside
+14 new regression cases. No live model inference or real-corpus re-import was needed.
+
+New tests cover missing/foreign entity source chunks and no partial writes; real
+PDF parsing plus invalid citation page hashes; default/strict core-failure exit 1;
+no database access before failed preflight; unchanged real Neo4j fingerprints for
+fresh failures and failed re-imports; valid citation imports despite an optional model
+HTTP 503; and PDF save failures during fsync, atomic replacement and truncated-file
+verification. Temporary Neo4j fixtures use UUID-scoped IDs and are cleaned up.
+Successful PDF downloading/publication is also tested with an original generated PDF.

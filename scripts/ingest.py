@@ -79,17 +79,38 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                 save_json(artifact / f"{paper['short_name']}-pages.json", pages)
                 save_json(artifact / f"{paper['short_name']}-chunks.json", chunks)
                 report["papers"].append({"id": paper["paper_id"], "sha256": digest(path.read_bytes()),
-                                         "pages": len(pages), "chunks": len(chunks), "parse_problems": problems})
+                                         "pages": len(pages), "chunks": len(chunks), "parse_problems": problems,
+                                         "import_status": "NOT_STARTED"})
                 print(f"Verified {paper['short_name']}: {len(pages)} pages, {len(chunks)} chunks", flush=True)
         if download_only:
             report["import_status"] = "NOT_REQUESTED"
             return report
-        settings = Settings.from_environment()
         with (root / "corpus/citation_evidence.csv").open(newline="") as handle:
             citations = list(csv.DictReader(handle))
         report["manifest_sha256"] = digest((root / "corpus/corpus_manifest.json").read_bytes())
         report["citation_evidence_sha256"] = digest((root / "corpus/citation_evidence.csv").read_bytes())
         by_work = {paper["work_id"]: paper for paper in papers}
+        # Required citation provenance is checked before schema, metadata or paper writes.
+        citation_claims = {}
+        for paper in papers:
+            pages, chunks, _ = parsed[paper["paper_id"]]
+            citation_claims[paper["paper_id"]] = []
+            for row in citations:
+                if row["source_paper_id"] != paper["paper_id"] or row["target_work_id"] not in by_work:
+                    continue
+                try:
+                    claim = verify_citation(row, paper, by_work[row["target_work_id"]], pages, chunks)
+                    claim["location_verified_at"] = report["started_at"]
+                    claim["run_id"] = run_id
+                    citation_claims[paper["paper_id"]].append(claim)
+                except ValueError as error:
+                    report["failures"].append({"paper_id": paper["paper_id"], "stage": "citation_validation",
+                                               "evidence_id": row["evidence_id"], "detail": str(error)})
+                    next(p for p in report["papers"] if p["id"] == paper["paper_id"])["import_status"] = "FAILED"
+        if report["failures"]:
+            report["import_status"] = "FAILED"
+            return report
+        settings = Settings.from_environment()
         with GraphDatabase.driver(
             settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password.get_secret_value()),
             connection_timeout=5, max_transaction_retry_time=0,
@@ -117,17 +138,7 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                     model = None
             for paper in papers:
                 pages, chunks, problems = parsed[paper["paper_id"]]
-                entities, claims = [], []
-                for row in citations:
-                    if row["source_paper_id"] != paper["paper_id"] or row["target_work_id"] not in by_work:
-                        continue
-                    try:
-                        claim = verify_citation(row, paper, by_work[row["target_work_id"]], pages, chunks)
-                        claim["location_verified_at"] = report["started_at"]
-                        claim["run_id"] = run_id
-                        claims.append(claim)
-                    except ValueError as error:
-                        report["failures"].append({"evidence_id": row["evidence_id"], "detail": str(error)})
+                entities, claims = [], list(citation_claims[paper["paper_id"]])
                 try:
                     samples = select_samples(paper, chunks, sample_per_paper) if model else []
                 except ValueError as error:

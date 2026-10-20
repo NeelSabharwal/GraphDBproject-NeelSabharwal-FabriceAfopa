@@ -2,7 +2,9 @@
 
 import hashlib
 import json
+import os
 import re
+import tempfile
 import unicodedata
 import warnings
 from pathlib import Path
@@ -71,10 +73,26 @@ def download_pdf(root: Path, paper: dict, client: httpx.Client) -> Path:
             parts.append(block)
     data = b"".join(parts)
     verify_pdf(data, paper)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("xb") as output:
-        output.write(data)
+    save_pdf(path, data, paper)
     return path
+
+
+def save_pdf(path: Path, data: bytes, paper: dict) -> None:
+    """Publish a complete verified file atomically; failures preserve the destination."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp",
+                                         delete=False) as output:
+            temporary = Path(output.name)
+            output.write(data)
+            output.flush()
+            os.fsync(output.fileno())
+        verify_pdf(temporary.read_bytes(), paper)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def normalize(raw: str) -> tuple[str, list[int], list[int]]:

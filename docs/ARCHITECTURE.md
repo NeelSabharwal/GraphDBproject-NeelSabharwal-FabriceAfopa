@@ -29,6 +29,12 @@ copied target names. Exact quotes, typed predicates and pending semantic review 
 mandatory. Import and optional extraction outcomes are separate in CLI reports; see
 D15 and INGESTION.md for the exit contract and actual results.
 
+PR #2 corrections (D16): validate every entity's source chunk and paper before graph
+writes. Required in-corpus citations are preflighted for the whole run before schema
+or metadata registration; any failure aborts the run without graph changes. PDF
+downloads are published from a flushed, checksum-verified temporary file in the same
+directory using atomic replacement, with temporary-file cleanup on exceptions.
+
 Entity IDs initially include the source paper, kind and normalized surface name.
 Cross-paper scientific alias merging needs later review; no topic-similarity citation
 inference occurs. Normalized chunks are stored in Neo4j; full raw pages and character

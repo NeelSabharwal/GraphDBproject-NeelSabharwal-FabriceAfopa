@@ -2,6 +2,25 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D16 — PR #2 ingestion integrity corrections, 2026-10-20
+
+- **Authority:** prompt #5.3 requests entity/chunk integrity, required citation failure
+  handling and atomic PDF publication; no corpus expansion or new features.
+- **Decision:** validate entity references before opening the paper write transaction.
+  Preflight all required in-corpus citations before any graph writes. On failure,
+  mark the affected paper FAILED and other papers NOT_STARTED; retain evidence ID,
+  paper ID and failure reason, report a core failure and exit 1.
+- **Alternative/tradeoff:** skipping only an affected paper could leave unresolved
+  cross-paper targets or newly registered metadata for a failed source. A whole-run
+  preflight is simpler and prevents those partial writes, at the cost of deferring
+  otherwise valid imports until the citation input is corrected. Existing graph
+  evidence is untouched. Optional LLM failures keep their existing partial-success contract.
+- **Files:** use a temporary file in the destination directory, flush/fsync, verify
+  its complete bytes/hash, then atomically replace the destination. Exceptions remove
+  temporary files and preserve an existing valid PDF; verified downloads are still reused.
+- **Status:** implemented and tested; no additional student decision is required for
+  these explicitly requested fixes. See INGESTION.md for actual verification results.
+
 ## D13 — Local infrastructure authorization, 2026-10-19
 
 - **Decision and authority:** the user explicitly authorized local downloads, builds, container startup and smoke tests for this milestone. Deadline is **Friday, October 23, 2026** (Europe/Paris); team size is **two students**, with the user as team lead. Budget is **strictly zero** paid APIs, cloud services or subscriptions. Hosted paid fallback is excluded. Do not commit, push, publish images or ingest papers during this task.
