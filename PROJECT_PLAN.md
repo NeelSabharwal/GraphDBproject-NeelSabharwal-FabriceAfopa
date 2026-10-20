@@ -8,7 +8,18 @@ The user authorized a narrow foundation milestone ahead of the original M01 depe
 
 **Actual foundation evidence:** [INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md) records three healthy containers, exact versions, four passing real CPU model checks, and a full **12 passed** health/connectivity suite with **100% coverage of 72 current statements**. This verifies only the implemented foundation. M02 remains partial because CI/lint and later schema/vector readiness are outside this task. The original checklist mapping/statuses below are retained as the planning baseline; consult the dated evidence rather than treating all points as earned. Host Make installation/PATH setup and GDS binary redistribution clarification remain documented limitations.
 
-## Observed starting point
+### Ingestion scope update — 2026-10-20
+
+Prompt #5 authorizes the prototype part of M01/M03 on `feat/document-ingestion`.
+The three supplied manifest versions, provenance graph, bounded extraction,
+bibliography verification, repeatable local CLI and tests are now implemented.
+The team lead separately approved automated bibliography verification (D14).
+[INGESTION.md](docs/INGESTION.md) records actual results, failures and limitations.
+The import HTTP endpoint/authentication, development-corpus expansion, alias review
+and later retrieval/agent work remain incomplete. The exact rubric mapping below
+is preserved; this milestone does not by itself complete M03 or the grading checklist.
+
+## Observed starting point (historical planning baseline)
 
 Repository inspection on 2026-10-19 found `main` tracking `origin/main`, a tracked one-line README, an existing untracked `.gitignore`, four empty planning placeholders, both professor documents, and the requested empty application/data/script/test folders. `.git/`, `.agents/`, `.aws/` and `.codex/` were also present. No application, Docker setup, tests, CI workflows or implementation evidence was found. Git status already included untracked planning and requirements files before this task. Remote reviews, branch activity and contributions have not been audited.
 

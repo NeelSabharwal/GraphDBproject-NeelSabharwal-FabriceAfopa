@@ -1,6 +1,25 @@
 # Proposed decision register
 
-The D01–D12 entries preserve the original **PROPOSED** design. The dated infrastructure authorization below supersedes conflicting budget, scheduling and runtime assumptions only. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
+The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
+
+## D16 — PR #2 ingestion integrity corrections, 2026-10-20
+
+- **Authority:** prompt #5.3 requests entity/chunk integrity, required citation failure
+  handling and atomic PDF publication; no corpus expansion or new features.
+- **Decision:** validate entity references before opening the paper write transaction.
+  Preflight all required in-corpus citations before any graph writes. On failure,
+  mark the affected paper FAILED and other papers NOT_STARTED; retain evidence ID,
+  paper ID and failure reason, report a core failure and exit 1.
+- **Alternative/tradeoff:** skipping only an affected paper could leave unresolved
+  cross-paper targets or newly registered metadata for a failed source. A whole-run
+  preflight is simpler and prevents those partial writes, at the cost of deferring
+  otherwise valid imports until the citation input is corrected. Existing graph
+  evidence is untouched. Optional LLM failures keep their existing partial-success contract.
+- **Files:** use a temporary file in the destination directory, flush/fsync, verify
+  its complete bytes/hash, then atomically replace the destination. Exceptions remove
+  temporary files and preserve an existing valid PDF; verified downloads are still reused.
+- **Status:** implemented and tested; no additional student decision is required for
+  these explicitly requested fixes. See INGESTION.md for actual verification results.
 
 ## D13 — Local infrastructure authorization, 2026-10-19
 
@@ -23,7 +42,82 @@ Observed kernel memory peaks since container creation were Neo4j 2.073 GiB, Olla
 
 GDS source/binary license distinction: the official JAR includes an Enterprise/pre-release `LICENSE.txt`; do not describe the entire binary as GPL solely from the OpenGDS source license. Official edition documentation states Community is the default; `gds.isLicensed()` returned false and the Community procedures executed. No paid feature/key or subscription was used. Preserve notices and clarify binary redistribution terms before any future custom Neo4j image publication; this task published nothing.
 
-## D01 — Corpus selection and size
+## D15 — Bounded ingestion corrections, 2026-10-20
+
+- **Authority:** prompt #5.1 supersedes D14's automatic SOURCE_VERIFIED exception.
+  The deadline, zero-cost restriction, corpus, branch and infrastructure are unchanged.
+- **Decision:** source location and semantic review are separate. Bibliography checks
+  yield EXTRACTED claims with SOURCE_LOCATED, location policy and time. SOURCE_VERIFIED
+  requires a named student's explicit approval, note and timestamp under
+  `student-semantic-review-v1`. The local review method records an attestation; it
+  cannot authenticate the operator's identity and is never invoked by the extractor.
+- **Existing evidence:** migrate only legacy automatically approved bibliography
+  claims back to pending review, retaining prior properties in append-only JSON review
+  history. Keep claim IDs, quotations, pages and support relationships. Remove derived
+  CITES until human approval; status alone cannot recreate an edge.
+- **Extraction:** the saved DPR output paired Method with ADDRESSES and its quote did
+  not include the named entity; GraphRAG silently changed `in- dexed` to `indexed`.
+  Both failures remain rejected. Do not guess dehyphenation or repair predicates.
+  Select bounded explicit-use prose from the unchanged PDFs. For method samples,
+  embed one Method entity inside its USES relation, eliminating duplicated names;
+  retain strict quote membership, offsets, type checks and EXTRACTED status.
+- **Alternatives/drawbacks:** fuzzy matching or automatic predicate rewriting would
+  obscure evidence errors. Manual semantic review remains necessary; curated method
+  passages are development smoke samples, not unbiased extraction evaluation.
+- **Exit contract:** default exit 0 means core import succeeded, even if optional
+  extraction failed (PARTIAL_SUCCESS). Core failures exit 1. `--require-extraction`
+  requests exit 2 for optional extraction failure. Reports keep per-paper import,
+  overall, extraction and failure details; failed caches are retained.
+- **Status:** implemented; actual tests, timings and graph counts are recorded in
+  INGESTION.md. No real student approvals are asserted or applied in this task.
+- **Next approval:** students must inspect citation context/identity and semantic
+  claims before explicitly approving any SOURCE_VERIFIED transitions.
+
+## D14 — Three-paper evidence ingestion authorization, 2026-10-20 (historical; policy superseded by D15)
+
+- **Authority/scope:** prompt #5 explicitly authorizes ingestion on `feat/document-ingestion`
+  of DPR `2004.04906v1`, RAG `2005.11401v1`, and GraphRAG `2404.16130v1`
+  from the supplied manifest. Existing corpus research files and professor documents
+  are immutable inputs. Deadline and zero-cost restriction remain unchanged.
+- **Decision:** pin pypdf 6.10.0 to reproduce the research page hashes; normalize
+  per-character NFKC and whitespace with reversible character-span mappings. Use
+  page-bounded 1400-character windows with approximately 200-character overlap and
+  whitespace boundaries. These are character limits, not claimed token counts.
+  Preserve raw pages, mappings, parser warnings and all extraction attempts locally.
+- **Graph:** implement Paper, Chunk, Entity, optional Topic and Claim, four uniqueness
+  constraints and lookup indexes. Only independently validated citation claims supply
+  derived CITES. Scientific entity candidates remain paper-scoped until reviewed
+  aliases justify cross-paper resolution.
+- **Citation policy approval:** the team lead explicitly answered **“Allow automated
+  bibliography verification”** during this task. This supersedes the student-only
+  SOURCE_VERIFIED rule **for bibliography identity only**. Policy
+  `automated-bibliography-v1` checks pinned PDF/page hashes, title coordinates,
+  normalized target title, reference-section/entry context, first author, and work
+  identity (explicit arXiv ID when present). Record automated reviewer/policy/time,
+  while `student_review_status=pending`. It does not claim a human reviewed the
+  source or that the citing author read the selected target v1.
+- **Extraction:** one first-page sample per paper by default; maximum two; strict
+  structured output, exact entity/quote matching, fixed predicates/ranges, digest-pinned
+  local Qwen, one request at a time. Automatic scientific claims stay EXTRACTED.
+  Failures are saved and reported, not silently retried or promoted.
+- **Re-import:** deterministic identities, UNWIND batches and one transaction per
+  paper. Reuse raw extraction cache and revalidate successful output. Preserve
+  existing claim review status; rebuild only the source paper's derived citations.
+  A PDF/parser/chunker change for an existing version requires an explicit migration.
+- **Alternatives:** larger token/paragraph chunks; layout-aware/OCR parsing; globally
+  merging names; a web import endpoint. These add unresolved parsing/resolution or
+  authentication scope. A local CLI is the smallest authorized entry point here.
+- **Drawbacks:** text order and semantics still need student inspection; conservative
+  entity resolution limits cross-paper concept joins; a tiny extraction sample does
+  not measure corpus-wide precision/recall. Automated bibliography checks are narrower
+  than semantic human review.
+- **Status:** IMPLEMENTED; actual execution evidence and limitations are recorded in
+  [INGESTION.md](INGESTION.md). No agent, vector ingestion, analytics or ML is authorized
+  by this milestone.
+- **Remaining student decisions:** review semantic claims and PDF quality; approve
+  aliases before global concept merging; scope the first retrieval/agent slice.
+
+## D01 — Corpus selection and size (original proposal)
 
 - **Decision:** use an AI retrieval/GraphRAG paper corpus, growing from 3 prototype papers to approximately 10 development papers and 20–30 evaluated papers if practical. The three candidates and sources are in [PROJECT_BRIEF.md](../PROJECT_BRIEF.md).
 - **Alternatives considered:** a broad AI corpus; technical documentation; arbitrary web documents; immediately ingesting hundreds of papers.
