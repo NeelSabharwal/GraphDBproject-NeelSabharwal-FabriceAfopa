@@ -14,6 +14,28 @@ For each evidence entry, located its exact short excerpt on its declared PDF pag
 
 **Reproducibility warning:** The dataset specifies `pypdf 6.10.0` for character offsets and page/context text hashes; this review environment has `pypdf 5.9.0`. Using 5.9.0, **8/20 evidence records reproduce both the page/context hashes and recorded excerpt offsets; 12/20 do not** (D01–D05, R01–R05, R07–R08), although their excerpts can be found on the correct pages. This is an **extraction-version mismatch, not proof of incorrect citations**. Recheck with the recorded parser version before enabling offset-based automated grading. **Do not silently shift offsets, overwrite hashes, or modify source IDs.**
 
+### Reproducing the evidence verification
+
+A read-only verification script is available at `scripts/verify_evaluation_evidence.py`.
+
+The script requires `pypdf==6.10.0`, matching the version used to generate the evaluation dataset. It checks the three pinned PDF hashes and page counts, together with the page text hashes, excerpt offsets, exact excerpts and context hashes for all 20 evidence records.
+
+Install the required dependency:
+
+```bash
+python -m pip install pypdf==6.10.0
+```
+
+Run the script with the unchanged `evaluation_gold.json` file and three pinned v1 PDFs available locally.
+
+```bash
+python scripts/verify_evaluation_evidence.py --gold evaluation_gold.json --pdf-dir .
+```
+
+A successful run must report 20/20 evidence records passing. Any mismatch must be investigated rather than silently correcting source identifiers, hashes or offsets.
+
+**Verification status: PENDING.** The script has not yet been executed successfully with `pypdf 6.10.0`. These checks also do not replace independent human review of factual claims or application evaluation.
+
 **Status definitions:** `CONFIRMED` = expected *paper-derived proposition* corroborated by this AI-assisted inspection, **not** human-approved or application-passed; `NEEDS_CORRECTION` = materially incomplete evaluation specification; `PENDING_HUMAN_REVIEW` = proposed behavioral specification requires student approval and execution; `NOT_VERIFIABLE` = requested answer is not supported by the specified corpus. In **all** four states, `student_review.status` remains `PENDING`.
 
 ## 2. Case-by-case review
