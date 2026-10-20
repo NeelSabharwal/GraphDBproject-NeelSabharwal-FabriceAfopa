@@ -64,6 +64,7 @@ A successful run must report 20/20 evidence records passing. Any mismatch must b
 
 - Keep `questions[id=Q15].question`, `evidence_ids = ["D01"]`, the DPR paper ID, its page count (`10`), and the out-of-range requested page (`999`) **unchanged**.
 - Add to `questions[id=Q15].test_fixture` a `candidate_citation_to_validate` object: `{"paper_id":"arxiv:2004.04906v1","pdf_page_1based":999}`. This represents **synthetic, invalid model output** supplied to the citation-validation boundary, **not** a real bibliography item or ground-truth citation.
+- The forged page-999 citation must be supplied only to the output-citation validator in a controlled test. It must not modify the original PDF, evidence registry, or Neo4j data. This test is proposed and has not been executed against the application.
 - Add to `questions[id=Q15].expected_behavior.required`: `Reject an out-of-range model-generated citation during output validation, before presenting the answer, and record the validation failure.`
 - Record separate assertions for **user-request rejection** and **generated-citation rejection**; do not report either as passed until executed. Ensure any replacement citation supports the answer (DPR p. 3) rather than merely having an in-range page number.
 
