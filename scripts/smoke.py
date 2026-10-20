@@ -21,6 +21,96 @@ class StructuredProbe(BaseModel):
     local_only: bool
 
 
+def validate_ollama_output(name: str, data: object) -> dict:
+    """Validate a smoke response explicitly before accessing nested fields."""
+    if not isinstance(data, dict):
+        raise ValueError("Ollama response must be a JSON object")
+
+    if name == "embedding":
+        embeddings = data.get("embeddings")
+        if not isinstance(embeddings, list) or len(embeddings) != 1:
+            raise ValueError("Expected exactly one embedding vector in an embeddings list")
+        vector = embeddings[0]
+        if not isinstance(vector, list) or len(vector) != 768:
+            raise ValueError("Embedding vector must be a list of 768 numbers")
+        if not all(type(value) in (int, float) for value in vector):
+            raise ValueError("Embedding values must be finite numbers, excluding booleans")
+        try:
+            norm = math.hypot(*vector)
+        except (OverflowError, TypeError) as error:
+            raise ValueError("Embedding values must be finite numbers") from error
+        if not all(math.isfinite(value) for value in vector) or not math.isfinite(norm) or norm <= 0:
+            raise ValueError("Embedding values must be finite with a nonzero finite norm")
+        return {"output": {"vectors": 1, "dimensions": len(vector), "l2_norm": round(norm, 6)}}
+
+    message = data.get("message")
+    if not isinstance(message, dict):
+        raise ValueError("Chat response must contain a message object")
+
+    if name in {"text", "structured_json"}:
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError("Chat message content must be a non-empty string")
+        if name == "text":
+            return {"output": content}
+        try:
+            output = StructuredProbe.model_validate_json(content)
+        except ValueError as error:
+            raise ValueError("Structured response must match the project/local_only JSON schema") from error
+        if output.project != "GraphRAG" or output.local_only is not True:
+            raise ValueError("Structured response must contain project=GraphRAG and local_only=true")
+        return {"output": output.model_dump()}
+
+    if name != "tool_call":
+        raise ValueError("Unknown Ollama smoke case")
+    calls = message.get("tool_calls")
+    if not isinstance(calls, list) or len(calls) != 1:
+        raise ValueError("Expected exactly one actual tool call in a tool_calls list")
+    call = calls[0]
+    if not isinstance(call, dict) or not isinstance(call.get("function"), dict):
+        raise ValueError("Tool call must contain a function object")
+    function = call["function"]
+    if function.get("name") != "lookup_paper":
+        raise ValueError("Expected the lookup_paper tool")
+    if not isinstance(function.get("arguments"), dict) or function["arguments"] != {"paper_id": "2005.11401"}:
+        raise ValueError("Tool arguments must be an object containing paper_id=2005.11401")
+    return {
+        "output": calls,
+        "note": "Tool selection/arguments only; no graph lookup or agent implemented.",
+    }
+
+
+def run_ollama_case(client: httpx.Client, name: str, path: str, payload: dict) -> dict:
+    """Turn HTTP or malformed-payload failures into a timed, actionable case result."""
+    started = time.perf_counter()
+    case = {"name": name}
+    try:
+        response = client.post(path, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        case.update(validate_ollama_output(name, data))
+        loaded_response = client.get("/api/ps")
+        loaded_response.raise_for_status()
+        loaded = loaded_response.json()
+        if not isinstance(loaded, dict) or not isinstance(loaded.get("models"), list):
+            raise ValueError("Ollama /api/ps response must contain a models list")
+        case["loaded_models"] = loaded["models"]
+        for key in ["total_duration", "load_duration", "prompt_eval_count", "prompt_eval_duration", "eval_count", "eval_duration"]:
+            if key in data:
+                case[key] = data[key]
+        case["passed"] = True
+    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError, AssertionError) as error:
+        case["passed"] = False
+        case["error"] = type(error).__name__
+        if isinstance(error, (KeyError, IndexError, TypeError, ValueError, AssertionError)):
+            case["detail"] = str(error)
+        if isinstance(error, httpx.HTTPStatusError):
+            case["http_status"] = error.response.status_code
+            case["detail"] = error.response.text[:500]
+    case["wall_seconds"] = round(time.perf_counter() - started, 3)
+    return case
+
+
 def main() -> None:
     """Print one safe JSON report and fail the command if any smoke case fails."""
     config = Settings.from_environment()
@@ -68,49 +158,7 @@ def main() -> None:
             ("embedding", "/api/embed", {"model": config.embed_model, "input": ["search_query: What is graph retrieval?"], "keep_alive": "30s", "options": {"num_gpu": 0, "num_thread": 8}}),
         ]
         for name, path, payload in specs:
-            started = time.perf_counter()
-            case = {"name": name}
-            try:
-                response = client.post(path, json=payload)
-                response.raise_for_status()
-                data = response.json()
-                if name == "text":
-                    content = data["message"]["content"]
-                    assert content.strip(), "Empty text response"
-                    case["output"] = content
-                elif name == "structured_json":
-                    output = StructuredProbe.model_validate_json(data["message"]["content"])
-                    assert output.project == "GraphRAG" and output.local_only is True
-                    case["output"] = output.model_dump()
-                elif name == "tool_call":
-                    calls = data["message"].get("tool_calls", [])
-                    assert len(calls) == 1, "Expected exactly one actual tool call"
-                    function = calls[0]["function"]
-                    assert function["name"] == "lookup_paper"
-                    assert function["arguments"] == {"paper_id": "2005.11401"}
-                    case["output"] = calls
-                    case["note"] = "Tool selection/arguments only; no graph lookup or agent implemented."
-                else:
-                    vector = data["embeddings"][0]
-                    assert len(vector) == 768 and all(math.isfinite(v) for v in vector)
-                    norm = math.sqrt(sum(v*v for v in vector))
-                    assert norm > 0
-                    case["output"] = {"vectors": len(data["embeddings"]), "dimensions": len(vector), "l2_norm": round(norm, 6)}
-                case["passed"] = True
-                case["loaded_models"] = client.get("/api/ps").json()["models"]
-                for key in ["total_duration", "load_duration", "prompt_eval_count", "prompt_eval_duration", "eval_count", "eval_duration"]:
-                    if key in data:
-                        case[key] = data[key]
-            except (httpx.HTTPError, KeyError, ValueError, AssertionError) as error:
-                case["passed"] = False
-                case["error"] = type(error).__name__
-                if isinstance(error, AssertionError):
-                    case["detail"] = str(error)
-                if isinstance(error, httpx.HTTPStatusError):
-                    case["http_status"] = error.response.status_code
-                    case["detail"] = error.response.text[:500]
-            case["wall_seconds"] = round(time.perf_counter() - started, 3)
-            report["cases"].append(case)
+            report["cases"].append(run_ollama_case(client, name, path, payload))
         report["loaded_after_smoke"] = client.get("/api/ps").json()
     print(json.dumps(report, indent=2))
     if not all(case["passed"] for case in report["cases"]):

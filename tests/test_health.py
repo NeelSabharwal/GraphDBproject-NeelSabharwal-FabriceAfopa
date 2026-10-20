@@ -2,6 +2,7 @@
 
 import asyncio
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, Mock
 
 from fastapi.testclient import TestClient
 import httpx
@@ -10,6 +11,7 @@ import pytest
 from starlette.requests import Request
 
 from app.config import Settings
+import app.health as health_probes
 from app.health import HealthResponse, check_neo4j, check_ollama, check_readiness
 from app.main import create_app
 
@@ -48,6 +50,33 @@ def test_readiness_status_contract(settings, checks):
         assert response.status_code == (200 if ready else 503)
         assert response.json()["checks"] == checks
         assert settings.neo4j_password.get_secret_value() not in response.text
+
+
+@pytest.mark.parametrize("unavailable_dependency", ["neo4j_gds", "ollama"])
+def test_readiness_returns_503_when_dependency_connection_fails(settings, monkeypatch, unavailable_dependency):
+    """Exercise the real probe/route failure path without contacting or stopping services."""
+    with TestClient(create_app(settings)) as client:
+        if unavailable_dependency == "neo4j_gds":
+            client.app.state.driver = SimpleNamespace(
+                session=Mock(side_effect=ConnectionError("Neo4j unavailable")),
+            )
+            monkeypatch.setattr(health_probes, "check_ollama", AsyncMock(return_value="ok"))
+        else:
+            client.app.state.http = SimpleNamespace(
+                get=AsyncMock(side_effect=httpx.ConnectError("Ollama unavailable")),
+            )
+            monkeypatch.setattr(health_probes, "check_neo4j", AsyncMock(return_value="ok"))
+
+        response = client.get("/health/ready")
+
+        assert response.status_code == 503
+        assert response.json() == {
+            "status": "not_ready",
+            "checks": {
+                "neo4j_gds": "unavailable" if unavailable_dependency == "neo4j_gds" else "ok",
+                "ollama": "unavailable" if unavailable_dependency == "ollama" else "ok",
+            },
+        }
 
 
 @pytest.mark.parametrize("payload,expected", [
