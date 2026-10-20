@@ -29,3 +29,9 @@ secrets.*
 *.safetensors
 .coverage*
 htmlcov/
+
+# Keep evaluation source annotations trackable; exclude all other local data.
+/data/*
+!/data/evaluation/
+/data/evaluation/*
+!/data/evaluation/evaluation_gold.json

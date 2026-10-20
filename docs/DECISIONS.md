@@ -2,6 +2,34 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D17 — PROVISIONAL Chunk-classification decision, 2026-10-20
+
+- **Authority:** prompt #5.2 explicitly requests a provisional switch from citation
+  prediction to Method-versus-Evaluation classification of existing Chunk nodes.
+  No training, automatic approvals, alias merges or additional ingestion is authorized.
+- **Decision:** adopt that task provisionally, conditional on source-reviewed chunk
+  labels, eight real label-blind graph-neighborhood features and a held-out whole-paper
+  test split. D06's citation-link proposal is historical and superseded for ML planning.
+- **Rationale:** 0 approved CITES edges in the live prototype and 13 research-located
+  references across ten papers do not provide an audited citation label matrix or
+  meet the proposed 50-positive gate. Prose roles are more practical to annotate.
+- **Proposed protocol:** train on v1 DPR/RAG/REALM/FiD/Self-RAG/LightRAG and hold out
+  v1 GraphRAG/HippoRAG. Targets of 96 labels and 8 papers are not achieved statistics.
+  Independently review test labels; freeze split/settings before fitting. Derive
+  counts/overlaps/existence flags solely from within-paper MENTIONS/NEXT neighborhoods.
+  Training-only preprocessing; majority baseline versus one regularized logistic model;
+  macro-F1, per-class and per-paper results. See ARCHITECTURE.md section 7 for gates.
+- **Alternatives:** citation prediction remains possible future work after a complete
+  reference audit; text/section heuristics or LLM class guesses are not this graph ML
+  workflow. GDS analytics remain a separate requirement.
+- **Drawbacks/gates:** sparse and noisy entity extraction may make all features constant;
+  only three papers are currently ingested; no reviewed ML labels exist. Two test papers
+  and purposive balanced sampling limit generalization. Report blocked/incomplete if
+  features, reviews or a proper split cannot be produced; do not train on gold QA labels.
+- **Status:** PROVISIONAL, not implemented or evaluated. Unapproved research candidates
+  remain pending; student identity resolution, labels and semantic approvals are still
+  required. The gold file's assistant SOURCE_VERIFIED status is not graph approval.
+
 ## D16 — PR #2 ingestion integrity corrections, 2026-10-20
 
 - **Authority:** prompt #5.3 requests entity/chunk integrity, required citation failure
@@ -162,7 +190,7 @@ GDS source/binary license distinction: the official JAR includes an Enterprise/p
 - **Status:** PROPOSED.
 - **Questions requiring student approval:** are ranking and grouping useful demo questions? Approve this projection and weight definition? What would justify a projection change if all papers form a near-clique or remain isolated?
 
-## D06 — Graph-based ML
+## D06 — Graph-based ML (historical proposal; superseded provisionally by D17)
 
 - **Decision:** evaluate held-out citation-link reconstruction using logistic regression on training-graph topology and GDS PageRank features. Compare against prevalence and preferential-attachment baselines; treat predictions as hypotheses.
 - **Alternatives considered:** GDS-native link-prediction pipeline; paper/topic node classification; GNN training; calling an unsupervised similarity score “ML.”
