@@ -19,6 +19,50 @@ The import HTTP endpoint/authentication, development-corpus expansion, alias rev
 and later retrieval/agent work remain incomplete. The exact rubric mapping below
 is preserved; this milestone does not by itself complete M03 or the grading checklist.
 
+## Research integration and ML update — prompt #5.2, 2026-10-20
+
+PR #2 and PR #3 are merged in the inspected local history. The eight supplied research
+files are preserved; source-location checks do not grant student approval. See
+[RESEARCH_INTEGRATION.md](docs/RESEARCH_INTEGRATION.md) for actual validation/mappings,
+remaining Q15 fixture work, evaluation isolation and human review instructions.
+
+D17 provisionally replaces citation prediction with Method/Evaluation Chunk-node
+classification. M07/R20 below now reflect source-reviewed labels, real local graph
+features and a held-out whole-paper split. Only three papers are ingested; eight-paper
+and 96-label proposals remain conditional. This task does not train ML or implement
+an agent/GDS. Historical planning claims below remain historical; no grading points
+are awarded for this update.
+
+## Agent scope update — prompt #6
+
+M04's bounded local implementation is authorized on `feat/agent-evidence`: embeddings
+for the existing chunks, four typed retrieval tools, conditional LangGraph orchestration,
+`/api/ask`, guardrails, tests and real local acceptance requests. See D18 and
+[AGENT.md](docs/AGENT.md) for implementation and actual outcomes. The original rubric
+allocations/statuses below remain a planning map, not an award of grading credit.
+Verified graph demonstrations remain conditional on actual student approval; model
+failure and abstention must be recorded. M05/M06 advanced endpoint/GDS work and M07
+ML remain separate milestones. Teammate evaluation-metric files are reserved and untouched.
+
+Prompt #6.1 authorizes only M04 reliability corrections (D19): schema-constrained
+model-selected actions, discovered-ID validation, explicit source reads before FINISH,
+bounded selection recovery and repeat-search prevention. Actual Q01/Q04/Q08/Q14 runs,
+the synthetic Q15 citation-boundary check and regression results are recorded in
+[AGENT.md](docs/AGENT.md). These development cases do not establish held-out accuracy
+or rubric completion; pending human claim reviews remain a separate gate.
+
+Prompt #6.2 (D20) further bounds M04: independent read-only Paper endpoint resolution,
+extractive passage selection, duplicate filtering and early stopping for ordinary
+source questions. Live statement/quote pairs, path arguments, latency and remaining
+manual-review needs are recorded in AGENT.md. No GDS/ML, corpus expansion, review
+approval or grading completion is inferred.
+
+Prompt #6.3 (D21) corrects PR #4 completeness, excludes scientific self-matches and
+bounds paper-local vector ranking. Include the previously omitted main/config,
+Compose, dependency, Makefile and README changes in the eventual student commit.
+Fresh working-tree builds and tests are recorded in AGENT.md; the pushed commit
+must be rebuilt and tested again after publication. No grading status changes.
+
 ## Observed starting point (historical planning baseline)
 
 Repository inspection on 2026-10-19 found `main` tracking `origin/main`, a tracked one-line README, an existing untracked `.gitignore`, four empty planning placeholders, both professor documents, and the requested empty application/data/script/test folders. `.git/`, `.agents/`, `.aws/` and `.codex/` were also present. No application, Docker setup, tests, CI workflows or implementation evidence was found. Git status already included untracked planning and requirements files before this task. Remote reviews, branch activity and contributions have not been audited.
@@ -38,7 +82,7 @@ Each milestone starts after its listed dependency is accepted. Keep PRs small: a
 | M04 — Early LangGraph slice; `feat/agent-retrieval` | M03 | Embeddings/index, vector-only baseline, hybrid retrieval tools, typed state/conditional loop, structured response and trace, `/api/ask` | Real question uses multiple tools and cites actual chunks/paths. Invalid model output or unsafe template request is rejected. Test budgets, ambiguity and abstention. Save actual tool trace and distinguish mocked tests from live-model evidence. |
 | M05 — Advanced graph API; `feat/graph-queries` | M04 | Topic evidence traversal, directed citation shortest-path endpoint, Pydantic models/errors, parameterized query registry, Cypher fixtures | Complex patterns and analytical `WITH`/`UNWIND`/subqueries/aggregation produce expected fixture results. Test path direction, hop limits, pagination, no-path and missing IDs; retain query plans. Endpoint count is not yet final until GDS routes in M06. |
 | M06 — GDS analytics; `feat/gds-analytics` | M05 | Versioned paper-similarity projection, PageRank and Louvain, centrality/community endpoints, projection lifecycle/explanation mapping | Verify nodes/weights/isolates and memory estimate; run both algorithms on fixture and corpus. Demonstrate actual GDS call from endpoint and pathfinding from M05. At least 4 domain endpoints, 3 advanced queries and 2 pathfinding/algorithm endpoints are now verifiable. |
-| M07 — ML experiment; `feat/link-prediction` | M06 | Approved evaluated-corpus target of 20–30 papers if practical, reviewed citation labels, split files, graph/GDS features, logistic-regression workflow, baselines and metric report | Pass label feasibility gate or record blocker and seek revised scope. Remove held-out edges before feature construction; verify no label leakage. Record actual counts, PR-AUC/other metrics, baselines, seeds and limitations. Predictions remain hypotheses; weak results may be reported honestly. |
+| M07 — PROVISIONAL Chunk classification; `feat/chunk-classification` | M03 plus separately scoped eight-paper ingestion, annotation and feature gates; M06 remains independent GDS work | Method/Evaluation labels on real Chunk IDs; whole-paper split, eight local graph features, majority baseline, one regularized logistic classifier and measured report | No training in prompt #5.2. Source-review labels; hold out complete GraphRAG/HippoRAG papers from fitting; freeze extraction/split/settings; require nonconstant graph features; report macro-F1, per-class/per-paper metrics and limitations. Target 96 labels is conditional, not achieved. |
 | M08 — Evaluation and performance; `test/evaluation-benchmarks` | M07, or explicit revised scope if ML is blocked | Frozen question/annotation sets, vector-only/hybrid comparison, extraction and guardrail evaluation, before/after query benchmarks, `EXPLAIN`/`PROFILE` artifacts | Apply predeclared targets in ARCHITECTURE.md; report all successes/failures and actual latency. Test independent questions, equal retrieval budgets and source support. Inspect index usage, avoid Cartesian products, and document limits. An ML blocker remains visible even if independent evaluation proceeds. |
 | M09 — Quality and automation gate; `test/release-quality` | M08 | Complete unit/API/Neo4j/Cypher/health suites, full Makefile, lint/test/build workflows, coverage reports and badge wiring, clean code/docstrings | Run full `make test` including Cypher and required integration checks; all required tests pass with coverage ≥60%. `make lint` scores ≥9.5. Confirm fresh Compose startup and health failure handling. Exercise all required Make commands in a disposable workspace, including safe clean behavior. |
 | M10 — Documentation and registry; `docs/release-evidence` | M09 | Complete README, actual screenshots and diagrams, executed `demo.ipynb`, anti-genericity appendix, contribution/PR links, published API image and digest | A teammate follows README from fresh checkout, pulls public image and runs the stack. Registry link resolves. Notebook executes with actual graph visualizations. README badges reference real workflows/reports. Publication occurs only when separately authorized. |
@@ -82,7 +126,7 @@ The existing `.gitignore` is NOT VERIFIED: its presence and text were observed, 
 | R17 | **Advanced Cypher** | `WITH`, `UNWIND`, subqueries, aggregations | 2 | M03, M05 | Batch evidence lookup and analytical queries using WITH, UNWIND, subqueries and aggregation | Execute query fixtures and explain deduplication, grouping and subquery behavior | PLANNED |
 | R18 | **Optimization** | Optimized queries + benchmarks | 5 | M05, M08 | Bounded parameterized/paginated queries and before/after performance report | Check LIMIT, parameters, subqueries, indexes, pagination and no Cartesian products; compare p50/p95 and query plans on identical data | PLANNED |
 | R19 | **GDS & Agentic** | GDS projection + ≥2 algorithms | 2 | M06 | Named in-memory paper projection, weighted PageRank and Louvain | Verify projection nodes/edges/weights/memory and execute both algorithms on fixture and actual corpus | PLANNED |
-| R20 | **GDS & Agentic** | ML prediction/classification workflow | 3 | M07 | Graph-feature citation-link model, split manifests, baselines and metric report | Verify labels/split leakage controls; reproduce training and held-out metrics; report insufficient-data gate if blocked | PLANNED |
+| R20 | **GDS & Agentic** | ML prediction/classification workflow | 3 | M07 | PROVISIONAL graph-feature Method/Evaluation Chunk classifier, reviewed labels, whole-paper split, baselines and metric report | Verify source reviews, nonconstant graph features, training-only preprocessing and whole-paper split; reproduce held-out metrics; report unmet gates as incomplete | PLANNED |
 | R21 | **GDS & Agentic** | LangGraph / GraphRAG / NL-to-Cypher | 4 | M04, M06 | Genuine LangGraph agent with state, conditional routing, typed tools, prompts and structured answers | Inspect implementation and actual multi-tool trace; exercise successful retrieval and routing paths | PLANNED |
 | R22 | **GDS & Agentic** | LLM reliability and guardrails | 4 | M03, M04, M08 | Schema/quote checks, query-plan validation, confidence/status policy, budgets and reliability evaluation | Test invalid/raw Cypher rejection, prompt injection, unsupported citations, hypotheses and abstention; manually score source support | PLANNED |
 | R23 | **Schemas & Modeling** | Neo4j graph diagram | 2 | M01, M10 | Editable graph-schema diagram plus export with directions/properties | Compare final diagram with actual schema and verify provenance paths | PLANNED |

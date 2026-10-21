@@ -2,6 +2,185 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D21 — Complete application integration and bounded paper retrieval, prompt #6.3
+
+- **Status/authority:** IMPLEMENTED in the working tree under the explicit PR #4
+  correction request. No commit/push; deadline October 23, 2026 and zero-cost policy
+  unchanged. Pushed-commit verification remains pending the student's commit/push.
+- **Completeness:** HEAD `bca43ca` includes the agent but omits seven required
+  integration-file changes; three planning/decision updates also remain uncommitted.
+  The old running image matches the working tree for main/config/lockfile hashes,
+  explaining why local checks passed despite the incomplete commit. Retain all
+  missing changes together; expose the selection-retry bound through the same
+  validated environment/Compose configuration as the other agent budgets.
+- **Retrieval choice:** paper-specific requests use an indexed Paper ID lookup,
+  bounded incoming PART_OF traversal and exact cosine ranking of eligible vectors.
+  Enumerate at most 257 Chunk rows; reject above 256 without scoring or silently
+  truncating. This avoids losing the paper behind 64 better global ANN candidates.
+  The function is available in the observed Neo4j 5.26.32 and documented since 5.18
+  in the [Neo4j 5 vector-function manual](https://neo4j.com/docs/cypher-manual/5/functions/vector/).
+  Unfiltered searches retain the existing approximate global top-64 approach.
+- **Alternatives/drawbacks:** raising global ANN candidates still cannot guarantee
+  paper recall; unlimited exact search can consume unbounded resources; separate
+  per-paper indexes add administration. A fixed 256-row cap fits the current small
+  corpus but rejects larger papers. Ranking covers only eligible pinned vectors,
+  not stale/missing embeddings, semantic relevance or complete scientific answers.
+  The Paper index hint and query timeout fail closed if the required index is absent.
+- **Scientific joins:** require a different target Paper, retaining both approval
+  gates and exact supporting-source checks. Tests use clearly synthetic review
+  metadata with cleanup, never real student approvals or alias merges.
+- **Student questions:** inspect answer usefulness and pending claims separately;
+  reconsider the paper-size bound only with measured need. No architecture expansion,
+  model change, GDS execution or ML work is authorized by this correction.
+
+## D20 — Paper direction and extractive answers, prompt #6.2
+
+- **Status/authority:** IMPLEMENTED within the authorized grounding correction;
+  deadline October 23, 2026, zero paid services. Same model, services and LangGraph.
+- **Paper identities:** a fixed read returns at most 65 Paper identity rows; more than
+  64 rejects resolution rather than silently hiding ambiguous candidates. Existing
+  aliases are accepted as identity metadata. The current three nodes have no aliases,
+  so conservative title initialisms and explicit title phrases supply names such as
+  DPR, RAG and Graph RAG. Names/IDs are exact after case/punctuation normalization.
+  Ambiguous and unsupported endpoint names are rejected, independently on each side.
+  No scientific Entity aliases, node merges or review metadata are changed.
+- **Direction:** a preparation node resolves explicit `from X to Y`, standalone
+  `X to Y`, and directed arrows. A directionless `between` request is rejected.
+  Resolved IDs constrain both model decoding and runtime validation; vector retrieval
+  cannot substitute a different endpoint. Discovery questions retain model selection.
+  The actual path still comes only from the approved directed Cypher tool.
+- **Grounding:** one short Qwen pass selects up to three passage IDs from at most 12
+  lexical candidates in explicitly read evidence. Returned statement text is the
+  exact selected quote, not a separately generated paraphrase. Generic matches with
+  fewer than two query-term overlaps are omitted; duplicate passages, high token
+  overlap, and selections adding no new query aspect are omitted. Unknown passage
+  IDs, altered source text, forged coordinates and unsupported paraphrases fail closed.
+- **Stopping:** ordinary source questions search once when hits exist, read at most
+  two chunks, then route to generation without another FINISH inference. Named
+  single-paper searches are filtered to that Paper ID. Graph expansion is available
+  only for explicit compare/across/shared/common requests; citation questions use
+  the path tool. Cross-paper/discovery requests retain bounded conditional loops.
+- **Alternatives:** another LLM verifier adds CPU cost; unconstrained paraphrases
+  previously outgrew their quotations; fixed question-to-answer mappings would leak
+  expected answers and remove model choice. The new approach chooses source text,
+  not answers embedded in code or evaluation labels.
+- **Drawbacks:** lexical overlap does not establish entailment, completeness or
+  scientific truth. English morphology and sentence splitting are approximate;
+  550-character contiguous pieces may cut long sentences. A small catalog/strict
+  name grammar can reject valid but unfamiliar phrasings. Title abbreviations may
+  collide; these fail rather than guess. Extraction can omit useful explanations.
+  Cross-paper intent detection is conservative and may miss implicit comparisons.
+- **Student review:** every selected passage still requires manual relevance review.
+  SOURCE_LOCATED remains separate from SOURCE_VERIFIED; C03/C09 remain pending.
+  Measured tests and live outcomes are recorded in [AGENT.md](AGENT.md).
+
+## D19 — Schema-constrained action selection, prompt #6.1
+
+- **Authority/status:** authorized reliability correction on `feat/agent-evidence`;
+  IMPLEMENTED, with measured outcomes in [AGENT.md](AGENT.md). Deadline remains
+  October 23, 2026 and budget remains zero. No new model or service is introduced.
+- **Decision:** retain the LangGraph select/execute/generate/validate graph and the
+  four read tools. Qwen emits a JSON-schema-constrained action, independently checked
+  by a Pydantic discriminated union. An explicit FINISH replaces absent native calls.
+  Each turn's schema permits only actions with discovered source IDs and enumerates
+  those IDs. Runtime membership checks also reject fabricated names or identities.
+  State validation requires an actual nonempty source read before FINISH; citation
+  questions also require a path attempt. When multiple chunks were discovered, two
+  distinct source reads are required before FINISH or factual generation. This small
+  coverage gate does not establish semantic sufficiency.
+  Unavailable paths abstain without generation.
+  Repeated identical normalized searches (including top-k-only changes) and duplicate
+  excerpt reads are rejected. One corrective retry is shared across the request,
+  bounded by validated settings and the existing overall deadline.
+- **Answer correction:** the live intermediate Q04 reached source evidence but failed
+  exact citation validation. Keep that validator and constrain answer decoding to
+  per-chunk exact source quote choices. Sentence spans longer than 300 characters are
+  split into contiguous pieces without normalization or rewriting. This prevents
+  copied-quote corruption without treating generated interpretations as verified.
+  Repeated expansion of the same paper is excluded after its first attempt.
+- **Alternatives:** native tool calls failed on saved Q01/Q08 traces. A deterministic
+  question-to-tool chain would remove model direction. A new model/provider or extra
+  service is outside scope. Schema-constrained local decoding preserves student-
+  defensible orchestration without expanding the read capability.
+- **Drawbacks:** syntax and source-read gates cannot establish semantic completeness.
+  A valid exact quote can still accompany an incomplete or mistaken interpretation.
+  CPU inference may reach deadlines; near-duplicate search paraphrases are limited
+  by the call budget rather than an unvalidated semantic duplicate detector.
+  Two reads can increase latency or include a less relevant chunk. Sentence splitting
+  can fragment mathematical text or abbreviations; semantic interpretation still
+  requires review, even when a quote is an exact source substring.
+- **Verification policy:** coordinate/quote validation is separate from human approval.
+  The synthetic Q15 page-999 output is tested against the actual DPR source without
+  changing PDFs, gold or graph properties. No C03/C09 approval is supplied.
+- **Remaining student decisions:** review actual answer usefulness/latency and
+  independently review pending graph claims. Neither is inferred from passing tests.
+
+## D18 — Bounded local retrieval and LangGraph, prompt #6
+
+- **Authority:** implement embeddings, four read tools and `/api/ask` on
+  `feat/agent-evidence`, using only the existing three papers and local models.
+  No claim approval, extraction redesign, corpus expansion, GDS or ML training.
+- **Decision:** use pinned Nomic v1.5 768-dimensional cosine embeddings in a Neo4j
+  vector index. Record model/digest, input hash and search-prefix policy on each
+  Chunk. Preparation is an idempotent operator CLI, separate from agent capabilities.
+  Model/index incompatibility fails closed and requires an explicit migration.
+- **Agent:** LangGraph 0.6.7 with compatible pinned LangChain Core 0.3.76; direct
+  Ollama HTTP calls avoid an extra provider adapter. Native structured tool calls
+  choose among semantic search, source reading, directed citation paths and one-hop
+  reviewed scientific evidence expansion. Conditional loops have call, character,
+  query, inference and whole-request budgets; one concurrent CPU workflow.
+- **Retrieval:** bounded vector candidates plus model-selected graph expansion, with
+  chunk-ID deduplication. Defer rank fusion/learned reranking until reviewed graph
+  evidence exists and a controlled comparison justifies it. Search returns metadata;
+  explicit excerpt reads select answer context. No superiority to vector-only is claimed.
+- **Trust:** source text is SOURCE_LOCATED; generated interpretations are HYPOTHESIS.
+  Exact quotes/IDs are mechanically checked, but semantic entailment still needs review.
+  Graph paths require SOURCE_VERIFIED plus explicit student approval metadata and
+  valid source support. No automatic CITES creation, research import or alias merge.
+- **Security:** only fixed parameterized read templates, no raw Cypher capability.
+  READ routing is not database-level authorization in Community. Bolt stays internal;
+  write CLI remains outside the tool registry. Unknown tools/fields, invalid IDs,
+  source mismatches, malformed model output and unbounded parameters are rejected.
+  Cloud tracing is disabled. Gold is read only by an offline smoke driver, which sends
+  question strings alone to the API; it is absent from the service image and context.
+- **Alternatives/drawbacks:** a fixed RAG chain lacks the requested model-selected
+  loop; unrestricted generated Cypher is unnecessary risk; hosted APIs violate budget.
+  CPU tool calling may abstain or hit budgets. ANN post-filtering is approximate and
+  can miss paper-restricted hits beyond the bounded candidate set. Generalization and
+  semantic answer quality require separate evaluation, not schema checks alone.
+- **Status:** implementation authorized by prompt #6; actual tests and live outcomes
+  are recorded in [AGENT.md](AGENT.md), rather than inferred from this decision.
+  Remaining student gate: approve actual citation/scientific claims before verified
+  graph demonstrations. No human approval is supplied by this milestone.
+
+## D17 — PROVISIONAL Chunk-classification decision, 2026-10-20
+
+- **Authority:** prompt #5.2 explicitly requests a provisional switch from citation
+  prediction to Method-versus-Evaluation classification of existing Chunk nodes.
+  No training, automatic approvals, alias merges or additional ingestion is authorized.
+- **Decision:** adopt that task provisionally, conditional on source-reviewed chunk
+  labels, eight real label-blind graph-neighborhood features and a held-out whole-paper
+  test split. D06's citation-link proposal is historical and superseded for ML planning.
+- **Rationale:** 0 approved CITES edges in the live prototype and 13 research-located
+  references across ten papers do not provide an audited citation label matrix or
+  meet the proposed 50-positive gate. Prose roles are more practical to annotate.
+- **Proposed protocol:** train on v1 DPR/RAG/REALM/FiD/Self-RAG/LightRAG and hold out
+  v1 GraphRAG/HippoRAG. Targets of 96 labels and 8 papers are not achieved statistics.
+  Independently review test labels; freeze split/settings before fitting. Derive
+  counts/overlaps/existence flags solely from within-paper MENTIONS/NEXT neighborhoods.
+  Training-only preprocessing; majority baseline versus one regularized logistic model;
+  macro-F1, per-class and per-paper results. See ARCHITECTURE.md section 7 for gates.
+- **Alternatives:** citation prediction remains possible future work after a complete
+  reference audit; text/section heuristics or LLM class guesses are not this graph ML
+  workflow. GDS analytics remain a separate requirement.
+- **Drawbacks/gates:** sparse and noisy entity extraction may make all features constant;
+  only three papers are currently ingested; no reviewed ML labels exist. Two test papers
+  and purposive balanced sampling limit generalization. Report blocked/incomplete if
+  features, reviews or a proper split cannot be produced; do not train on gold QA labels.
+- **Status:** PROVISIONAL, not implemented or evaluated. Unapproved research candidates
+  remain pending; student identity resolution, labels and semantic approvals are still
+  required. The gold file's assistant SOURCE_VERIFIED status is not graph approval.
+
 ## D16 — PR #2 ingestion integrity corrections, 2026-10-20
 
 - **Authority:** prompt #5.3 requests entity/chunk integrity, required citation failure
@@ -162,7 +341,7 @@ GDS source/binary license distinction: the official JAR includes an Enterprise/p
 - **Status:** PROPOSED.
 - **Questions requiring student approval:** are ranking and grouping useful demo questions? Approve this projection and weight definition? What would justify a projection change if all papers form a near-clique or remain isolated?
 
-## D06 — Graph-based ML
+## D06 — Graph-based ML (historical proposal; superseded provisionally by D17)
 
 - **Decision:** evaluate held-out citation-link reconstruction using logistic regression on training-graph topology and GDS PageRank features. Compare against prevalence and preferential-attachment baselines; treat predictions as hypotheses.
 - **Alternatives considered:** GDS-native link-prediction pipeline; paper/topic node classification; GNN training; calling an unsupervised similarity score “ML.”

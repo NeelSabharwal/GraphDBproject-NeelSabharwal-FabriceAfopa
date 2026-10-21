@@ -1,8 +1,12 @@
-.PHONY: help configure docker-build docker-run status health models-pull models-check test smoke stats docker-stop ingest
+.PHONY: help configure docker-build docker-run status health models-pull models-check test smoke stats docker-stop ingest embed
 
 help:
 	@printf '%s\n' 'configure     Generate ignored local .env (preserves existing file)' 'docker-build  Build pinned API and Neo4j/GDS images' 'docker-run    Start the three local services (pull models separately)' 'models-pull   Download approved model tags, then verify manifest digests' 'models-check  Compare installed models with models.lock.json' 'status        Show Compose service status' 'health        Check live/ready; fails if dependencies/models unavailable' 'stats         Show one container resource snapshot' 'test          Run unit and real-dependency tests with coverage in API container' 'smoke         Run actual CPU inference/JSON/tool/embedding and Bolt/GDS smoke tests' 'docker-stop   Stop this stack without removing data volumes'
 	@printf '%s\n' 'ingest        Verify/import three prototype PDFs; one cached Ollama sample per paper'
+	@printf '%s\n' 'embed         Create/reuse pinned Chunk embeddings and verify the vector index'
+
+embed:
+	docker compose exec -T api python -m scripts.embed_chunks
 
 configure:
 	python3 scripts/configure.py
@@ -29,10 +33,17 @@ models-check:
 
 test:
 	@mkdir -p data/processed
-	docker compose run --rm --no-deps --user "$$(id -u):$$(id -g)" \
-		-v "$(CURDIR)/app:/workspace/app:ro" -v "$(CURDIR)/scripts:/workspace/scripts:ro" \
-		-v "$(CURDIR)/tests:/workspace/tests:ro" -v "$(CURDIR)/data/processed:/workspace/data/processed" \
-		api python -m pytest --cov=app --cov-report=term-missing --cov-report=xml:/workspace/data/processed/coverage.xml
+	@set -eu; \
+		test_workspace=$$(docker compose exec -T api mktemp -d /tmp/graphrag-tests.XXXXXX); \
+		trap 'docker compose exec -T -u 0 api rm -rf "$$test_workspace"' EXIT; \
+		for item in app scripts tests pyproject.toml; do \
+			docker compose cp "$$item" "api:$$test_workspace/"; \
+		done; \
+		result=0; \
+		docker compose exec -T -w "$$test_workspace" api python -m pytest \
+			--cov=app --cov-report=term-missing --cov-report=xml:coverage.xml || result=$$?; \
+		docker compose cp "api:$$test_workspace/coverage.xml" data/processed/coverage.xml; \
+		exit $$result
 
 ingest:
 	@mkdir -p data/raw data/processed

@@ -1,6 +1,71 @@
 # Proposed architecture — AI Research GraphRAG Assistant
 
-**Status: infrastructure and initial ingestion implemented; remaining application architecture PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+**Status: infrastructure, ingestion and the bounded retrieval/agent slice implemented; advanced APIs, GDS analytics and ML remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+
+### Implemented retrieval slice — prompt #6
+
+D21 (prompt #6.3) restores the uncommitted application integration to the review
+scope: router, lifespan lock, bounded environment settings, dependencies and Compose
+configuration must be committed together with the agent. Working-tree/image tests
+do not establish that a pushed commit works. The fresh application factory is tested
+without replacing its router or agent dependency.
+
+Paper-filtered retrieval uses the existing Paper ID index and at most 257 adjacent
+Chunk rows. More than 256 rejects the request before ranking; otherwise Neo4j's
+native cosine function ranks eligible pinned embeddings within that paper. The bound
+is applied before vector scoring/sorting, with no global graph scan. Unfiltered
+retrieval retains the approximate global top-64 candidate limit. Exact ranking only
+covers eligible stored embeddings, not missing/stale vectors or semantic relevance.
+Scientific expansion requires a distinct target Paper sharing the exact approved
+Entity; self-only evidence returns unavailable. Approval and source-support checks
+remain mandatory on both sides. See D21 and the current evidence in AGENT.md.
+
+D20 (prompt #6.2) supersedes D19's free-paraphrase answer stage. A bounded read-only
+Paper catalog and `resolve_papers` LangGraph node resolve explicitly named endpoints
+before tool selection, preserving direction and rejecting unknown/ambiguous names.
+Catalog identities do not depend on ANN hits. Ordinary source questions use one
+search and one/two source reads, then conditional early stopping; graph expansion is
+excluded unless the question explicitly requests cross-paper comparison/shared evidence.
+Qwen selects exact passage IDs for extractive answers instead of independently
+writing a factual statement and its quote. Lexical candidate filtering/deduplication
+is a relevance heuristic, not semantic validation. Full provenance and final
+quote/hash/page checks remain. No second LLM verification pass is added.
+
+D18 supersedes the historical retrieval/agent proposals below for this milestone.
+`make embed` prepares pinned Nomic v1.5 embeddings (768 dimensions, cosine index,
+query/document prefixes, input hashes and model digest), reusing matching vectors.
+The privileged preparation command is not an agent tool. Four typed read tools use
+fixed Cypher: `search_chunks`, `get_source_excerpt`, `find_citation_path` (at most
+three directed CITES edges), and `expand_verified_evidence` (one reviewed entity join).
+Every factual graph hop requires explicit human approval and exact source support.
+
+`GET /api/ask` runs a real typed LangGraph with select_tool → execute_tool → select_tool
+conditional loops, followed by generate → validate_answer. D19 replaces unreliable
+native tool selection with local Ollama JSON-schema-constrained next actions, still
+chosen by the model. The schema permits four typed read tools or explicit `FINISH`.
+State checks reject premature FINISH and duplicate searches; one corrective selection
+retry per request is allowed before safe abstention. Per-turn schemas enumerate only
+discovered Chunk/Paper IDs; the application independently checks those memberships.
+Two distinct chunks must be explicitly read when multiple candidates exist; this is
+a coverage gate, not proof of semantic completeness. Already attempted paper
+expansions are excluded. Unavailable citation paths route
+directly to an honest abstention. Defaults: six calls, 180-second overall deadline,
+45-second model deadline, five-second database deadline, 6500-character context,
+one concurrent request. Model context is 4096 tokens; passage selection is capped
+at 80 tokens (240 for next actions). JSON schemas, database-assigned source IDs/coordinates and exact quote
+membership constrain output. A generated answer remains HYPOTHESIS; parsed excerpts
+are SOURCE_LOCATED, not approved assertions. Private model reasoning is not returned.
+The current D20 answer decoder selects up to three integer passage IDs from at most
+12 candidates, with an 80-token output cap. Sentence spans are bounded at 550 characters;
+statement and supporting quote are identical source text. The independent validator
+still rejects identity/quote/hash mismatches and unsupported paraphrases.
+
+Vector and reviewed graph results are deduplicated by Chunk ID; rank fusion and
+comparative evaluation are deferred. Claims, aliases and research annotations are
+not changed. No ingestion rewrite, GDS algorithm or ML training is part of this slice.
+Operational traces and measured limits are documented in [AGENT.md](AGENT.md).
+The historical health readiness probe still checks dependencies/model presence;
+`/api/ask` separately validates vector-index readiness. Health does not imply answer quality.
 
 ### Implemented ingestion scope — 2026-10-20
 
@@ -227,20 +292,56 @@ This projection answers corpus similarity questions without allowing document st
 
 Use streaming results initially. Keep algorithm configuration, projection hash, timestamps and runtime with every report. A tiny fixture can verify behavior; actual corpus results are required for the academic demonstration. Do not claim communities or high-impact papers before running the algorithms.
 
-## 7. Measurable graph-based ML experiment
+## 7. PROVISIONAL graph-based ML: Method versus Evaluation Chunk classification
 
-**PROPOSED task:** reconstruct held-out, source-verified directed citation links among papers in the frozen corpus. This is an educational link-prediction experiment, not evidence that a paper should cite another or that a predicted relationship is true.
+**Decision D17, authorized for planning by prompt #5.2:** provisionally replace
+citation-link prediction with classification of existing Chunk nodes. No training,
+new labels, graph features or expanded ingestion is implemented by this decision.
+The professor permits node classification; the 3-point ML criterion remains unverified.
 
-1. Establish ground truth from reviewed reference sections and resolved in-corpus paper IDs. Incomplete or unreadable reference lists cannot supply verified negative labels. Record the label-review procedure and uncertain cases.
-2. At the development gate, inspect label count and graph connectivity. A provisional minimum is 50 verified positive links, permitting at least 10 positives in each validation and test set under a 60/20/20 split. This is a feasibility threshold, not a statistical sufficiency claim. Three or ten papers are unlikely to establish meaningful results; 20–30 may still fail this gate.
-3. Freeze a deterministic directed-pair split. Remove validation/test edges before computing **any** topology features, projections or degree/PageRank scores. Collapse duplicate paper versions for the experiment and prevent the same pair from appearing in several partitions. Keep all node identities for a declared transductive task. Log disconnected/cold-node cases rather than dropping difficult cases after evaluation.
-4. From the training citation graph compute source out-degree, target in-degree, common-neighbor counts on a declared undirected view, and endpoint PageRank using a separate GDS projection. No target `CITES` edges, citation Claim nodes, bibliography text, full-graph analytics or evidence IDs can enter the feature pipeline. A separate read dataset of training edges is the leakage boundary. Pair absence from the whole verified graph is used only to construct labels, never as a feature.
-5. Fit standardized logistic regression in scikit-learn with fixed seeds. Compare with a constant prevalence baseline and a simple preferential-attachment ranking. This is graph-based ML because its learned features derive from graph topology and GDS; PageRank alone is not an ML workflow. A GDS ML pipeline is an alternative if the professor requires it, but adds version-sensitive machinery.
-6. Use non-self candidate pairs within the corpus. Verified absent citations are negatives for this closed-corpus task; sample training negatives at a recorded ratio and evaluate on the remaining eligible held-out candidate pairs with their natural class distribution. Publish split IDs, counts, class balance and seeds. Tune only on validation data.
-7. Report average precision/PR-AUC, ROC-AUC when both classes exist, precision@k and recall@k, plus baseline comparisons, per-split counts and variability across predeclared repeated splits. Treat small-sample uncertainty explicitly; never imply independent observations from overlapping graph folds. Recompute all features within every split.
-8. Store predictions with model version, score and `HYPOTHESIS` status in a report; do not merge them into verified citation edges or use them to answer source-fact questions. Keep training artifacts separate from serving projections.
+The live prototype has no approved CITES edges and only two source-located citation
+claims. The ten-paper research subset has 13 located references, not exhaustive
+positive/negative labels. It does not meet the earlier proposed 50-positive gate.
+Directly reviewing prose roles is more feasible, but does not remove the need for
+real graph features, reviewed labels and held-out evaluation.
 
-If the label gate fails, report the ML criterion as unverified and request approval to expand the corpus or choose a different reviewed-label task. Do not manufacture labels or use synthetic accuracy to claim compliance. A completed, reproducible experiment with honest weak performance is more defensible than an unsupported success claim.
+- **Labels:** Method describes the authors' system, algorithm or training objective;
+  Evaluation describes empirical setup, datasets, baselines, measures or results.
+  Exclude abstracts, related work, references, mixed-purpose and unreadable chunks
+  with reasons. Use actual chunk IDs, version/hash and source spans. No LLM guesses
+  or QA gold answers supply labels. Independently review every test label and a fixed
+  training subset; retain disagreement/adjudication without invented reviewers.
+- **Whole-paper split proposal, frozen before fitting:** train on pinned v1 DPR,
+  RAG, REALM, FiD, Self-RAG and LightRAG; test on pinned v1 GraphRAG and HippoRAG.
+  All eight are already in the ten-paper manifest, but only three are ingested now.
+  Further ingestion and annotation require their own scoped task. Target 12 eligible
+  chunks per paper (6 per class), 96 total, is not an achieved count. Require both
+  classes in train/test and source quality sufficient for review. Keep versions and
+  overlapping chunks from the same work in one partition; deduplicate repeated prose.
+- **Eight proposed graph features:** four distinct MENTIONS-neighbor counts by
+  Method/Dataset/Task/Topic kind (log1p); Jaccard entity overlap with previous and
+  next same-paper NEXT neighbors; two neighbor-existence flags. Freeze label-blind
+  extraction/alias rules. Use only within-paper neighborhoods. Do not propagate
+  through shared entities across the split or include full-corpus centrality.
+- **Leakage controls:** exclude labels, section headings/roles, paper IDs, page
+  positions, QA gold, label-derived Claims and class predictions from features.
+  Keep held-out labels outside the graph, prompts, serving image and training exports.
+  Fit scaling/preprocessing on training papers only. Current three MENTIONS edges
+  are insufficient evidence of usable features: stop if features are absent/constant
+  or reflect heading-only mentions. Never substitute IDs/positions to claim graph ML.
+- **Future learner/evaluation:** training-majority baseline and one L2 logistic
+  regression, proposed C=1, seed 42, threshold 0.5. Fix settings before opening test
+  results; no test-driven exclusions, label edits or tuning. Report macro-F1, class
+  precision/recall, confusion matrix, supports and per-test-paper results, including
+  weak outcomes. Two held-out papers cannot establish broad generalization.
+- **Reproduction gate:** retain reviewed label/split hashes, actual class/exclusion
+  counts, feature variance, graph snapshot, preprocessing, versions, commands,
+  predictions and baseline comparison. Store predictions as hypotheses separately
+  from source assertions. Do not mark ML complete merely because this plan exists.
+
+See [ML_RECOMMENDATION.md](ML_RECOMMENDATION.md) for the unchanged research proposal.
+Its proposed dates, counts and split are conditional targets. GDS PageRank/Louvain
+remain separate rubric work; classification does not implement or replace them.
 
 ## 8. Tests, benchmarking and evaluation
 
