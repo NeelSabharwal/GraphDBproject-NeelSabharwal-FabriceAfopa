@@ -2,6 +2,24 @@
 
 **Status: application milestones remain PROPOSED; local infrastructure is now explicitly authorized.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
 
+## Reviewed evidence preparation — prompt #7A, 2026-10-21
+
+On `feat/advanced-graph-gds`, PR #5's documented review decisions are mapped to the
+actual three-paper graph. The operator importer, complete multi-chunk provenance,
+scoped canonical entities, atomic review and repeat-run checks are implemented and
+tested. Real application is **NOT AUTHORIZED YET**. See D22 and
+[REVIEWED_EVIDENCE_INTEGRATION.md](docs/REVIEWED_EVIDENCE_INTEGRATION.md) for all 22
+proposals, observed baseline, exact commands and test evidence. No rubric point
+allocation/status is changed by planning or synthetic tests.
+
+Next dependency sequence: student reviews the dry-run → explicitly authorizes the
+batch → operator applies against the reviewed fingerprint → verifies actual claims,
+shared named benchmarks, directed citation path and repeat-run idempotency → refreshes
+the API image and checks retrieval → separately scopes Prompt #7B. M05/M06 advanced
+Cypher/GDS and M07 ML remain outside this milestone. A17 stays unresolved; the three
+existing LLM extractions stay pending. Broader corpus and GDS usefulness remain
+evaluation questions, not claims of completed work.
+
 ## Infrastructure scope update — 2026-10-19
 
 The user authorized a narrow foundation milestone ahead of the original M01 dependency: three local Docker services, Python 3.12 health-only FastAPI, pinned Neo4j/GDS, CPU Ollama model trials, starter Make commands and meaningful health/connectivity tests. This authorizes only part of M02, not its future CI/lint items or later application milestones. Deadline is **Friday, October 23, 2026**, team size **two**, user is team lead, and paid APIs/cloud/subscriptions are prohibited. See decision D13 and the eventual actual verification report. The rubric table below remains a planning map; existence of health endpoints does not satisfy the advanced API requirement. No commit, push, public image publication or ingestion is authorized here.

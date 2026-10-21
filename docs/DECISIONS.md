@@ -2,6 +2,42 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D22 — Documented review integration, prompt #7A, 2026-10-21
+
+- **Status/authority:** preparation and read-only real-corpus validation IMPLEMENTED;
+  real application AWAITING EXPLICIT OPERATOR AUTHORIZATION. PR #5's Section 9
+  records `fabrice12345C`'s approvals on 2026-10-21 Europe/Paris. That is a recording
+  date, not an invented inspection timestamp. Deadline October 23 and zero-cost
+  restriction remain unchanged. No real approval was applied in this milestone.
+- **Decision:** transcribe the signed document into a reviewable, hash-pinned decision
+  manifest; independently check its exact contents and source files at every run.
+  Default to a read-only dry-run. Require `--apply --expected-fingerprint` after
+  operator confirmation, and use the existing `review_claim()` inside one atomic
+  transaction. Preserve history; reject conflicting approved/rejected records.
+  Student sign-off metadata stays separate from the actual database application time.
+- **Evidence/model:** retain complete raw and normalized excerpt/context spans in
+  authenticated, ordered multi-chunk SUPPORTED_BY bundles. Keep scientific assertions
+  reified as Paper ← SUBJECT — Claim — OBJECT → Entity; share only the fourteen
+  explicitly approved scoped canonical entities. Preserve rejected aliases and
+  unresolved A17. GE20 remains entity-extraction COMPONENT_ONLY. C03/C09 retain
+  work-level targets with unspecified cited revision; only reviewed source-supported
+  Claims can produce CITES through `refresh_citations()`.
+- **Alternatives/rationale:** manual one-at-a-time writes risk inconsistent batches;
+  approving the unsigned CSV loses qualified authority; truncating context loses
+  evidence; directly materializing scientific edges duplicates the existing model.
+  The selected approach reuses source mapping, bibliography validation and human
+  review while making proposed changes inspectable before application.
+- **Drawbacks/limits:** the manifest and pins are tied to this signed three-paper
+  handoff; later decisions need a separately reviewed update. Local attestation is
+  not identity authentication. Bounds reject larger/mismatched batches. Source
+  support and human review do not prove independent scientific truth. Read routing
+  is not a database-enforced read-only permission. Tests use isolated synthetic
+  approvals; they do not establish positive real-corpus paths.
+- **Questions requiring approval:** authorize the exact dry-run batch in
+  [REVIEWED_EVIDENCE_INTEGRATION.md](REVIEWED_EVIDENCE_INTEGRATION.md)? Only afterward
+  apply, verify actual joins/path/counts, and refresh the API image for bundle-aware
+  retrieval. No PageRank, Louvain, ML or projection choice is authorized here.
+
 ## D21 — Complete application integration and bounded paper retrieval, prompt #6.3
 
 - **Status/authority:** IMPLEMENTED in the working tree under the explicit PR #4
