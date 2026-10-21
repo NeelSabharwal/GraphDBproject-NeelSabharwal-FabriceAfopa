@@ -7,6 +7,7 @@ from neo4j import Query, unit_of_work
 
 from app.ingestion.citations import POLICY
 from app.ingestion.documents import CHUNKER, PARSER, digest
+from app.ingestion.support import stored_support
 
 SCHEMA = (
     "CREATE CONSTRAINT paper_id IF NOT EXISTS FOR (n:Paper) REQUIRE n.id IS UNIQUE",
@@ -23,6 +24,12 @@ HUMAN_POLICY = "student-semantic-review-v1"
 
 def refresh_citations(tx, paper_id: str) -> None:
     """Derived edges require explicit human approval as well as verified status."""
+    approved = list(tx.run(
+        "MATCH (c:Claim {paper_id:$id,predicate:'CITES',status:'SOURCE_VERIFIED'}) "
+        "WHERE c.human_reviewed=true AND c.student_review_status='approved' "
+        "AND c.review_policy=$policy RETURN c.id AS id", id=paper_id, policy=HUMAN_POLICY))
+    for row in approved:
+        stored_support(tx, row['id'])
     tx.run("MATCH (p:Paper {id:$id})-[r:CITES]->() DELETE r", id=paper_id).consume()
     tx.run(
         "MATCH (c:Claim {predicate:'CITES', status:'SOURCE_VERIFIED'})-[:SUBJECT]->(p:Paper {id:$id}), "
@@ -161,6 +168,7 @@ class EvidenceGraph:
                 f"(o:{label} {{id: row.object_id}}), (chunk:Chunk {{id: row.chunk_id}}) "
                 "MERGE (c:Claim {id: row.id}) ON CREATE SET c += row, c.created_at=datetime() "
                 "MERGE (c)-[:SUBJECT]->(p) MERGE (c)-[:OBJECT]->(o) "
+                "WITH c,chunk,row WHERE c.support_manifest_json IS NULL "
                 "MERGE (c)-[s:SUPPORTED_BY]->(chunk) "
                 "ON CREATE SET s.quote=row.quote, s.start_char=row.start_char, "
                 "s.end_char=row.end_char, s.quote_sha256=row.quote_sha256", rows)
@@ -168,39 +176,44 @@ class EvidenceGraph:
         refresh_citations(tx, paper_id)
         tx.run("MATCH (p:Paper {id:$id}) SET p.parse_status=$status", id=paper_id, status=parse_status).consume()
 
-    def review_claim(self, claim_id: str, reviewer: str, note: str, *, approved: bool) -> None:
+    def review_claim(self, claim_id: str, reviewer: str, note: str, *, approved: bool,
+                     provenance: dict | None = None, transaction=None) -> None:
         """Local operator action only: record a named student's explicit semantic decision.
 
-        Never called by import or the LLM. This records an attestation; it cannot
+        Only an explicit operator review/import action may call this, never an LLM.
+        This records an attestation; it cannot
         authenticate a person's identity. No real student approval is synthesized.
         """
         if (not reviewer.strip() or not note.strip() or type(approved) is not bool
                 or reviewer.casefold().startswith(("automated", "assistant", "llm"))):
             raise ValueError("A named human reviewer, review note and explicit boolean decision are required")
+        if provenance is not None and set(provenance) != {
+                'review_document', 'review_document_sha256', 'signoff_recorded_date',
+                'signoff_timezone', 'decision_sha256'}:
+            raise ValueError('Recorded review provenance must not override review status or identity')
+        if transaction is not None:
+            self._review_claim(transaction, claim_id, reviewer, note, approved, provenance)
+            return
         with self.driver.session() as session:
-            session.execute_write(self._review_claim, claim_id, reviewer, note, approved)
+            session.execute_write(self._review_claim, claim_id, reviewer, note, approved, provenance)
 
     @staticmethod
     @unit_of_work(timeout=30)
-    def _review_claim(tx, claim_id, reviewer, note, approved):
-        record = tx.run(
-            "MATCH (c:Claim {id:$id})-[:SUPPORTED_BY]->(chunk:Chunk) "
-            "RETURN properties(c) AS claim, chunk.text AS text", id=claim_id).single(strict=True)
-        claim = record["claim"]
-        if record["text"][claim["start_char"]:claim["end_char"]] != claim["quote"]:
-            raise ValueError("Stored supporting quote no longer matches source")
+    def _review_claim(tx, claim_id, reviewer, note, approved, provenance=None):
+        claim = stored_support(tx, claim_id)
         if claim["predicate"] == "CITES" and claim.get("source_location_status") != "SOURCE_LOCATED":
             raise ValueError("Bibliography location must be checked before semantic approval")
         timestamp = datetime.now(timezone.utc).isoformat()
         status = "SOURCE_VERIFIED" if approved else "REJECTED"
         event = json.dumps({"previous_status": claim["status"], "status": status, "reviewer": reviewer,
-                            "note": note, "at": timestamp}, sort_keys=True)
+                            "note": note, "at": timestamp, "recorded_decision": provenance}, sort_keys=True)
         tx.run(
             "MATCH (c:Claim {id:$id}) SET c.status=$status, c.human_reviewed=true, c.reviewer=$reviewer, "
             "c.reviewed_at=$at, c.review_policy=$policy, c.review_note=$note, "
-            "c.student_review_status=$decision, c.review_history=coalesce(c.review_history,[])+[$event]",
+            "c.student_review_status=$decision, c.review_history=coalesce(c.review_history,[])+[$event], "
+            "c.review_applied_at=$at SET c += $provenance",
             id=claim_id, status=status, reviewer=reviewer, at=timestamp, policy=HUMAN_POLICY,
-            note=note, decision="approved" if approved else "rejected", event=event,
+            note=note, decision="approved" if approved else "rejected", event=event, provenance=provenance or {},
         ).consume()
         refresh_citations(tx, claim["paper_id"])
 
@@ -208,6 +221,7 @@ class EvidenceGraph:
         """Measure this corpus only; never mistake test fixtures for corpus statistics."""
         nodes, _, _ = self.driver.execute_query(
             "MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids "
+            "OR (n:Entity AND any(id IN coalesce(n.source_paper_ids,[]) WHERE id IN $ids)) "
             "UNWIND labels(n) AS label RETURN label, count(*) AS count ORDER BY label", ids=paper_ids,
         )
         edges, _, _ = self.driver.execute_query(
@@ -226,6 +240,7 @@ class EvidenceGraph:
         """Hash logical identities/properties, excluding unstable Neo4j internal IDs."""
         nodes, _, _ = self.driver.execute_query(
             "MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids "
+            "OR (n:Entity AND any(id IN coalesce(n.source_paper_ids,[]) WHERE id IN $ids)) "
             "RETURN n.id AS id, labels(n) AS labels, properties(n) AS properties ORDER BY id", ids=paper_ids,
         )
         edges, _, _ = self.driver.execute_query(

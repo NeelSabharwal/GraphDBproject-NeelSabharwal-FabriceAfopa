@@ -1,0 +1,725 @@
+{
+  "policy": "documented-student-review-v1",
+  "source_document": "docs/GRAPH_EVIDENCE_REVIEW.md",
+  "source_section": "9",
+  "signoff_timezone": "Europe/Paris",
+  "source_inspection_timestamp": null,
+  "inputs_sha256": {
+    "docs/GRAPH_EVIDENCE_REVIEW.md": "e26ad12f038131f99d739c2ffbd778c55d8b2a3f911bb5738d9f62acfa631404",
+    "corpus/GRAPH_EVIDENCE_CANDIDATES.csv": "6154df1342a92133a18425d4ed5152f38f37b5754ae14c4f9534deffc7d81b10",
+    "corpus/citation_evidence.csv": "296396fe74c1d452ab283fd79f486791ad2e1a4ff9d7f69f6fe12332a7959cb2",
+    "corpus/corpus_manifest.json": "c6eb6199b0a48433df7de25226587e08baf6e31c277017b6d2a6f41ef1463a75"
+  },
+  "claims": {
+    "C03": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Work-level RAG to DPR citation only; cited arXiv revision unspecified.",
+      "inspected_sources": "RAG p. 13 ref. [22]; target title/author identity",
+      "review_context": [
+        [
+          "**C03**",
+          "[RAG v1 PDF p. 13, reference **[22]**](https://arxiv.org/pdf/2005.11401v1#page=13): entry names Karpukhin et al. and *Dense Passage Retrieval for Open-Domain Question Answering*, with work ID `arXiv:2004.04906`. **RAG → DPR.**",
+          "Author/title/work identity and direction agree with CSV. The reference does **not** append `v1`; `selected_target_paper_id=arxiv:2004.04906v1` is a prototype representative, not evidence that v1 was the consulted version. Keep `target_work_id` and `target_version_as_cited=unspecified`.",
+          "**APPROVE_RECOMMENDED** for **work-level** citation only."
+        ]
+      ]
+    },
+    "C09": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Work-level GraphRAG to RAG citation only; cited arXiv revision unspecified.",
+      "inspected_sources": "GraphRAG p. 13 Lewis et al.; target title/author identity",
+      "review_context": [
+        [
+          "**C09**",
+          "[GraphRAG v1 PDF p. 13, Lewis et al. (2020)](https://arxiv.org/pdf/2404.16130v1#page=13): full RAG title and Lewis-led author list appear in the bibliography, as a NeurIPS paper. **GraphRAG → RAG.**",
+          "Author/title/work identity and direction agree. The entry gives published-work metadata, not `arXiv:2005.11401v1` or a consulted preprint revision. Preserve `target_version_as_cited=unspecified`.",
+          "**APPROVE_RECOMMENDED** for **work-level** citation only."
+        ]
+      ]
+    },
+    "GE01": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 3 §3.1; §3.2 training",
+      "review_context": [
+        [
+          "**GE01**",
+          "[DPR p. 3, §3.1](https://arxiv.org/pdf/2004.04906v1#page=3): two independent base-uncased BERT encoders are part of the DPR method. `Paper USES Method(BERT-base)` supported; no cross-paper checkpoint identity.",
+          "**APPROVE_RECOMMENDED** with architecture-level scope."
+        ],
+        [
+          "GE01",
+          "DPR p. 3 §3.1, **Encoders** paragraph; §3.2 training follows",
+          "Two distinct base-uncased BERT networks are actually used. The text acknowledges other possible encoders but selects these. Learned parameters are not an architecture alias."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:bert-base",
+        "object_kind": "Method"
+      }
+    },
+    "GE02": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 2 §2; p. 3 §3",
+      "review_context": [
+        [
+          "**GE02**",
+          "[DPR p. 2, §2](https://arxiv.org/pdf/2004.04906v1#page=2): authors define/study extractive open-domain textual QA and passage retrieval. `ADDRESSES` appropriate.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE02",
+          "DPR p. 2 §2 **Background**, opening definition and extractive-setting paragraph; p. 3 §3 introduction",
+          "The paper studies factoid open-domain textual QA and focuses on its retrieval component. ADDRESSES does not mean it solves every QA or summarization task."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "ADDRESSES",
+        "object_proposed_id": "task:open-domain-question-answering",
+        "object_kind": "Task"
+      }
+    },
+    "GE03": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 4 §4.2/footnote 6; p. 5 setup/Table 1; p. 6 Table 2",
+      "review_context": [
+        [
+          "**GE03**",
+          "DPR `EVALUATED_ON` Natural Questions — [DPR p. 4, §4.2](https://arxiv.org/pdf/2004.04906v1#page=4)",
+          "Listed in the authors' five QA datasets; DPR §5 and Table 2 (p. 6) report retrieval results. Not merely cited background. Preserve this paper's preparation and splits.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:natural-questions",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE04": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 4 §4.2/footnote 6; p. 5 setup/Table 1; p. 6 Table 2",
+      "review_context": [
+        [
+          "**GE04**",
+          "DPR `EVALUATED_ON` TriviaQA — [DPR p. 4, §4.2](https://arxiv.org/pdf/2004.04906v1#page=4)",
+          "Experimental dataset, called `Trivia` in the DPR passage. DPR §5/Table 2 confirms evaluation. DPR p. 4 footnote 6 explicitly uses unfiltered TriviaQA and discards the Bing evidence documents. Preserve that preparation; RAG Appendix B (p. 17) identifies its DPR-style test split as public Web Development.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:triviaqa",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE05": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 4 §4.2/footnote 6; p. 5 setup/Table 1; p. 6 Table 2",
+      "review_context": [
+        [
+          "**GE05**",
+          "DPR `EVALUATED_ON` WebQuestions — [DPR p. 4, §4.2](https://arxiv.org/pdf/2004.04906v1#page=4)",
+          "`WebQuestions (WQ)` is explicitly a dataset in the experimental setup, also in DPR's p. 6 results. No automatic equivalence to WebQuestionsSP.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:webquestions",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE06": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "DPR p. 4 §4.2/footnote 6; p. 5 setup/Table 1; p. 6 Table 2",
+      "review_context": [
+        [
+          "**GE06**",
+          "DPR `EVALUATED_ON` CuratedTREC — [DPR p. 4, §4.2](https://arxiv.org/pdf/2004.04906v1#page=4)",
+          "Dataset is explicitly `CuratedTREC (TREC)` in authors' evaluation; p. 6 reports results. `TREC` alone outside this expansion is ambiguous.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2004.04906v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:curatedtrec",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE07": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG p. 3 §2.2; p. 4 §2.4",
+      "review_context": [
+        [
+          "**GE07**",
+          "[RAG p. 3, §2.2](https://arxiv.org/pdf/2005.11401v1#page=3): authors explicitly use a DPR-based pretrained retriever. `USES` is separate from the bibliography citation C03.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE07",
+          "RAG p. 3 §2.2, first paragraph and pretrained-memory paragraph; p. 4 §2.4 continuation",
+          "The retriever is initialized from a pretrained DPR bi-encoder; its training data include NQ/TriviaQA. RAG fixes the document encoder/index and fine-tunes the query encoder and generator. This is actual method use, not C03 alone."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:dpr",
+        "object_kind": "Method"
+      }
+    },
+    "GE08": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "BERT-base architecture within DPR component; casing/checkpoint/trained-weight identity not established.",
+      "inspected_sources": "RAG p. 3 §2.2; p. 4 §2.4; DPR p. 3 §3.1",
+      "review_context": [
+        [
+          "**GE08**",
+          "[RAG p. 3, §2.2](https://arxiv.org/pdf/2005.11401v1#page=3): DPR-based retriever is described as containing BERT-base encoders, and RAG uses that pretrained bi-encoder. `USES BERT-base` follows through the stated component design; **not** proof of an identical trained DPR checkpoint or casing.",
+          "**APPROVE_RECOMMENDED** with explicit inherited-component qualifier."
+        ],
+        [
+          "GE08",
+          "RAG p. 3 §2.2, document/query representation definitions and pretrained-bi-encoder paragraph; p. 4 §2.4",
+          "Both representations use BERT-base architecture **within the DPR component**. The two encoders have different parameter sets; RAG subsequently fine-tunes its query encoder while keeping the document encoder fixed. This does not establish cross-paper checkpoint equality. The passage does not independently establish casing or exact checkpoint identity."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:bert-base",
+        "object_kind": "Method"
+      }
+    },
+    "GE09": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG p. 3 §2.3; p. 4 §2.4",
+      "review_context": [
+        [
+          "**GE09**",
+          "[RAG p. 3, §2.3](https://arxiv.org/pdf/2005.11401v1#page=3): authors directly state that they use BART-large as generator. Do not merge it with generic BART/BERT.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE09",
+          "RAG p. 3 §2.3, generator selection paragraph; p. 4 §2.4",
+          "BART-large is explicitly selected, although other encoder-decoders are possible in principle. It is fine-tuned; no particular downloadable checkpoint hash is established."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:bart-large",
+        "object_kind": "Method"
+      }
+    },
+    "GE10": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG pp. 4–5 §3.1; pp. 6–7 §4.1",
+      "review_context": [
+        [
+          "**GE10**",
+          "[RAG p. 4, §3.1](https://arxiv.org/pdf/2005.11401v1#page=4): authors tackle open-domain QA by answer generation, unlike DPR's extractive reader. The broad `ADDRESSES` task join is valid, not method equivalence.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE10",
+          "RAG pp. 4–5 §3.1; p. 6 Table 1 and §4.1; p. 7 continuation",
+          "Questions/answers are treated as input-output pairs for generation. Comparisons with extractive and closed-book systems do not identify those systems as RAG components. Broad QA task-family overlap with DPR is valid."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "ADDRESSES",
+        "object_proposed_id": "task:open-domain-question-answering",
+        "object_kind": "Task"
+      }
+    },
+    "GE11": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG pp. 4–5 §3.1; p. 6 Table 1/§4.1; p. 17 Appendix B",
+      "review_context": [
+        [
+          "**GE11**",
+          "RAG `EVALUATED_ON` Natural Questions — [RAG p. 4, §3.1](https://arxiv.org/pdf/2005.11401v1#page=4)",
+          "Named among four open-domain QA datasets selected by the authors; RAG p. 6 Table 1 reports results. RAG uses a generative answer procedure unlike DPR's extractive reader.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:natural-questions",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE12": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG pp. 4–5 §3.1; p. 6 Table 1/§4.1; p. 17 Appendix B",
+      "review_context": [
+        [
+          "**GE12**",
+          "RAG `EVALUATED_ON` TriviaQA — [RAG p. 4, §3.1](https://arxiv.org/pdf/2005.11401v1#page=4)",
+          "`TriviaQA (TQA)` is an experimental dataset; RAG p. 6 Table 1 and p. 17 Appendix B distinguish public TriviaQA Web Development (DPR-style) and official hidden Wiki test. Do not merge these evaluation settings even if the benchmark name is shared.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:triviaqa",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE13": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG pp. 4–5 §3.1; p. 6 Table 1/§4.1; p. 17 Appendix B",
+      "review_context": [
+        [
+          "**GE13**",
+          "RAG `EVALUATED_ON` WebQuestions — [RAG p. 4, §3.1](https://arxiv.org/pdf/2005.11401v1#page=4)",
+          "`WebQuestions (WQ)` appears in the experimental task list and p. 6 results; p. 5 describes initialization from the NQ RAG model; p. 17 Appendix B describes separate training pairs for multiple answer annotations. Preserve these source-specific settings.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:webquestions",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE14": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "RAG pp. 4–5 §3.1; p. 6 Table 1/§4.1; p. 17 Appendix B",
+      "review_context": [
+        [
+          "**GE14**",
+          "RAG `EVALUATED_ON` CuratedTREC — [RAG p. 4, §3.1](https://arxiv.org/pdf/2005.11401v1#page=4)",
+          "`CuratedTrec (CT)` appears among four evaluated datasets; RAG pp. 4–5 describes special handling of regular-expression answers. Alias at dataset level only.",
+          "**APPROVE_RECOMMENDED**"
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2005.11401v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:curatedtrec",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE15": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "GraphRAG p. 4 §2.4; p. 5 Figure 3",
+      "review_context": [
+        [
+          "**GE15**",
+          "[GraphRAG p. 4, §2.4](https://arxiv.org/pdf/2404.16130v1#page=4): authors explicitly select **Leiden** for hierarchical community detection. Their method is not Louvain.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE15",
+          "GraphRAG p. 4 §2.4, algorithm-selection paragraph; p. 5 Figure 3 caption",
+          "The authors select Leiden for hierarchical communities. Other community algorithms are possible, but **USES Louvain would be unsupported for this implementation**. Our project's planned Louvain analytics are a separate design."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:leiden",
+        "object_kind": "Method"
+      }
+    },
+    "GE16": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Map-reduce summarization workflow; no particular software framework identity.",
+      "inspected_sources": "GraphRAG p. 3 §1 continuation; p. 5 §2.6; p. 7 §3.3",
+      "review_context": [
+        [
+          "**GE16**",
+          "[GraphRAG p. 3, end of §1](https://arxiv.org/pdf/2404.16130v1#page=3) and [p. 5, §2.6](https://arxiv.org/pdf/2404.16130v1#page=5): uses a map-reduce *summarization approach* (parallel partial answers, global synthesis), not necessarily Hadoop/software MapReduce.",
+          "**APPROVE_RECOMMENDED** with workflow qualifier."
+        ],
+        [
+          "GE16",
+          "GraphRAG p. 3 introduction continuation, map-reduce paragraph; p. 5 §2.6, three workflow bullets; p. 7 §3.3 TS condition",
+          "Parallel intermediate answers are reduced into a global answer. Preserve Method identity as **map-reduce summarization workflow**. The TS baseline applies the same workflow to source texts; the term alone supplies no Hadoop/framework identity."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "USES",
+        "object_proposed_id": "method:map-reduce-summarization",
+        "object_kind": "Method"
+      }
+    },
+    "GE17": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Qualified assertion in sections 2-5 approved; retain all per-claim evidence limitations.",
+      "inspected_sources": "GraphRAG p. 1 abstract; p. 6 §3.2",
+      "review_context": [
+        [
+          "**GE17**",
+          "[GraphRAG p. 1, abstract](https://arxiv.org/pdf/2404.16130v1#page=1): aims at query-focused summarization for corpus-wide sensemaking. Keep separate from factoid QA as task identity.",
+          "**APPROVE_RECOMMENDED**"
+        ],
+        [
+          "GE17",
+          "GraphRAG p. 1 abstract; p. 6 §3.2",
+          "Corpus-wide global sensemaking is framed as query-focused summarization (QFS). This does not equate QFS with factoid retrieval or with all open-domain QA."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "ADDRESSES",
+        "object_proposed_id": "task:query-focused-summarization",
+        "object_kind": "Task"
+      }
+    },
+    "GE18": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "GraphRAG v1 Behind the Tech transcript corpus only; preserve dataset-specific scope.",
+      "inspected_sources": "GraphRAG p. 6 §§3.1–3.2; p. 7 §§3.3–3.4",
+      "review_context": [
+        [
+          "**GE18**",
+          "[GraphRAG p. 6, §3.1](https://arxiv.org/pdf/2404.16130v1#page=6): experimentally uses the **Behind the Tech** podcast transcript collection. Scope the proposed dataset entity to this paper's constructed corpus, not all podcasts.",
+          "**APPROVE_RECOMMENDED** with scoped dataset ID."
+        ],
+        [
+          "GE18",
+          "GraphRAG p. 6 §3.1 first dataset bullet and §3.2; p. 7 §§3.3–3.4",
+          "Behind the Tech transcripts are compiled for this experiment: 1,669 600-token chunks, 100-token overlap, roughly 1M tokens, as reported by the paper. Questions are generated global questions, evaluated in the paper's comparative setting. These are source-reported experimental sizes, not our graph counts or verified corpus bytes. No universal “Podcast dataset” identity."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:graphrag-v1-behind-the-tech-transcripts",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE19": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "MultiHop-RAG news corpus in this experiment; no equivalence to original QA labels.",
+      "inspected_sources": "GraphRAG p. 6 §§3.1–3.2; p. 7 §§3.3–3.4",
+      "review_context": [
+        [
+          "**GE19**",
+          "[GraphRAG p. 6, §3.1](https://arxiv.org/pdf/2404.16130v1#page=6): experimentally uses news articles from the MultiHop-RAG corpus for global sensemaking questions; does **not** imply using its original benchmark labels.",
+          "**APPROVE_RECOMMENDED** with scoped dataset ID."
+        ],
+        [
+          "GE19",
+          "GraphRAG p. 6 §3.1 second dataset bullet and §3.2; p. 7 §§3.3–3.4",
+          "MultiHop-RAG news articles spanning September 2013–December 2023: 3,197 600-token chunks, 100-token overlap, roughly 1.7M tokens, as reported by the paper. Global questions are newly generated (125 per corpus), not assumed to be the original benchmark QA labels. Exact original/derived corpus byte equivalence was not checked."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:multihop-rag-news-corpus",
+        "object_kind": "Dataset"
+      }
+    },
+    "GE20": {
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "Approved for HotPotQA entity-extraction analysis only, not end-to-end QA evaluation; retain evaluation_stage=entity_extraction, COMPONENT_ONLY and sample/chunk-size/gleanings context.",
+      "inspected_sources": "GraphRAG p. 3 §2.1/Figure 2; p. 4 §2.2; p. 6 §§3.1–3.2",
+      "review_context": [
+        [
+          "**GE20**",
+          "[GraphRAG p. 3, §2.1/Figure 2](https://arxiv.org/pdf/2404.16130v1#page=3): uses a HotPotQA sample **to examine chunk-size and entity-extraction behavior**, not as its main end-to-end global-answer benchmark. `EVALUATED_ON` is defensible only with `evaluation_stage=entity_extraction` (or equivalent preserved qualifier).",
+          "**APPROVE_RECOMMENDED** **conditional on preserving component-only scope**; otherwise **NEEDS_CLARIFICATION**."
+        ],
+        [
+          "GE20",
+          "GraphRAG p. 3 §2.1 and **Figure 2 caption**; p. 4 §2.2 continuation; contrast p. 6 §§3.1–3.2",
+          "A HotPotQA sample supports a chunk-size/gleanings investigation using the generic extraction prompt with gpt-4-turbo. The measured quantity is **entity references detected**, not an independently established extraction precision/recall score or end-to-end QA accuracy. Main global-answer experiments use the two corpora in §3.1. The dataset mention in §3.2 alone would not establish use."
+        ]
+      ],
+      "assertion": {
+        "source_paper_id": "arxiv:2404.16130v1",
+        "predicate": "EVALUATED_ON",
+        "object_proposed_id": "dataset:hotpotqa",
+        "object_kind": "Dataset"
+      }
+    }
+  },
+  "aliases": {
+    "A01": {
+      "outcome": "ACCEPT",
+      "mapping": "Natural Questions ↔ NQ (Dataset)",
+      "boundary": "DPR p. 4 §4.2; RAG p. 4 §3.1. Same benchmark family; retain splits, answer annotations and preprocessing.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:natural-questions"
+    },
+    "A02": {
+      "outcome": "ACCEPT",
+      "mapping": "TriviaQA ↔ Trivia (DPR) ↔ TQA (RAG) (Dataset)",
+      "boundary": "DPR p. 4 §4.2/footnote 6; RAG pp. 4–6 §3.1/Table 1 and p. 17 Appendix B. Restrict shorthand to these contexts; keep Web Development and Wiki test settings distinct.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:triviaqa"
+    },
+    "A03": {
+      "outcome": "ACCEPT",
+      "mapping": "WebQuestions ↔ WQ (Dataset)",
+      "boundary": "Explicit expansions in DPR p. 4 §4.2 and RAG p. 4 §3.1. WebQuestionsSP is a distinct variant, not an accepted mapping here.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:webquestions"
+    },
+    "A04": {
+      "outcome": "ACCEPT",
+      "mapping": "CuratedTREC ↔ CuratedTrec ↔ CT (RAG) ↔ TREC (DPR)",
+      "boundary": "DPR p. 4 §4.2; RAG pp. 4–5 §3.1. Only these explicit expansions; generic TREC tracks/corpora are broader. Preserve regex-answer handling.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:curatedtrec"
+    },
+    "A05": {
+      "outcome": "ACCEPT",
+      "mapping": "base-uncased BERT (DPR) ↔ BERT BASE (RAG), architecture-level BERT-base",
+      "boundary": "DPR p. 3 §3.1; RAG p. 3 §2.2. Keep uncased qualifier on DPR and unspecified casing on this RAG passage; no checkpoint/weight identity.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "method:bert-base"
+    },
+    "A06": {
+      "outcome": "ACCEPT",
+      "mapping": "open-domain textual QA (DPR) ↔ open-domain QA (RAG), Task family",
+      "boundary": "DPR p. 2 §2; RAG pp. 4–5 §3.1. Keep extractive and generative settings as distinct qualifications.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "task:open-domain-question-answering"
+    },
+    "A07": {
+      "outcome": "ACCEPT",
+      "mapping": "DPR acronym ↔ Dense Passage Retrieval Method",
+      "boundary": "RAG p. 3 §2.2 and DPR p. 3 §3. Distinct typed Entity from the DPR Paper/version.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "method:dpr"
+    },
+    "A08": {
+      "outcome": "ACCEPT",
+      "mapping": "BART-large ↔ BART-large Method spelling",
+      "boundary": "RAG p. 3 §2.3. Preserve named size/variant; this is an identity entry, not an inference that every BART is BART-large.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "method:bart-large"
+    },
+    "A09": {
+      "outcome": "ACCEPT",
+      "mapping": "Leiden ↔ Leiden Method",
+      "boundary": "GraphRAG p. 4 §2.4 and p. 5 Figure 3. No Louvain alias.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "method:leiden"
+    },
+    "A10": {
+      "outcome": "ACCEPT",
+      "mapping": "map-reduce approach ↔ map-reduce summarization workflow",
+      "boundary": "GraphRAG p. 3 introduction continuation and p. 5 §2.6. Scope to summarization; no software-framework identity.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "method:map-reduce-summarization"
+    },
+    "A11": {
+      "outcome": "ACCEPT",
+      "mapping": "query-focused summarization ↔ QFS Task",
+      "boundary": "GraphRAG p. 1 abstract. Global sensemaking is its use context, not an exact alias for all QFS or QA.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "task:query-focused-summarization"
+    },
+    "A12": {
+      "outcome": "ACCEPT",
+      "mapping": "podcast transcripts ↔ Behind the Tech transcripts (GraphRAG v1 corpus)",
+      "boundary": "GraphRAG p. 6 §3.1 first bullet. Use `dataset:graphrag-v1-behind-the-tech-transcripts`; generic podcasts outside this scope are not aliases. Corpus bytes/access unverified.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:graphrag-v1-behind-the-tech-transcripts"
+    },
+    "A13": {
+      "outcome": "ACCEPT",
+      "mapping": "news articles ↔ MultiHop-RAG news corpus, in GraphRAG's experiment",
+      "boundary": "GraphRAG p. 6 §3.1 second bullet/§3.2. Use `dataset:multihop-rag-news-corpus`; distinguish source corpus from original QA labels, temporal scope and derived processing.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:multihop-rag-news-corpus"
+    },
+    "A14": {
+      "outcome": "ACCEPT",
+      "mapping": "HotPotQA ↔ HotpotQA (Dataset family, capitalization)",
+      "boundary": "GraphRAG p. 3 §2.1/Figure 2. Use `dataset:hotpotqa`; preserve sample identity limits and component-only role.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "ACCEPT only the qualified mapping and boundaries in section 6.",
+      "canonical_id": "dataset:hotpotqa"
+    },
+    "A15": {
+      "outcome": "REJECT",
+      "mapping": "DPR Method = DPR Paper/version",
+      "boundary": "RAG §2.2 describes a method; ref. [22] cites a work. Relation between them does not establish node identity.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    },
+    "A16": {
+      "outcome": "REJECT",
+      "mapping": "Leiden = Louvain",
+      "boundary": "GraphRAG p. 4 §2.4 names Leiden. Distinct methods; project algorithm choice is separate.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    },
+    "A17": {
+      "outcome": "NEEDS_CLARIFICATION",
+      "mapping": "BERT-base entries = identical checkpoint/casing/weights",
+      "boundary": "RAG p. 3 §2.2 plus p. 4 §2.4 do not establish this identity. Do not perform such a merge.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "NEEDS_CLARIFICATION: checkpoint, casing and trained-weight identity unestablished; no merge.",
+      "canonical_id": null
+    },
+    "A18": {
+      "outcome": "REJECT",
+      "mapping": "BART-large = BERT or every BART variant",
+      "boundary": "RAG p. 3 §§2.2–2.3 distinguishes retriever architecture and generator variant.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    },
+    "A19": {
+      "outcome": "REJECT",
+      "mapping": "map-reduce summarization = Hadoop/particular MapReduce framework",
+      "boundary": "GraphRAG p. 5 §2.6 supports a workflow, not framework identity.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    },
+    "A20": {
+      "outcome": "REJECT",
+      "mapping": "QFS = factoid QA",
+      "boundary": "GraphRAG p. 1 abstract/p. 6 §3.2 contrasts global sensemaking with explicit fact retrieval.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    },
+    "A21": {
+      "outcome": "REJECT",
+      "mapping": "GraphRAG's MultiHop-RAG experiment = original benchmark QA task/labels",
+      "boundary": "GraphRAG p. 6 §3.2 generates new global questions. Shared source articles do not equate experimental tasks.",
+      "decision": "APPROVED",
+      "reviewer": "fabrice12345C",
+      "signoff_recorded_date": "2026-10-21",
+      "accepted_scope": "REJECT the proposed equivalence in section 6; no entity merge authorized.",
+      "canonical_id": null
+    }
+  }
+}

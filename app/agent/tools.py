@@ -10,6 +10,7 @@ from app.agent.catalog import PaperReference
 from app.agent.grounding import candidates
 from app.agent.ollama import DIMENSIONS, EMBED_DIGEST, EMBED_MODEL, EMBED_POLICY, INDEX
 from app.ingestion.graph import HUMAN_POLICY
+from app.ingestion.support import validate_bundle
 
 TOOL_MODELS = {
     "search_chunks": (SearchChunks, "Find semantic evidence. Start here to discover real paper/chunk IDs."),
@@ -191,12 +192,15 @@ WHERE c.id IN $ids AND """ + APPROVED + """
 RETURN c.id AS claim_id, c.predicate AS predicate, subject.id AS subject_id,
        object.id AS object_id, chunk.id AS chunk_id, support.quote AS quote,
        support.start_char AS start_char, support.end_char AS end_char,
-       support.quote_sha256 AS quote_sha256
-ORDER BY claim_id LIMIT 24
+       support.quote_sha256 AS quote_sha256, properties(c) AS claim,
+       properties(support) AS support
+ORDER BY claim_id LIMIT 129
 """, ids=ids, policy=HUMAN_POLICY)
+        if len(rows) > 128:
+            raise ValueError('Claim source support exceeds retrieval budget')
         evidence, claims = {}, []
         for row in rows:
-            chunk = await self.excerpt(row["chunk_id"])
+            chunk = evidence.get(row['chunk_id']) or await self.excerpt(row["chunk_id"])
             start, end = row["start_char"], row["end_char"]
             if (chunk["paper_id"] != row["subject_id"]
                     or not isinstance(start, int) or not isinstance(end, int)
@@ -205,7 +209,21 @@ ORDER BY claim_id LIMIT 24
                     or hashlib.sha256(row["quote"].encode()).hexdigest() != row["quote_sha256"]):
                 raise ValueError("Reviewed claim source support is invalid")
             evidence[chunk["chunk_id"]] = chunk
-            claims.append({**row, "status": "SOURCE_VERIFIED"})
+            # Keep scientific scope and work/version limits in downstream explanations.
+            metadata = {k: row['claim'][k] for k in (
+                'accepted_qualification', 'source_qualifier', 'source_ambiguity', 'review_context_json',
+                'evaluation_stage', 'evaluation_scope', 'target_work_id', 'target_version_as_cited',
+                'reviewer', 'signoff_recorded_date', 'review_applied_at', 'review_document')
+                if k in row['claim']}
+            claims.append({**{k:v for k,v in row.items() if k not in ('claim','support')},
+                           **metadata, 'support_role': row['support'].get('role', 'excerpt'),
+                           "status": "SOURCE_VERIFIED"})
+        for ident in {r['claim_id'] for r in rows}:
+            group = [r for r in rows if r['claim_id'] == ident]
+            claim = group[0]['claim']
+            if claim.get('support_manifest_json'):
+                validate_bundle(claim, [dict(r['support'], chunk_id=r['chunk_id']) for r in group],
+                    {key: dict(value, id=key) for key,value in evidence.items()})
         return list(evidence.values()), claims
 
     async def find_citation_path(self, args):
