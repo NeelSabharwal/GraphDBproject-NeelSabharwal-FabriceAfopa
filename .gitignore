@@ -32,6 +32,8 @@ htmlcov/
 
 # Keep evaluation source annotations trackable; exclude all other local data.
 /data/*
+!/data/ml/
+!/data/ml/chunk_label_candidates.csv
 !/data/evaluation/
 /data/evaluation/*
 !/data/evaluation/evaluation_gold.json
