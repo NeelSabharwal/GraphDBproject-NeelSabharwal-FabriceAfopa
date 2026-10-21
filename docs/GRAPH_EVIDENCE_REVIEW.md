@@ -304,6 +304,16 @@ The professor awards **2 points** for a GDS projection plus at least two algorit
 
 ## 11. Source review reference and PR #5 submission
 
+Completed the scientific evidence and entity-alias review.
+
+- Personally reviewed and approved 22 qualified scientific claims.
+- Documented 21 alias decisions, retaining A17 as unresolved.
+- Preserved the distinctions between scientific evidence, model assumptions, and application validation.
+- Verified documentation formatting and consistency.
+
+Documentation only; no Neo4j mutations or application tests performed.
+Ready for teammate review.
+
 The following passage index is retained for teammate review. The student has confirmed inspection and approved all 22 qualified scientific claims in section 9; these passes are no longer outstanding student tasks.
 
 | Personal inspection pass | Exact source passages | Record decisions for |
