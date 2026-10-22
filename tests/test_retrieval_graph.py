@@ -73,8 +73,20 @@ def test_real_catalog_resolves_direction_without_vector_discovery():
         endpoints = resolve_direction("GraphRAG to DPR", catalog)
         assert endpoints == {"source_id": "arxiv:2404.16130v1", "target_id": "arxiv:2004.04906v1"}
         result = await tools.execute("find_citation_path", {**endpoints, "max_hops": 2})
-        assert result["status"] == "unavailable"
-        assert result["paths"] == []
+        # This live corpus can legitimately change after an authorized review.
+        # Synthetic tests separately enforce rejection of pending/invalid edges.
+        approved = await tools.read(
+            "MATCH (c:Claim) WHERE c.evidence_id IN ['C03','C09'] "
+            "AND c.status='SOURCE_VERIFIED' AND c.human_reviewed=true "
+            "AND c.review_policy=$policy RETURN count(c) AS count", policy=HUMAN_POLICY)
+        if approved[0]["count"] == 2:
+            assert result["status"] == "ok"
+            assert result["paths"][0]["papers"] == [
+                endpoints["source_id"], "arxiv:2005.11401v1", endpoints["target_id"]]
+            assert len(result["paths"][0]["edges"]) == 2
+        else:
+            assert result["status"] == "unavailable"
+            assert result["paths"] == []
         reverse = resolve_direction("DPR to GraphRAG", catalog)
         assert reverse["source_id"] == endpoints["target_id"]
         assert reverse["target_id"] == endpoints["source_id"]

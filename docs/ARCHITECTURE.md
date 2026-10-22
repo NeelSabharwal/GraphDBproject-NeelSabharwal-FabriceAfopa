@@ -2,6 +2,29 @@
 
 **Status: infrastructure, ingestion and the bounded retrieval/agent slice implemented; advanced APIs, GDS analytics and ML remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
 
+### Prepared review integration — prompt #7A
+
+D22 adds a local operator command with read-only default, a hash-pinned transcription
+of PR #5's signed decisions, explicit application and a stale-graph fingerprint gate.
+Real approvals remain unapplied pending operator confirmation. See the complete
+[22-claim mapping and runbook](REVIEWED_EVIDENCE_INTEGRATION.md).
+
+Scientific assertions retain the existing reified Claim model and approved typed
+Entity identities. Full excerpt/context evidence can span multiple Chunk nodes:
+ordered SUPPORTED_BY segments retain exact quotes, local/page offsets and hashes.
+Validation requires complete reconstruction, correct parent Paper/PDF/page and
+immutable source hashes. Ordinary re-ingestion preserves enriched support bundles.
+Review, CITES refresh and graph retrieval check these supports; retrieval carries
+accepted qualifications, component-only scope and work/version distinctions.
+The four read tools and LangGraph workflow remain unchanged in capability.
+
+An authorized batch uses the existing `review_claim()` within one transaction;
+pending source evidence and prior review history are retained. Student sign-off date
+and actual application timestamp are distinct. Existing conflicting decisions fail
+closed. Approved/rejected/unresolved alias outcomes are preserved, not inferred by
+the model. The standalone research audit can inspect gold; the importer and shared
+source-coordinate helper never load evaluation labels or gold answers.
+
 ### Implemented retrieval slice — prompt #6
 
 D21 (prompt #6.3) restores the uncommitted application integration to the review

@@ -2,15 +2,16 @@
 
 **Project:** Project 8 — AI Research GraphRAG Assistant (Level 3+)
 **Deadline:** 2026-10-23
-**Review type:** AI-assisted **passage-candidate proposal**, **not approved Chunk labels**
+**Review type:** preserved AI-assisted passage proposals and technical mappings, with independently human-approved pilot Chunk labels recorded separately below.
 **Passage review status:** **APPROVED** by **Fabrice Afopa** on **2026-10-21** for all 21 passage interpretations, including ML07, ML14 and ML21 as `AMBIGUOUS/EXCLUDE`. This approval applies only to the cited passages; it does **not** approve, label, or otherwise certify their containing Neo4j Chunks.
+**Independent whole-Chunk review:** **NeelSabharwal**, **2026-10-22**, personally confirmed the proposed labels of the **15 uniquely mapped complete Chunks** for the ML pilot. ML02, ML10 and ML17 remain unresolved; ML07, ML14 and ML21 remain excluded. See Section 10 for the scope and CSV fields.
 **Database/ML operations:** **NOT PERFORMED** — no Neo4j writes, training, prediction, evaluation or performance numbers.
 
 ## 1. Authority, sources and reproduction
 
 The professor’s [`projects_spec.md`](../docs/requirements/projects_spec.md) (Project 8 and Graph Data Science/Agentic section) and [`project_checklist.md`](../docs/requirements/project_checklist.md) permit a **node-classification ML workflow (3 points)**. This labeling file by itself does not meet that rubric item. The repository’s [`ML_RECOMMENDATION.md`](ML_RECOMMENDATION.md), [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`corpus_manifest.json`](../corpus/corpus_manifest.json) specify the provisional Chunk-labeling and leakage-control design. The recommendation’s 8-paper/96-label target is conditional, not an achieved count.
 
-Only the three manifest-pinned **v1** PDFs were used as scientific evidence. Local uploaded bytes were SHA-256 checked against the manifest, and all 21 short excerpts were found as unique text occurrences on the stated PDF pages. A sample of relevant pages was also inspected in rendered form. **Text was extracted with `pypdf 5.9.0` in this review**, whereas the ingestion/manifest records `pypdf 6.10.0`: therefore **no raw-text offsets or generated Chunk IDs are asserted** here. Reproduce the stored Chunk text and coordinates using the ingestion environment before converting passage proposals into labels.
+The original passage proposal used only the three manifest-pinned **v1** PDFs as scientific evidence. Its recorded checks found that local uploaded bytes matched the manifest SHA-256 values and all 21 short excerpts occurred uniquely on the stated PDF pages; it also reported rendered inspection of a sample of relevant pages. **That passage extraction used `pypdf 5.9.0`**, whereas ingestion records `pypdf 6.10.0`. No Chunk IDs or offsets were derived from the older extraction. Section 8 subsequently mapped passages against the authentic Chunk export; stored IDs, offsets and hashes in the CSV come from that export. This reconciliation does not claim a new PDF inspection or live database audit.
 
 | Paper | Exact pinned PDF | Pages | Manifest SHA-256 |
 |---|---|---:|---|
@@ -58,13 +59,13 @@ The companion CSV is [`data/ml/chunk_label_candidates.csv`](../data/ml/chunk_lab
 
 ### Mapping and approval gates
 
-Each CSV row intentionally has **empty** `chunk_id`, `chunk_page_start_char`, `chunk_page_end_char`, `mapped_chunk_text_sha256`, `student_reviewer`, `student_reviewed_at` and adjudication fields. `actual_chunk_role_verified=NO`, `review_status=PENDING`, `proposed_split=DEVELOPMENT_ONLY`. **Never derive an alleged real Chunk ID from these page excerpts.** The trained unit is the **existing** Neo4j `Chunk`, not an invented passage ID.
+The original proposal left Chunk identifiers and review fields empty. Sections 8–10 supersede that initial state: 15 distinct selected Chunks now have stored IDs, offsets/hashes and NeelSabharwal's independent whole-Chunk approval. The three overlapping mappings retain no selected `chunk_id`; exclusions retain their technical references in `supporting_chunk_ids`. All rows remain `proposed_split=DEVELOPMENT_ONLY`; adjudication and blinded second-label fields remain empty because no such exercise was reported. **Never derive an alleged real Chunk ID from these page excerpts.** The eventual trained unit is the **existing** Neo4j `Chunk`, not an invented passage ID.
 
-When access to a frozen graph snapshot is available: locate each excerpt in the exact `Paper` version’s linked `Chunk` texts, record real Chunk ID and **stored** page offsets/hash, verify `PART_OF`, original PDF hash and overlap, and examine the *whole* Chunk. Two source passages may map to one Chunk; count it once or exclude if mixed. Record exclusion reasons and every candidate examined, including those rejected. A student must then supply an actual identity, timestamp and decision; the review document itself must not trigger database Claim approval.
+For further candidates: locate each excerpt in the exact `Paper` version's linked `Chunk` texts, record real Chunk ID and **stored** page offsets/hash, verify `PART_OF`, original PDF hash and overlap, and examine the *whole* Chunk. Two source passages may map to one Chunk; count it once or exclude if mixed. Record exclusions and every candidate examined. Record the student's actual identity, supplied date and decision without inventing a time of day; this document must not trigger database Claim approval.
 
-### Mapping attempt — 2026-10-21
+### Historical initial mapping attempt — 2026-10-21, before export mapping
 
-No local Neo4j connection was available for this review: `.env` is absent (so the required Neo4j password is unavailable), and Docker's local API is inaccessible to this session. No database query or write was attempted. Consequently, no real Chunk ID, Chunk text, stored offset, Chunk hash, duplicate determination, or whole-Chunk classification has been inferred from the passage excerpts.
+The initial review session reported no local Neo4j access (`.env` absent and Docker API inaccessible), so it attempted no database query or write and inferred no Chunk IDs or offsets. The following table preserves that initial review queue only. **It is historical, not the current mapping or approval state**; Section 8 records the later export mapping and Section 10 the current independent approvals.
 
 | Candidate | Source / page | Declared passage interpretation | Actual Chunk ID | Proposed whole-Chunk decision | Overlap / duplicate warning | Whole-Chunk approval |
 |---|---|---|---|---|---|---|
@@ -90,22 +91,22 @@ No local Neo4j connection was available for this review: `.env` is absent (so th
 | ML20 | GraphRAG p.9 | EVALUATION | Unmapped | Pending live-Chunk inspection | Not assessed | Pending |
 | ML21 | GraphRAG p.6 | AMBIGUOUS/EXCLUDE | Unmapped | Proposed exclusion pending live-Chunk inspection | Not assessed | Pending |
 
-The complete stored Chunk texts requested for student confirmation are unavailable until a read-only connection to the frozen Neo4j graph is provided. The exact passage locators remain in the CSV and section 7 below; they are not substitutes for full Chunk text.
+Complete stored Chunk texts were unavailable in that initial session. They were subsequently supplied through the export in Section 8. The original passage locators remain in the CSV and Section 7; they are not substitutes for full Chunk text.
 
-### Current counts and feasibility
+### Current reviewed pilot counts — 2026-10-22
 
-| Paper | Mapped METHOD Chunks | Mapped EVALUATION Chunks | Unmapped candidates | Proposed passage exclusions |
+| Paper | Approved METHOD Chunks | Approved EVALUATION Chunks | Unresolved overlapping candidates | Excluded candidates |
 |---|---:|---:|---:|---:|
-| DPR | 0 | 0 | 7 | 1 (ML07) |
-| RAG | 0 | 0 | 7 | 1 (ML14) |
-| GraphRAG | 0 | 0 | 7 | 1 (ML21) |
-| **Total** | **0** | **0** | **21** | **3** |
+| DPR | 2 | 3 | 1 (ML02) | 1 (ML07) |
+| RAG | 2 | 3 | 1 (ML10) | 1 (ML14) |
+| GraphRAG | 2 | 3 | 1 (ML17) | 1 (ML21) |
+| **Total** | **6** | **9** | **3** | **3** |
 
-There are currently zero distinct potentially eligible, mapped training Chunks by paper and class. The declared 9 METHOD and 9 EVALUATION decisions are passage proposals, not mapped labels. With only three imported papers in scope and no mapped whole-Chunk labels, the planned whole-paper ML experiment is not feasible; the eight-paper held-out proposal remains incomplete. Do not train, balance classes, create graph features from these proposals, or report ML metrics.
+There are now **15 distinct human-approved pilot Chunks**, not 18 binary passage labels. Original passage counts remain 9 METHOD / 9 EVALUATION / 3 exclusions; the reviewed Chunk counts are 6 METHOD / 9 EVALUATION. No class balance was manufactured. Label readiness alone does not satisfy the feature, partition or evaluation gates; the eight-paper proposal remains incomplete and no training is performed here.
 
 ## 4. Feasibility and realistic target
 
-**Immediate deliverable:** manually inspect these 21 passages and attempt to map the **18 potentially binary-eligible proposals** to distinct stored Chunks, with three deliberate exclusions as annotation controls. This is a small *review queue*, not a claim that 18 usable labels exist. Stop after mapping if mixed boundaries, poor extraction or repeated overlap reduce the count; report the actual unique eligible numbers by paper and class, without backfilling a quota.
+**Original deliverable:** map 18 potentially binary-eligible passage proposals, preserving three exclusions. **Current outcome:** 15 distinct approved pilot Chunks, three unresolved overlapping candidates and three excluded candidates. Further mapping or annotation needs its own review; do not backfill a quota or claim that 18 usable labels exist.
 
 **Only three papers are currently imported according to the reviewed project state**, not independently queried in this task. DPR and RAG are related retrieval/QA papers, while GraphRAG has different global-summarization content. A 2-paper-train/1-paper-test experiment would have only one independent held-out paper, with possible class and extraction imbalances. It is suitable, at most, for a **sanity-check demonstration**, not strong generalization or an independently defensible final ML score. Split by whole paper, not random Chunks; overlapping snippets within papers are highly dependent.
 
@@ -122,13 +123,13 @@ The provisional project design specifies **eight papers** (six training: DPR, RA
 ## 6. Uncertainties and stopping conditions
 
 - `pypdf` parser versions differ; offsets and Chunk membership must be checked against the actual frozen ingestion version, not extrapolated from this pilot.
-- All 21 excerpts were located in PDFs, but their **entire** mapped Chunk has not been checked for dominant role or duplication. No dataset labels have been human-signed.
+- The original 21 passage locators and technical mappings are preserved. NeelSabharwal now confirms the labels of 15 complete uniquely mapped Chunks; the other six candidates are not reviewed pilot labels. No additional inspection, blinded annotation exercise or inter-reviewer agreement statistic is asserted.
 - The visible prototype previously had very few `MENTIONS` edges; no live graph-feature audit was run for this task. Graph feature sparsity could make the proposed learner infeasible.
 - Dataset preparation text and training recipes can mix Method/Evaluation; final decisions require full context and explicit exclusion when no dominant role exists.
 - Do not assign GraphRAG to a scored test set using these publicly exposed suggestions without a controlled, frozen annotation/evaluation protocol; all candidates are currently development review material.
-- No Python application code, Neo4j records, evaluation gold annotations, source manifests, or teammate branches were changed.
+- This reconciliation updates only PR #8's review document, annotation CSV and narrow ignore rules, while bringing its branch up to date with `origin/main`. No Python application edits, Neo4j changes, gold-label changes or source-manifest changes are introduced by the reconciliation.
 
-## 7. What I must personally inspect before approving (exact passages)
+## 7. Original personal-inspection guide and exact passages
 
 Open each linked **pinned PDF page**, read the *entire paragraph and neighboring material*, and compare against the complete stored Chunk before recording a final label. The following code-quoted excerpts were copied from the uploaded PDF extraction and verified to occur on the listed PDF page; line breaks, ligatures and hyphenation remain uncorrected. If the live parser produces a different text layout, reconcile it rather than silently shifting coordinates.
 
@@ -298,46 +299,110 @@ Many benchmark datasets for open-domain question answering exist, including HotP
 et al., 2018), MultiHop-RAG (Tang and Yang, 2024), and
 ```
 
-**Recorded passage-level approval:** reviewer `Fabrice Afopa`; review date `2026-10-21`; approved passage decisions `ML01–ML21`, including exclusion decisions `ML07`, `ML14`, and `ML21`. Real Chunk IDs remain unresolved and all whole-Chunk labels remain `PENDING`.
+**Recorded passage-level approval:** reviewer `Fabrice Afopa`; review date `2026-10-21`; approved passage decisions `ML01–ML21`, including exclusion decisions `ML07`, `ML14`, and `ML21`. That passage-only event did not approve whole Chunks. Subsequent mappings, recommendation acceptance and independent whole-Chunk approval are recorded separately in Sections 8–10.
 
 ## 8. Read-only Chunk-export mapping — 2026-10-21
 
-The supplied export was found at `data/ml/chunk_export_for_review.json` rather than the task's stated `data/processed/ml/` path. It contains 153 unique, internally consistent Chunks: 42 DPR, 62 RAG and 49 GraphRAG. Every exported `text_sha256` matches its text; every `end_char - start_char` matches text length; and every paper/PDF hash matches `corpus/corpus_manifest.json`. No malformed records or duplicate Chunk IDs were found.
+The original mapping review reported finding its supplied export at `data/ml/chunk_export_for_review.json` rather than that task's stated `data/processed/ml/` path. It recorded 153 unique, internally consistent Chunks: 42 DPR, 62 RAG and 49 GraphRAG. Every exported `text_sha256` matched its text; every `end_char - start_char` matched text length; and every paper/PDF hash matched `corpus/corpus_manifest.json`. No malformed records or duplicate Chunk IDs were found. The path used for this later reconciliation is recorded in Section 10.
 
-Passage alignment normalized Unicode, whitespace and line-break hyphenation, then required the matching paper ID, PDF hash and page. `HIGH` means one matching exported Chunk; it does not mean a human approved its role. Full texts are preserved verbatim in the read-only export under the IDs below and must be inspected there before filling the blank approval field.
+Passage alignment normalized Unicode, whitespace and line-break hyphenation, then required the matching paper ID, PDF hash and page. `HIGH` means one matching exported Chunk; it does not mean a human approved its role. Full texts remain in the private export under the IDs below. The final column now reflects Section 10's current review state; the original mapping results and warnings are preserved.
 
 | Candidate | Approved passage | Mapping / full-text reference | Proposed whole-Chunk role | Warning | Whole-Chunk approval |
 |---|---|---|---|---|---|
-| ML01 | METHOD | `651d3ede…eed0` | METHOD | — | ______ |
-| ML02 | METHOD | unresolved: `99d443f9…8df9`; `c664046a…b74a` | METHOD (each) | 200-character overlap | ______ |
-| ML03 | METHOD | `b351a904…21b4` | METHOD | — | ______ |
-| ML04 | EVALUATION | `d1c3c5ec…e1d9` | EVALUATION | — | ______ |
-| ML05 | EVALUATION | `94ceea71…0bc9` | EVALUATION | figure-caption residue | ______ |
-| ML06 | EVALUATION | `03859e00…87ce` | EVALUATION | table plus results prose | ______ |
-| ML07 | AMBIGUOUS/EXCLUDE | `697581cc…71eb` | AMBIGUOUS/EXCLUDE | title/abstract/intro mix | ______ |
-| ML08 | METHOD | `24bfdc54…4b2` | METHOD | — | ______ |
-| ML09 | METHOD | `62a59ed9…581d` | METHOD | — | ______ |
-| ML10 | METHOD | unresolved: `62a59ed9…581d`; `c11cac78…b01` | METHOD (each) | 200-character overlap | ______ |
-| ML11 | EVALUATION | `d150f9c0…bef` | EVALUATION | — | ______ |
-| ML12 | EVALUATION | `e03be809…5d9d` | EVALUATION | — | ______ |
-| ML13 | EVALUATION | `90c47b49…9011` | EVALUATION | — | ______ |
-| ML14 | AMBIGUOUS/EXCLUDE | `ec356bbd…caa7` | AMBIGUOUS/EXCLUDE | title/abstract mix | ______ |
-| ML15 | METHOD | `abeb54c8…5d9a` | METHOD | — | ______ |
-| ML16 | METHOD | `242f1e4e…1c7d` | METHOD | — | ______ |
-| ML17 | METHOD | unresolved: `06c89eae…3ce0`; `70211c11…58da` | METHOD (each) | 200-character overlap | ______ |
-| ML18 | EVALUATION | `fc1c8aea…358a` | EVALUATION | same Chunk as ML21 | ______ |
-| ML19 | EVALUATION | `a85d62e0…2278` | EVALUATION | — | ______ |
-| ML20 | EVALUATION | `32429084…a7ad` | EVALUATION | — | ______ |
-| ML21 | AMBIGUOUS/EXCLUDE | `fc1c8aea…358a` | EVALUATION | duplicate of ML18; passage exclusion is unchanged | ______ |
+| ML01 | METHOD | `651d3ede…eed0` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML02 | METHOD | unresolved: `99d443f9…8df9`; `c664046a…b74a` | METHOD (each) | 200-character overlap | UNRESOLVED — no approval |
+| ML03 | METHOD | `b351a904…21b4` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML04 | EVALUATION | `d1c3c5ec…e1d9` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML05 | EVALUATION | `94ceea71…0bc9` | EVALUATION | figure-caption residue | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML06 | EVALUATION | `03859e00…87ce` | EVALUATION | table plus results prose | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML07 | AMBIGUOUS/EXCLUDE | `697581cc…71eb` | AMBIGUOUS/EXCLUDE | title/abstract/intro mix | EXCLUDED — not a pilot label |
+| ML08 | METHOD | `24bfdc54…4b2` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML09 | METHOD | `62a59ed9…581d` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML10 | METHOD | unresolved: `62a59ed9…581d`; `c11cac78…b01` | METHOD (each) | 200-character overlap | UNRESOLVED — no approval |
+| ML11 | EVALUATION | `d150f9c0…bef` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML12 | EVALUATION | `e03be809…5d9d` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML13 | EVALUATION | `90c47b49…9011` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML14 | AMBIGUOUS/EXCLUDE | `ec356bbd…caa7` | AMBIGUOUS/EXCLUDE | title/abstract mix | EXCLUDED — not a pilot label |
+| ML15 | METHOD | `abeb54c8…5d9a` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML16 | METHOD | `242f1e4e…1c7d` | METHOD | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML17 | METHOD | unresolved: `06c89eae…3ce0`; `70211c11…58da` | METHOD (each) | 200-character overlap | UNRESOLVED — no approval |
+| ML18 | EVALUATION | `fc1c8aea…358a` | EVALUATION | same Chunk as ML21 | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML19 | EVALUATION | `a85d62e0…2278` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML20 | EVALUATION | `32429084…a7ad` | EVALUATION | — | APPROVED — NeelSabharwal, 2026-10-22 |
+| ML21 | AMBIGUOUS/EXCLUDE | `fc1c8aea…358a` | EVALUATION | duplicate of ML18; passage exclusion is unchanged | EXCLUDED — not a pilot label |
 
-Result: 18 candidates have a single exact normalized-text match; ML02, ML10 and ML17 each match two overlapping Chunks and retain no single `chunk_id`. ML18 and ML21 share one mapped Chunk, so the distinct proposed eligible set is 15 Chunks: 6 METHOD and 9 EVALUATION (DPR 2/3, RAG 2/3, GraphRAG 2/3). The proposed exclusion Chunks are ML07 and ML14; ML21 is a passage-level exclusion only and is not an additional training Chunk. The subsequent student-acceptance record controls final row status; all `actual_chunk_role_verified` values remain `NO`.
+Result: 18 candidates have a single exact normalized-text match; ML02, ML10 and ML17 each match two overlapping Chunks and retain no single `chunk_id`. ML18 and ML21 share one mapped Chunk, so the distinct eligible set is 15 Chunks: 6 METHOD and 9 EVALUATION (DPR 2/3, RAG 2/3, GraphRAG 2/3). ML07 and ML14 remain excluded mixed-content Chunks; ML21 remains an excluded passage/duplicate candidate, not an additional training Chunk. Independent approval in Section 10 now supports `actual_chunk_role_verified=YES` for the 15 eligible rows only. The other six retain `NO`.
 
 ## 9. Student acceptance of AI-reviewed recommendations — 2026-10-21
 
 **Student:** Fabrice Afopa. **Acceptance scope:** acceptance of the documented AI-reviewed recommendations, **not** a statement that the student independently inspected every complete Chunk. Passage-level approvals from 2026-10-21 are preserved.
 
-- **APPROVED eligible unique Chunks (15):** METHOD — ML01, ML03, ML08, ML09, ML15, ML16 (6); EVALUATION — ML04, ML05, ML06, ML11, ML12, ML13, ML18, ML19, ML20 (9).
+- **Accepted AI recommendations for 15 unique Chunks:** METHOD — ML01, ML03, ML08, ML09, ML15, ML16 (6); EVALUATION — ML04, ML05, ML06, ML11, ML12, ML13, ML18, ML19, ML20 (9).
 - **EXCLUDED (3):** ML07 and ML14 are unsuitable title/abstract mixed-content Chunks; ML21 is excluded from training because it duplicates ML18, while its distinct approved passage-level exclusion remains intact.
 - **UNRESOLVED, not training data (3):** ML02, ML10 and ML17 each have two overlapping source Chunks. The complete supporting Chunks are method-oriented, but no single actual Chunk ID is selected because the source passage lies in the overlap.
 
-Every accepted row has `review_status=APPROVED` and `actual_chunk_role_verified=YES` after export-based ID, paper, page, hash, source-alignment and duplicate checks; excluded rows use `EXCLUDED` and unresolved rows remain `PENDING` with `actual_chunk_role_verified=NO`. This records final student acceptance of AI-assisted technical verification, not an assertion that the student independently inspected every complete Chunk. The CSV records the reviewer, date, recommendation, acceptance scope, and training eligibility for auditability.
+At this historical acceptance step, the CSV used `review_status=APPROVED`, `actual_chunk_role_verified=YES` and `training_eligibility=ELIGIBLE_UNIQUE` for those 15 rows. Those fields alone did **not** establish independent human whole-Chunk review. Fabrice's original `student_reviewer` / `student_reviewed_at`, `ai_recommendation` and all `student_acceptance_*` fields are preserved as history, including the explicit scope limitation. The current independent-review fields and pilot eligibility gate below distinguish the later confirmation without rewriting his contribution.
+
+## 10. Independent complete-Chunk approval — 2026-10-22
+
+**Independent human reviewer:** `NeelSabharwal`. **Review date:** `2026-10-22`.
+The team lead explicitly states that he personally reviewed the 15 uniquely mapped,
+complete Neo4j Chunks and confirms their proposed METHOD/EVALUATION labels for the
+ML pilot. This records that supplied confirmation; it does not claim a new inspection
+by the assistant, an additional PDF review, a blinded second-label exercise or
+adjudication. No time of day or timezone is invented for the review date.
+
+- **Approved METHOD (6):** ML01, ML03, ML08, ML09, ML15, ML16.
+- **Approved EVALUATION (9):** ML04, ML05, ML06, ML11, ML12, ML13, ML18, ML19, ML20.
+- **Unresolved (3):** ML02, ML10, ML17; both overlapping references remain recorded,
+  no single Chunk is selected, and no independent whole-Chunk label is assigned.
+- **Excluded (3):** ML07, ML14, ML21; no reviewed pilot label is assigned. ML21 still
+  references the same Chunk as ML18, so only ML18 contributes that approved Chunk.
+
+The CSV distinguishes the layers as follows:
+
+| Fields | Meaning |
+|---|---|
+| `proposed_label`, `exact_supporting_excerpt`, `passage_review_*`, `passage_reviewer` | Original passage-level proposals and Fabrice's decisions; unchanged. |
+| `mapping_status`, `mapping_confidence`, `supporting_chunk_ids`, selected `chunk_id`, stored offsets/hash | Technical mapping evidence; unchanged. A match or confidence level is not semantic approval. |
+| `ai_recommendation`, `student_acceptance_*`, `student_reviewer`, `student_reviewed_at`, original notes | Preserved Fabrice acceptance/recommendation history; not the independent reviewer identity. |
+| `independent_review_status`, `independent_reviewer`, `independent_review_date`, `independent_review_scope` | Current independent confirmation for exactly the 15 named complete Chunks. Unresolved/excluded rows have no independent reviewer/date. |
+| `approved_whole_chunk_label`, `whole_chunk_approval`, `actual_chunk_role_verified` | Approved binary label, `APPROVED`, and `YES` for the 15; no binary approval for the other six. |
+| `training_eligibility` | `ELIGIBLE_REVIEWED_PILOT` for those 15 only; `UNRESOLVED_NOT_TRAINING` or `EXCLUDED` for the remainder. |
+
+Use the explicit independent-review fields together with a unique selected mapping
+and approved binary label as the eligibility gate; legacy `review_status` or AI
+acceptance alone is insufficient. All rows remain `DEVELOPMENT_ONLY`. Independent
+confirmation does not make these exposed labels an unseen test set or satisfy the
+future blinded-review protocol. No training, evaluation, predictions or class
+balancing were performed. Three-paper generalization limitations remain unchanged.
+
+Only the annotation CSV is allowlisted under `data/ml/`; full/private exports stay
+ignored there and under `data/processed/`. The existing local operational export at
+`data/processed/ml/chunk_export_for_review.json` can support technical checks without
+being copied into the PR or used to infer additional human approvals.
+
+### Technical reconciliation checks — 2026-10-22
+
+CSV validation passed for 21 candidate rows and 42 unique columns, with no missing
+cells or duplicate candidate IDs. The selected approved set contains 15 unique
+Chunk IDs (6 METHOD / 9 EVALUATION); each paper contributes 2 / 3. All 35 unchanged
+original CSV columns, including passages, mapping references, offsets/hashes and
+Fabrice's review history, were compared against PR head `8cfef5a`. The two updated
+original fields are `whole_chunk_approval` and `training_eligibility`; five explicit
+independent-review/label columns were added. The original rubric, candidate table
+and 21 exact passage excerpts are unchanged.
+
+Read-only checks of the existing private export verified all 153 UTF-8 text hashes,
+offset lengths and paper/PDF identities against the corpus manifest. All 21 candidate
+mapping sets matched after NFKC normalization, soft-hyphen removal, dehyphenating
+hyphen-plus-whitespace (the stored text collapses line breaks to spaces), and
+whitespace removal. The 15 selected mappings' stored offsets and hashes are unchanged.
+These checks establish technical consistency, not semantic label correctness; the
+independent approval above is based on NeelSabharwal's explicit confirmation.
+
+Ignore-rule checks confirmed that only the annotation CSV is trackable under
+`data/ml/`, while full exports, other private data, `.env` and downloaded PDFs stay
+ignored. Conflict-marker and Git whitespace checks passed. Application tests were
+not rerun for this annotation/documentation reconciliation, and no database connection,
+training or evaluation was performed.
