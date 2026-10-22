@@ -1,6 +1,32 @@
 # Proposed architecture — AI Research GraphRAG Assistant
 
-**Status: infrastructure, ingestion and the bounded retrieval/agent slice implemented; advanced APIs, GDS analytics and ML remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Actual verification is recorded separately from proposed retrieval, agent, GDS analytics and ML behavior.
+**Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; ML and remaining delivery tasks remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
+
+### Implemented advanced graph and GDS slice — prompt #7B
+
+PR #7 supplies the reviewed-evidence code; the separately authorized #7A application
+is present in the live database (22 approved Claims, three pending). This milestone
+only reads that source graph. Five GET routes under `/api/papers` implement
+`/{paper_id}/paths`, `/{paper_id}/shared`, `/{paper_id}/related`, `/centrality` and
+`/communities`. Source path traversal reuses the agent tool; new exploration uses
+fixed Cypher, approved/scoped identities and the existing complete support validator.
+Shared/related responses preserve contributing Claim IDs, evidence and qualifications.
+
+The local `python -m scripts.advanced_graph` CLI manages explicit `refresh`/`drop`
+and supports `status`, `pagerank`, `louvain`, `benchmark`. HTTP has no refresh/drop
+or database-write operation. Fingerprinted in-memory GDS projections use the exact
+approved distinct entity sets and undirected Jaccard pairs described in section 6;
+isolated Papers remain present. Current review/alias/source changes invalidate old
+names. Algorithms validate vertices/weights/orientation and reject stale snapshots.
+Stats and stream are real separate GDS executions; no output becomes a source claim.
+
+Pydantic validates IDs, hops, pagination and response scores; 400 means identical
+endpoints, 404 unknown selected Paper, 422 malformed/extra parameters, 429 an active
+algorithm request, and 503 unavailable/invalid evidence or missing/stale projection.
+Resource caps and compatibility evidence are in D23 and
+[ADVANCED_GRAPH_GDS.md](ADVANCED_GRAPH_GDS.md). No new model, dependency or service.
+The remaining endpoint proposals below, such as authenticated HTTP ingestion and
+topic exploration, are not implied to be implemented by this slice.
 
 ### Prepared review integration — prompt #7A
 

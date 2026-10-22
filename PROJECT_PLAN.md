@@ -1,6 +1,22 @@
 # Project plan — AI Research GraphRAG Assistant
 
-**Status: application milestones remain PROPOSED; local infrastructure is now explicitly authorized.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+**Status: dated implementation records below supersede the original PROPOSED milestone map; ML and remaining delivery work are incomplete.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+
+## Advanced graph/GDS execution — prompt #7B, 2026-10-21
+
+PR #7 is merged and the authorized #7A evidence application is verified live. M05/M06
+now have a bounded implemented slice: three advanced Cypher exploration endpoints,
+two algorithm endpoints, explicit in-memory similarity projection management, weighted
+PageRank/Louvain, source/alias/staleness guards, tests and real-corpus EXPLAIN/PROFILE
+benchmarks. See D23 and [ADVANCED_GRAPH_GDS.md](docs/ADVANCED_GRAPH_GDS.md) for actual
+outputs, limits, commands and validation. The rubric's exact allocations and original
+mapping remain unchanged; the professor determines earned credit.
+
+No ML training, additional paper ingestion or student-review mutation occurs here.
+Next: independently reviewed chunk labels, demonstrably usable label-blind graph
+features and a frozen whole-paper split before M07; then remaining CI/lint, diagrams,
+README/screenshots, notebook, registry/publication and live submission evidence.
+Those items are not declared complete by the analytics implementation.
 
 ## Reviewed evidence preparation — prompt #7A, 2026-10-21
 
