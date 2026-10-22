@@ -10,6 +10,7 @@ from neo4j import AsyncGraphDatabase
 from app.config import Settings
 from app.health import HealthResponse, check_readiness
 from app.agent.api import router as agent_router
+from app.analytics.api import router as analytics_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -20,6 +21,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         config = settings or Settings.from_environment()
         application.state.settings = config
         application.state.agent_lock = asyncio.Lock()
+        application.state.analytics_lock = asyncio.Lock()
         async with AsyncGraphDatabase.driver(
             config.neo4j_uri,
             auth=(config.neo4j_user, config.neo4j_password.get_secret_value()),
@@ -38,6 +40,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     application = FastAPI(title="AI Research GraphRAG Assistant", version="0.1.0", lifespan=lifespan)
     application.include_router(agent_router)
+    application.include_router(analytics_router)
 
     @application.get("/health/live", response_model=HealthResponse)
     async def live() -> HealthResponse:

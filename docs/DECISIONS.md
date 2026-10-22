@@ -2,6 +2,53 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D23 — Advanced graph reads and scientific-similarity GDS, prompt #7B
+
+- **Status/authority:** IMPLEMENTED under Prompt #7B on `feat/advanced-cypher-gds`.
+  PR #7 merged #7A at `2a8649b`; the user separately authorized its real application
+  after an offline backup. This task rechecked 22 approved / 3 pending Claims and
+  two CITES edges. No importer or real review action is rerun. Deadline October 23,
+  2026 and zero paid services remain fixed. Actual results are in
+  [ADVANCED_GRAPH_GDS.md](ADVANCED_GRAPH_GDS.md).
+- **Decision:** five parameterized GET endpoints expose citation paths, shared
+  scientific entities, related-paper Jaccard comparisons, PageRank and Louvain.
+  Reuse the existing citation tool and full source-support validator. Resolve only
+  selected real Paper IDs. Typed query/response models reject unknown query fields,
+  excessive hops/pages and non-finite scores. No raw Cypher or HTTP catalog writes.
+- **Projection:** accept only explicit human-approved USES/EVALUATED_ON/ADDRESSES
+  Claims with valid source bundles and ACCEPT-scoped canonical Entity identities.
+  Distinct entity sets determine one Jaccard-weighted unordered pair; GDS 2.13.2's
+  installed `gds.graph.project` aggregation imports it as UNDIRECTED. Null-target
+  input retains isolates. This analytical adjacency is never a persisted source fact.
+- **Lifecycle/security:** explicit local CLI refresh/drop; full snapshot fingerprints
+  identify projections. Check current reviews, aliases, source support, GDS vertices,
+  weights and orientation before algorithms, and recheck evidence afterward. Missing
+  or stale projections return 503. Limits: 16 Papers, 128 approved scientific Claims,
+  120 pairs, 64 MiB projection/algorithm budget, one thread and one API algorithm
+  request at a time. Creation uses the small vertex/edge caps; exact algorithm memory
+  estimation is supported after projection. No unsupported aggregate-projection
+  estimate is claimed. Community read routing is not a permission boundary.
+- **Algorithms:** PageRank damping 0.85, maxIterations 100, tolerance 1e-7;
+  Louvain maxLevels/maxIterations 10, tolerance 1e-4; concurrency 1 for both.
+  Stream/stat modes never write database properties. Stats is a separate execution;
+  streamed Louvain modularity is independently recomputed. No invented randomSeed.
+  GraphRAG's source use of Leiden remains distinct from this project's Louvain.
+- **Optimization:** aggregate each paper's distinct entity set before enumerating
+  bounded pairs. The measured baseline repeatedly joined per-pair claims; the new
+  query preserves results and uses existing Paper uniqueness indexes. Real PROFILE
+  evidence and alternating-order timing samples support the comparison.
+- **Alternatives/drawbacks:** a persisted SHARES_ENTITY layer would duplicate derived
+  data; citation-only metrics answer a different question; legacy Cypher projection
+  requires reciprocal directed rows. Native aggregation was tested against installed
+  5.26.32/2.13.2. Fingerprinting/support validation costs extra reads; stats and stream
+  execute algorithms twice. Three papers and one pair cannot establish influence or
+  robust research communities. Scoped benchmark/architecture identity does not equate
+  experimental settings, checkpoints or weights; A17 remains unresolved.
+- **Remaining decisions:** no extra architecture approval is needed within this
+  explicitly authorized slice. ML labels, usable graph features, held-out evaluation,
+  publication and submission evidence remain separate tasks. No corpus expansion,
+  ML training, source review changes, commit, push or merge is performed here.
+
 ## D22 — Documented review integration, prompt #7A, 2026-10-21
 
 - **Status/authority:** preparation and read-only real-corpus validation IMPLEMENTED;
