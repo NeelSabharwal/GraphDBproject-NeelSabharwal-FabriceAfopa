@@ -35,6 +35,7 @@ def plan_summary(plan):
 
 
 def normalized(rows):
+    """Canonicalize query rows and list values for order-independent result comparison."""
     return sorted(
         json.dumps({k: sorted(v) if isinstance(v, list) else v for k, v in r.items()}, sort_keys=True) for r in rows
     )
@@ -115,6 +116,7 @@ async def benchmark(service):
 
 
 async def execute(command, name=None):
+    """Dispatch the selected operator command with bounded Neo4j connection settings."""
     config = Settings.from_environment()
     async with AsyncGraphDatabase.driver(
         config.neo4j_uri,
@@ -146,6 +148,7 @@ async def execute(command, name=None):
 
 
 def main():
+    """Parse the explicit analytical operation and print its JSON result."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["status", "refresh", "drop", "pagerank", "louvain", "benchmark"])
     parser.add_argument("--name", help="Exact managed projection name for explicit drop")

@@ -48,21 +48,29 @@ class ToolCall(StrictModel):
 
 
 class SearchAction(StrictModel):
+    """Select bounded semantic retrieval through the approved search tool."""
+
     name: Literal["search_chunks"]
     arguments: SearchChunks
 
 
 class ExcerptAction(StrictModel):
+    """Select an explicit source read before using a Chunk as evidence."""
+
     name: Literal["get_source_excerpt"]
     arguments: SourceExcerpt
 
 
 class PathAction(StrictModel):
+    """Select a directed citation lookup with validated endpoint arguments."""
+
     name: Literal["find_citation_path"]
     arguments: CitationPath
 
 
 class ExpandAction(StrictModel):
+    """Select bounded expansion through student-approved scientific claims."""
+
     name: Literal["expand_verified_evidence"]
     arguments: ExpandEvidence
 
@@ -72,6 +80,8 @@ class EmptyArguments(StrictModel):
 
 
 class FinishAction(StrictModel):
+    """Request completion; the workflow still enforces its evidence gate."""
+
     name: Literal["FINISH"]
     arguments: EmptyArguments
 

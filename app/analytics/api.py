@@ -15,27 +15,35 @@ PaperID = Annotated[str, Path(pattern=PAPER_PATTERN, max_length=100)]
 
 
 class Paging(BaseModel):
+    """Bound the size and offset of analytical response pages."""
+
     model_config = ConfigDict(extra="forbid")
     limit: int = Field(default=20, ge=1, le=20)
     offset: int = Field(default=0, ge=0, le=100)
 
 
 class PathOptions(BaseModel):
+    """Validate a pinned target Paper ID and the citation traversal depth."""
+
     model_config = ConfigDict(extra="forbid")
     target_id: str = Field(pattern=PAPER_PATTERN, max_length=100)
     max_hops: int = Field(default=3, ge=1, le=3)
 
 
 class SharedOptions(Paging):
+    """Filter shared reviewed entities by target Paper and optional kind."""
+
     target_id: str = Field(pattern=PAPER_PATTERN, max_length=100)
     kind: Literal["Method", "Dataset", "Task"] | None = None
 
 
 def get_graph(request: Request):
+    """Build the read-only analytics dependency from application settings."""
     return Analytics(request.app.state.driver, request.app.state.settings)
 
 
 async def guarded(awaitable):
+    """Translate known graph, validation and budget failures into safe HTTP errors."""
     try:
         return await awaitable
     except UnknownPaper as error:
@@ -53,6 +61,7 @@ async def guarded(awaitable):
 
 
 async def run_algorithm(request, graph, algorithm, options):
+    """Serialize analytical requests and reject concurrent work with HTTP 429."""
     lock = request.app.state.analytics_lock
     if lock.locked():
         raise HTTPException(429, detail="Analytics busy; retry after the current request")

@@ -6,6 +6,8 @@ from app.agent.models import Evidence
 
 
 class Model(BaseModel):
+    """Reject extra analytical fields and nonfinite numeric results."""
+
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
@@ -26,18 +28,24 @@ class Support(BaseModel):
 
 
 class CitationEdge(Model):
+    """A directed citation edge with the reviewed claims supporting it."""
+
     source: str
     target: str
     claims: list[Support]
 
 
 class CitationRoute(Model):
+    """An ordered Paper path and the source-supported edges connecting it."""
+
     type: Literal["CITES"]
     papers: list[str]
     edges: list[CitationEdge]
 
 
 class PathResponse(Model):
+    """Return authenticated citation paths or an explicit unavailable result."""
+
     status: Literal["ok", "unavailable"]
     paths: list[CitationRoute]
     evidence: list[Evidence]
@@ -45,6 +53,8 @@ class PathResponse(Model):
 
 
 class SharedEntity(Model):
+    """A scoped scientific identity with claim IDs from both compared Papers."""
+
     entity_id: str
     name: str
     kind: Literal["Method", "Dataset", "Task"]
@@ -53,6 +63,8 @@ class SharedEntity(Model):
 
 
 class SharedResponse(Model):
+    """A page of shared identities with complete claim and Chunk evidence."""
+
     source: str
     target: str
     entities: list[SharedEntity]
@@ -63,6 +75,8 @@ class SharedResponse(Model):
 
 
 class RelatedPaper(Model):
+    """A Paper ranked by scoped entity overlap, not scientific quality."""
+
     paper_id: str
     title: str
     similarity: float = Field(gt=0, le=1)
@@ -72,6 +86,8 @@ class RelatedPaper(Model):
 
 
 class RelatedResponse(Model):
+    """Paginated similarity results with source support and interpretation limits."""
+
     source: str
     papers: list[RelatedPaper]
     supports: list[Support]
@@ -82,6 +98,8 @@ class RelatedResponse(Model):
 
 
 class Rank(Model):
+    """A streamed PageRank score and its validated weighted degree."""
+
     paper_id: str
     title: str
     score: float = Field(ge=0)
@@ -89,6 +107,8 @@ class Rank(Model):
 
 
 class Membership(Model):
+    """A streamed community assignment; numeric community IDs are arbitrary."""
+
     paper_id: str
     title: str
     community_id: int = Field(ge=0)
@@ -96,6 +116,8 @@ class Membership(Model):
 
 
 class Adjacency(Model):
+    """A derived Jaccard edge with the reviewed claims behind its entity sets."""
+
     source: str
     target: str
     shared: list[str]
@@ -106,6 +128,8 @@ class Adjacency(Model):
 
 
 class AnalyticsResponse(Model):
+    """Expose snapshot, projection, budgets and streamed GDS results together."""
+
     algorithm: Literal["pagerank", "louvain"]
     projection: str
     snapshot: str

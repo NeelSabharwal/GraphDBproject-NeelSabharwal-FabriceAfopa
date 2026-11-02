@@ -361,6 +361,7 @@ class ReviewedImporter:
         self.entity_ids = [a["canonical_id"] for a in inputs["decisions"]["aliases"].values() if a["canonical_id"]]
 
     def inspect(self):
+        """Read the scoped graph snapshot and fingerprint without changing review state."""
         with self.driver.session(default_access_mode="READ") as session:
             return session.execute_read(self._snapshot)
 
@@ -369,6 +370,7 @@ class ReviewedImporter:
         return snapshot(tx, self.paper_ids, self.entity_ids)
 
     def dry_run(self):
+        """Prepare proposed actions and reject concurrent graph changes without writing."""
         state = self.inspect()
         plan = prepare(self.inputs, state)
         require(self.inspect()["fingerprint"] == state["fingerprint"], "Graph changed during dry-run")
