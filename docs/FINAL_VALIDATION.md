@@ -1,7 +1,8 @@
-# Final local validation — 2026-11-02
+# Final validation — 2026-11-02
 
-This report records actual local work, not a grade, a GitHub Actions result, publication
-or submission. The October 23 deadline has passed. All operations used local/free tooling.
+This report preserves chronological local and remote evidence, not a grade or submission.
+Earlier non-publication and review-status statements describe their historical phase;
+the latest public-image verification and retrospective-review record below supersede them. The October 23 deadline has passed. All operations used local/free tooling.
 Private reports are under `data/processed/final-delivery-20261102/`; source PDFs, exports,
 model weights, backups and credentials are excluded from the public packages.
 
@@ -501,3 +502,77 @@ Actual publication status: **NOT PUBLISHED**. Registry digest, public package UR
 anonymous-pull result are unavailable, not inferred from local image success. Obtain genuine release-PR review/merge, then use the exact
 manual workflow/package-only visibility instructions in IMAGE_PUBLICATION.md. R04
 remains BLOCKED; R42 and R47 remain PARTIAL; no grading points are awarded by this audit.
+
+## Public API verification — 2026-11-02
+
+Published by the successful [reviewed-main workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41516036652) on 2026-11-02
+at 20:07:58 UTC, from main `9dc29fe2bac68abf12bff335ad2e5cdc061c3393` (merged PR #14).
+Its actual source/content gate reported `publication_allowed: true` and no blocking errors.
+
+- [Public API package](https://github.com/users/NeelSabharwal/packages/container/package/graphdbproject-neelsabharwal-fabriceafopa-api) — anonymous package-page HTTP 200.
+- Image: `ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api`.
+- Tag: `sha-9dc29fe2bac68abf12bff335ad2e5cdc061c3393`.
+- Registry digest: `sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf`.
+- Actual image: linux/amd64, non-root `appuser`, 1,685,511,578 bytes; revision label matches main.
+- Independent anonymous `docker pull` with a newly created empty `DOCKER_CONFIG`
+  succeeded and returned that exact digest. Docker reported **Image is up to date**:
+  layers were cached. This independently verifies public registry access, not a fresh
+  download of every layer. The operator separately reported a successful full anonymous download.
+- Anonymous tag-manifest inspection returned the same digest; the package is Public.
+  GitHub repository API returned `private: true`, `visibility: private`.
+- Running that digest with `--network none --read-only --cap-drop ALL
+  --security-opt no-new-privileges`, no mounts and only a synthetic test password,
+  returned `/health/live: 200` and `/docs: 200` through FastAPI TestClient.
+  This verifies offline application routes, not live dependency readiness or production networking.
+
+No Neo4j/GDS image was published by this workflow. No database connection, ingestion,
+scientific review, label edit or ML training was performed in this verification task.
+R04 is now VERIFIED; that evidence status is not a professor-awarded mark.
+
+### Fresh checks for the documentation update
+
+Isolated branch `docs/final-ghcr-verification` at `/tmp/project8-final-ghcr-verification`,
+based on current main `9dc29fe2bac68abf12bff335ad2e5cdc061c3393`. Existing checkouts preserved.
+The immutable published image ran tests with this worktree mounted read-only,
+network disabled and only `/tmp` writable:
+
+- `python -m pytest -m 'not integration' --cov=app --cov-fail-under=60 --cov-report=term`:
+  **318 passed, 55 deselected, one upstream warning, 10.90 s; 75.84% coverage**.
+- `python -m pylint --rcfile=.pylintrc --fail-under=9.5 app scripts`: **9.56/10**.
+- Full database integration was deliberately not rerun; prior 358-pass/94.61% evidence
+  remains historical. No live graph fingerprint is claimed for this offline task.
+- All 23 protected requirement/source/review/gold/label/frozen-model hashes match the
+  previous acceptance inventory. Application, scientific records and all tracked
+  files outside the four documentation changes match the main baseline.
+- Exact 49 rubric criteria/100 points, local Markdown file links, Git whitespace and
+  four-path scope checks passed. Private logs are ignored in `data/processed/ghcr-verification/`.
+- Merged-main [quality run 41514134025](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41514134025)
+  passed: 318 tests, 55 deselected, 75.84% coverage, 13.97 s; pylint 9.56/10.
+- Publication workflow success is linked above. The new documentation branch's quality
+  CI is checked after push and recorded on its PR, separately from these local results.
+
+### Retrospective review evidence inspected on 2026-11-02
+
+Actual GitHub discussion, inline-comment and review endpoints were inspected for
+PRs #7–#13. The following new comments are all **after merge**; they are constructive
+review discussion, not evidence of pre-merge review, independent test execution or
+new scientific approvals. Existing earlier label approval on PR #8 remains separate.
+
+| PR | Merge time (UTC) | New post-merge comments | Author, UTC time on 2026-11-02 and linked concerns |
+|---|---|---|---|
+| #7 | 2026-10-21 15:32:16 | 2 post-merge comments | [fabrice12345C 17:55:55: Importer idempotency/rollback](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/7#discussion_r4445826093); [fabrice12345C 17:56:30: Approved traversal boundaries](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/7#discussion_r4445831738) |
+| #8 | 2026-10-22 15:50:05 | 4 post-merge comments | [NeelSabharwal 17:46:16: Overlapping chunks/paper split](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/8#discussion_r4445730202); [NeelSabharwal 17:46:42: Excluded versus eligible labels](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/8#discussion_r4445734085); [fabrice12345C 17:58:03: Overlapping chunks/paper split](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/8#discussion_r4445849749); [fabrice12345C 17:58:54: Excluded versus eligible labels](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/8#discussion_r4445859794) |
+| #9 | 2026-10-22 15:28:44 | 2 post-merge comments | [fabrice12345C 18:00:00: Tiny GDS projection limitations](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/9#discussion_r4445871812); [fabrice12345C 18:00:35: Equivalent results and warm-cache limits](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/9#discussion_r4445878125) |
+| #10 | 2026-11-02 15:17:04 | 2 post-merge comments | [fabrice12345C 18:01:24: MENTIONS provenance versus approved Claims](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10#discussion_r4445887156); [fabrice12345C 18:02:04: Preserve failed held-out ML result](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10#discussion_r4445894689) |
+| #11 | 2026-11-02 16:22:50 | 4 post-merge comments | [NeelSabharwal 17:47:36: Live notebook data versus persisted writes](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11#discussion_r4445742469); [NeelSabharwal 17:48:08: Evidence versus awarded grades](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11#discussion_r4445747874); [fabrice12345C 18:02:44: Live notebook data versus persisted writes](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11#discussion_r4445901437); [fabrice12345C 18:03:15: Evidence versus awarded grades](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11#discussion_r4445906786) |
+| #12 | 2026-11-02 17:04:01 | 2 post-merge comments | [fabrice12345C 18:04:20: Docstrings without broad lint suppression](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/12#discussion_r4445916456); [fabrice12345C 18:05:14: Redistribution and image-content gates](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/12#discussion_r4445924966) |
+| #13 | 2026-11-02 17:32:41 | 2 post-merge comments | [fabrice12345C 18:05:40: Live visualizations and small-corpus limits](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/13#discussion_r4445928993); [fabrice12345C 18:06:02: Preserve scientific/historical cleanup records](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/13#discussion_r4445932462) |
+
+Totals: 18 new post-merge inline comments across these seven PRs (two each on #7,
+#9, #10, #12, #13; four each on #8 and #11). PR #8 also retains Neel's actual
+2026-10-22 14:58:26 UTC whole-Chunk approval, before its merge. Fabrice's own-PR
+comments on #8/#11 are not represented as independent teammate reviews. R42 stays
+PARTIAL: this audit does not establish the professor's two-constructive-comments
+requirement across every PR. R47 stays PARTIAL: comment counts and Git authorship do
+not independently establish balanced substantive contribution. No reviews or author
+identities were created or rewritten, and the frozen ML result remains 0/5 versus 3/5 baseline.

@@ -7,7 +7,7 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R01 | **Docker Infra & Services** | `docker-compose.yml` with ≥3 services | 2 | docker-compose.yml | Three functional healthy services; actual status/health logs | VERIFIED | None locally |
 | R02 | **Docker Infra & Services** | Proper `Dockerfile` / official image | 2 | Dockerfile; docker/neo4j.Dockerfile | Pinned API and Neo4j/GDS builds completed | VERIFIED | Public GDS redistribution remains separate |
 | R03 | **Docker Infra & Services** | `.env.example`, no secrets committed | 2 | .env.example; .gitignore; app/config.py | Known-secret and image-exclusion checks; dummy placeholders only | VERIFIED | Keep operator credentials private |
-| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | .github/workflows/publish-api.yml; scripts/release_preflight.py; docs/IMAGE_PUBLICATION.md | API source-wrapper build and 16-layer audit; 245 source archives verified; final real preflight exit 0; manual workflow lint/regression tests pass; no publication | BLOCKED | Review/merge workflow; run on explicit main SHA; verify actual push/public visibility/anonymous pull and record digest/link |
+| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | .github/workflows/publish-api.yml; scripts/release_preflight.py; docs/IMAGE_PUBLICATION.md | [Public package](https://github.com/users/NeelSabharwal/packages/container/package/graphdbproject-neelsabharwal-fabriceafopa-api); anonymous tag/digest pull confirmed; offline live/docs 200; [publication evidence](IMAGE_PUBLICATION.md) | VERIFIED | None for public API image; source repository remains private |
 | R05 | **Docker Infra & Services** | Docker Compose starts cleanly | 1 | Makefile; docker-compose.yml | Bounded startup wait, /health/live and /health/ready both HTTP 200 | VERIFIED | Provision model digests before first API start |
 | R06 | **Neo4j Database** | Schema: ≥3 labels, ≥3 relation types | 3 | app/ingestion/graph.py | Live 4 labels and 7 relationship types | VERIFIED | None |
 | R07 | **Neo4j Database** | ≥2 constraints | 2 | app/ingestion/graph.py | SHOW CONSTRAINTS: four ID uniqueness constraints | VERIFIED | None |
@@ -29,7 +29,7 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R23 | **Schemas & Modeling** | Neo4j graph diagram | 2 | docs/diagrams/graph-schema.drawio; graph-schema.svg | Editable XML and viewable SVG match four labels/seven relation types | VERIFIED | Students must defend schema choices |
 | R24 | **Schemas & Modeling** | System architecture diagram | 2 | docs/diagrams/system-architecture.drawio; system-architecture.svg | Editable XML and SVG match actual services, boundaries and data flow | VERIFIED | None |
 | R25 | **Schemas & Modeling** | Modeling rationale + anti-genericity appendix | 3 | docs/ARCHITECTURE.md; docs/DECISIONS.md; docs/DEMONSTRATION.md | Reified claims, alias scopes, source layers and alternatives explicitly explained | VERIFIED | Student oral defense remains unobserved |
-| R26 | **Documentation** | Complete README + screenshots | 3 | README.md; docs/screenshots | Merged PRs #11/#12; final setup/navigation/screenshots/notebook dependency and CI links checked | VERIFIED | Public image link blocked; private CI requires repository access |
+| R26 | **Documentation** | Complete README + screenshots | 3 | README.md; docs/screenshots | Merged PRs #11/#12; final setup/navigation/screenshots/notebook dependency and CI links checked | VERIFIED | Public image link verified; private CI requires repository access |
 | R27 | **Documentation** | Demonstration notebook | 2 | demo.ipynb; scripts/execute_notebook.py | Final 22 cells executed; actual directed path and PageRank SVG rendered; graph fingerprint unchanged | VERIFIED | Private executed output remains ignored |
 | R28 | **Clean Code** | `.pylintrc`, pylint ≥ 9.5, `make lint` | 2 | .pylintrc; Makefile | Release follow-up lint 9.56/10; all app/scripts; missing-docstring checks enabled | VERIFIED | Remaining complexity/style findings visible |
 | R29 | **Clean Code** | PEP 8 + clean architecture | 1 | app; scripts; tests; Makefile | Black formatting executed; layers retain explicit responsibility | VERIFIED | Some large provenance functions still emit refactoring warnings |
@@ -42,10 +42,10 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R36 | **Tests** | Cypher tests | 2 | tests/test_retrieval_graph.py; test_advanced_graph.py; test_mentions.py | Real fixed Cypher, projection guards, transactional rollback/idempotency | VERIFIED | Synthetic fixtures do not establish large-corpus quality |
 | R37 | **Tests** | Coverage ≥ 60% | 2 | Makefile; pyproject.toml | Final full coverage 94.61%; local unit/API and merged-main remote unit/API 75.84% | VERIFIED | Coverage is not semantic correctness |
 | R38 | **Tests** | All tests pass | 1 | tests; docs/FINAL_VALIDATION.md | Final complete suite 358 passed; notebook 22 cells executed; no new failures | VERIFIED | Earlier isolated-mount failures remain documented historically |
-| R39 | **SE Best Practices** | Lint workflow | 1 | .github/workflows/quality.yml | PR #12 push/PR and main b782bbf quality runs succeeded; main lint job 125421711673: 9.54 | VERIFIED | Final acceptance CI is checked after push; local acceptance score 9.55 is separate |
-| R40 | **SE Best Practices** | Test workflow | 1 | .github/workflows/quality.yml | Merged-main run 41487540210 unit-api job 125421711774: 303 passed, 55 deselected, 75.84% | VERIFIED | 55 real-dependency tests run locally; acceptance-branch results reported with its PR |
+| R39 | **SE Best Practices** | Lint workflow | 1 | .github/workflows/quality.yml | Merged-main 9dc29fe quality run 41514134025 lint succeeded: 9.56/10 | VERIFIED | Documentation branch CI is checked after push; local lint 9.56 is separate |
+| R40 | **SE Best Practices** | Test workflow | 1 | .github/workflows/quality.yml | Merged-main run 41514134025: 318 passed, 55 deselected, 75.84%, 13.97 s | VERIFIED | 55 real-dependency tests run locally; acceptance-branch results reported with its PR |
 | R41 | **SE Best Practices** | README badges | 1 | README.md | main quality.yml badge and dated local-build / b782bbf remote-coverage badges point to actual evidence | VERIFIED | Private repository CI/badges can require sign-in; snapshots are not live coverage services |
-| R42 | **SE Best Practices** | Code reviews | 1 | GitHub PR #4/#5/#8/#9; docs/FINAL_VALIDATION.md | PRs #1–#12 inspected; substantive review records on #1–#5; #8 one label approval; #7/#9–#12 no returned comments | PARTIAL | Genuine constructive student comments still needed; no fabricated or retroactive pre-merge review history |
+| R42 | **SE Best Practices** | Code reviews | 1 | GitHub PRs #1–#13; docs/FINAL_VALIDATION.md | Earlier #1–#5 evidence retained; 18 genuine post-merge comments on #7–#13 inspected and linked; #8 earlier label approval separate | PARTIAL | Two constructive comments per PR not fully evidenced across all PRs; retrospective comments are not pre-merge reviews |
 | R43 | **SE Best Practices** | Reverse proxy or authentication | 3 | app/corpus/api.py; tests/test_corpus.py | Fail-closed bearer auth; missing/wrong/correct HTTP 401/403/200 observed | VERIFIED | Local shared secret; not production multi-user authorization |
 | R44 | **SE Best Practices** | `EXPLAIN` / `PROFILE` demonstration | 2 | scripts/advanced_graph.py; demo.ipynb | Actual EXPLAIN/PROFILE plans, DB counters and no persisted updates | VERIFIED | None |
 | R45 | **Git** | Branch workflow | 2 | Existing Git branches/history; handoff instructions | Merged PRs #10/#11/#12; isolated feat/final-acceptance from main b782bbf; original checkout preserved | VERIFIED | Final PR merge requires user confirmation |
@@ -56,16 +56,16 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 
 ## Open evidence and penalty risks
 
-- R04 (2 points) is **BLOCKED**, not satisfied: publication is authorized, but current
-  the manual GITHUB_TOKEN route and local gates are prepared/passed but reviewed-main
-  publication and anonymous public access have not occurred. The [publication guide](IMAGE_PUBLICATION.md) records the concrete
-  image scan, license inventory and operator steps. No image URL/digest is invented.
-- Actual quality runs passed for PRs #10–#12 and their main merges. Latest merged-main
-  evidence: [run 41487540210](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210).
-  Local final-acceptance tests are separate; its own CI is checked after push.
-- R42 requires at least two constructive comments per PR. This is not evidenced for
-  every PR; #10/#11/#12 have no returned review or issue comments. Human reviews must
-  be genuine and dated as performed, without inventing pre-merge history.
+- R04 (2 allocated points) is now **VERIFIED**: independent anonymous pull/tag resolution
+  returned the published digest, and offline live/docs checks passed. See the
+  [publication record](IMAGE_PUBLICATION.md). Source privacy remains unchanged.
+- Latest merged-main quality evidence: [run 41514134025](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41514134025),
+  318 tests / 75.84% coverage / pylint 9.56. Local checks and the documentation
+  branch CI are reported separately.
+- R42 remains PARTIAL. Eighteen actual post-merge comments on #7–#13 are now
+  [linked with timestamps](FINAL_VALIDATION.md#retrospective-review-evidence-inspected-on-2026-11-02).
+  They improve documented discussion but cannot establish pre-merge reviews or
+  two constructive comments across every PR. No new approvals are inferred.
 - R47 remains PARTIAL: balanced non-merge counts support participation but do not
   determine substantive effort, independence or the professor's assessment.
 - ML mechanics are verified, but logistic 0/5 versus majority 3/5 is weak evidence.
@@ -88,14 +88,14 @@ unchanged checklist.
 
 | Evidence status | Rows | Allocated points |
 |---|---:|---:|
-| VERIFIED within stated scope | 46 | 94 |
+| VERIFIED within stated scope | 47 | 96 |
 | PARTIAL: R42, R47 | 2 | 4 |
-| BLOCKED: R04 | 1 | 2 |
+| BLOCKED | 0 | 0 |
 | MISSING | 0 | 0 |
 | Total | 49 | 100 |
 
 Before PR #12: 42 VERIFIED / 6 PARTIAL / 1 MISSING. After PR #12: 46 VERIFIED /
-2 PARTIAL / 1 MISSING. Final acceptance retains the 46 verified rows and changes
+2 PARTIAL / 1 MISSING. Historical final acceptance retained the 46 verified rows and changed
 R04 to BLOCKED to explain authorization and the remaining gates. It also closes an
 overlooked notebook evidence gap: the previous text-only exploration now has two
 executed visualizations derived from live results. No additional grading credit is
@@ -104,7 +104,9 @@ self-awarded, and blocked/partial allocations are not counted as verified points
 [Final command results, graph invariants, CI and cleanup](FINAL_VALIDATION.md#final-acceptance--2026-11-02).
 The scientific corpus, approval/label records, gold and failed ML result remain unchanged.
 
-## GHCR release follow-up — 2026-11-02
+## Historical GHCR release preparation — 2026-11-02
+
+The following pre-publication snapshot is superseded by the confirmed public pull below.
 
 PR #13 is merged at d35cd2e. The dedicated release PR adds manual/main-only publishing
 with contents-read/packages-write permissions and a tested fail-closed preflight.
@@ -117,3 +119,14 @@ R04 therefore remains BLOCKED; totals stay **46 VERIFIED / 2 PARTIAL / 1 BLOCKED
 allocated **94 / 4 / 2 points**, not grades. Reviews and contribution assessment remain
 partial. Current offline checks are distinguished from the previous full live suite
 in [FINAL_VALIDATION.md](FINAL_VALIDATION.md); no scientific experiment was rerun.
+
+## Confirmed GHCR publication — 2026-11-02
+
+PR #14 merged at `9dc29fe2bac68abf12bff335ad2e5cdc061c3393`. The manual publication
+workflow succeeded; its public SHA tag resolves to registry digest
+`sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf`.
+Independent anonymous pull and offline liveness/Swagger passed, source repository
+privacy was confirmed, and README now links the real public package. R04 changes
+from BLOCKED to VERIFIED. Current totals: **47 VERIFIED / 2 PARTIAL / 0 BLOCKED /
+0 MISSING**, allocated **96 / 4 / 0 / 0 points**, not awarded marks. R42 and R47
+remain partial for the reasons above. No scientific data, review or frozen ML result changed.

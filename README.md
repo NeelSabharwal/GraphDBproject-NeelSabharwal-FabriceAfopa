@@ -251,25 +251,29 @@ from Neel's explicit whole-Chunk approval. The final two packages are coordinate
 AI-assisted preparation; uploading a package does not create independent authorship
 or review evidence. Both students must understand and defend the implementation.
 
-## Public API image: local gates passed; publication pending
+## Public API image
 
-The API-only release workflow is manual (`workflow_dispatch`) and uses its repository
-`GITHUB_TOKEN`; no personal access token is needed. It accepts an explicit reviewed
-current-main SHA and checks source/notice inventory, every image layer and liveness
-before login/push. The release wrapper supplies 245 hash-verified public third-party
-source archives/descriptors; the ordinary Compose deployment stays unchanged.
+[Public GHCR package](https://github.com/users/NeelSabharwal/packages/container/package/graphdbproject-neelsabharwal-fabriceafopa-api), published on 2026-11-02 by the
+[reviewed-main workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41516036652). The GitHub source repository remains **private**.
 
-**No image has been published and no registry digest is claimed.** Publication remains
-pending release-PR review/merge and the actual reviewed-main workflow run. Exact
-source mappings for all three libquadmath libraries are now established and bundled;
-the final local preflight exits 0. There is no force/ignore option. The
-repository remains private and no project LICENSE was added. The [publication guide](docs/IMAGE_PUBLICATION.md)
-records the exact blocker, image scan, manual workflow and package-only visibility /
-anonymous-pull steps. Never publish the Neo4j/GDS image, corpus, gold, labels, model
-weights, database volumes or private reports.
+- Image: `ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api`
+- Pinned release tag: `sha-9dc29fe2bac68abf12bff335ad2e5cdc061c3393`
+- Immutable registry digest: `sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf`
 
-PRs [#10](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10)
-and [#11](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11)
-are now merged, with successful lint and unit/API runs. The [rubric audit](docs/FINAL_RUBRIC_AUDIT.md)
-retains the remaining publication, review and contribution-assessment gaps. Final human
-review, oral demonstration and acceptance of late academic submission cannot be automated.
+Download by digest (preferred over a mutable registry tag):
+
+```bash
+docker pull ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api@sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf
+```
+
+Independent anonymous pull and tag resolution succeeded; the offline, network-disabled,
+read-only image returned HTTP 200 for `/health/live` and `/docs`. Local layers were
+cached during the independent pull; the operator also reported a full anonymous download.
+This API-only image includes required third-party sources/notices, but no corpus,
+Neo4j data, model weights or private evaluation data. Full service readiness still
+requires the configured Neo4j and Ollama dependencies. See the
+[publication record and offline check commands](docs/IMAGE_PUBLICATION.md).
+
+The [rubric audit](docs/FINAL_RUBRIC_AUDIT.md) now verifies public-registry evidence.
+Retrospective reviews and substantive contribution balance remain qualified; oral
+defense and acceptance of late academic submission cannot be established by code.

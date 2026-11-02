@@ -1,4 +1,50 @@
-# API image publication — local gates passed; reviewed-main publication pending
+# API image publication — public pull verified
+
+## Public API verification — 2026-11-02
+
+Published by the successful [reviewed-main workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41516036652) on 2026-11-02
+at 20:07:58 UTC, from main `9dc29fe2bac68abf12bff335ad2e5cdc061c3393` (merged PR #14).
+Its actual source/content gate reported `publication_allowed: true` and no blocking errors.
+
+- [Public API package](https://github.com/users/NeelSabharwal/packages/container/package/graphdbproject-neelsabharwal-fabriceafopa-api) — anonymous package-page HTTP 200.
+- Image: `ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api`.
+- Tag: `sha-9dc29fe2bac68abf12bff335ad2e5cdc061c3393`.
+- Registry digest: `sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf`.
+- Actual image: linux/amd64, non-root `appuser`, 1,685,511,578 bytes; revision label matches main.
+- Independent anonymous `docker pull` with a newly created empty `DOCKER_CONFIG`
+  succeeded and returned that exact digest. Docker reported **Image is up to date**:
+  layers were cached. This independently verifies public registry access, not a fresh
+  download of every layer. The operator separately reported a successful full anonymous download.
+- Anonymous tag-manifest inspection returned the same digest; the package is Public.
+  GitHub repository API returned `private: true`, `visibility: private`.
+- Running that digest with `--network none --read-only --cap-drop ALL
+  --security-opt no-new-privileges`, no mounts and only a synthetic test password,
+  returned `/health/live: 200` and `/docs: 200` through FastAPI TestClient.
+  This verifies offline application routes, not live dependency readiness or production networking.
+
+No Neo4j/GDS image was published by this workflow. No database connection, ingestion,
+scientific review, label edit or ML training was performed in this verification task.
+R04 is now VERIFIED; that evidence status is not a professor-awarded mark.
+
+## Download and reproduce the offline check
+
+```bash
+release_image=ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api
+release_digest=sha256:9b22b9a0a1396b7fc3485574a9a6a19a35b2316f7d0740bcc4435504912b73cf
+anonymous_config=$(mktemp -d)
+DOCKER_CONFIG="$anonymous_config" docker pull "$release_image@$release_digest"
+rmdir "$anonymous_config"
+docker run --rm --network none --read-only --cap-drop ALL \
+  --security-opt no-new-privileges \
+  -e NEO4J_PASSWORD=synthetic-offline-smoke-password \
+  --entrypoint python "$release_image@$release_digest" -c \
+  'from fastapi.testclient import TestClient; from app.main import create_app; c=TestClient(create_app()); results={p:c.get(p).status_code for p in ["/health/live","/docs"]}; print(results); assert all(v==200 for v in results.values())'
+```
+
+## Historical release preparation
+
+The following record describes the pre-publication state. Its pending-publication
+statements are historical and superseded by the verified result above.
 
 The owner authorizes public publication of **only the API image**, after all release
 gates pass. The source repository remains **PRIVATE**. No API image has been pushed,
