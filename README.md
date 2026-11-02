@@ -2,14 +2,14 @@
 
 [![Quality workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml)
 
-[![API build: local 2026-11-02](https://img.shields.io/badge/API_build-local_2026--11--02-blue)](docs/FINAL_VALIDATION.md#rubric-gap-closure-follow-up--2026-11-02)
-[![Unit/API coverage: 75.84% at f46b2a9](https://img.shields.io/badge/unit_API_coverage-75.84%25_at_f46b2a9-blue)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111/job/125398557775)
+[![API build: local 2026-11-02](https://img.shields.io/badge/API_build-local_2026--11--02-blue)](docs/FINAL_VALIDATION.md#final-acceptance--2026-11-02)
+[![Unit/API coverage: 75.84% at b782bbf](https://img.shields.io/badge/unit_API_coverage-75.84%25_at_b782bbf-blue)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210/job/125421711774)
 
 The quality badge follows `main` in this repository. The other two badges are dated
 measurements, not live build/coverage services. The repository is private: sign in
 with repository access to view CI links; the GitHub badge may be unavailable to anonymous
 viewers. **Merged-main CI verified November 2, 2026:** lint and unit/API jobs passed
-at `f46b2a9` ([run](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111)). The historical October 23 deadline has passed; no extension/submission is claimed.
+at `b782bbf` ([run](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210)). The historical October 23 deadline has passed; no extension/submission is claimed.
 
 This zero-paid-services application helps students inspect AI research papers through
 source-grounded answers, directed citation paths, shared datasets/methods, and graph
@@ -37,6 +37,24 @@ chain, a shared reviewed dataset identity, or a multi-chunk source assertion. Th
 makes these relationships queryable with their review and provenance constraints. It
 also adds complexity and selective extraction coverage; no retrieval-quality superiority
 or large-corpus generalization is established by these three papers.
+
+## Evaluator navigation
+
+| Need | Current source |
+|---|---|
+| Setup, API calls, runtime limits | This README |
+| All 49 requirements and evidence status | [Final rubric audit](docs/FINAL_RUBRIC_AUDIT.md) |
+| Actual commands, failures, CI and graph invariants | [Final validation](docs/FINAL_VALIDATION.md) |
+| Live notebook and defense sequence | [Demonstration guide](docs/DEMONSTRATION.md), `demo.ipynb` |
+| Implemented design and alternatives | [Architecture](docs/ARCHITECTURE.md), [decision register](docs/DECISIONS.md) |
+| Frozen failed ML experiment | [ML results](docs/GRAPH_ML.md) |
+| Public API image status and operator steps | [Publication guide](docs/IMAGE_PUBLICATION.md) |
+| Cleanup decisions and preserved historical records | [Cleanup report](docs/REPOSITORY_CLEANUP.md) |
+
+`PROJECT_BRIEF.md`, the original milestone matrix, research handoffs and dated audits
+preserve planning/review history. Their proposed counts and then-pending states do
+not override the current reports. Scientific approval records and original hashes
+remain unchanged. No historical file is deleted merely because a later phase exists.
 
 ## Architecture and schema
 
@@ -212,8 +230,7 @@ make notebook   # executes demo.ipynb; private output data/processed/demo.execut
 
 GitHub Actions defines lint and unit/API coverage jobs using the lock and Python 3.12.
 The integration suite is separate because it needs local models and reviewed corpus
-state. Remote lint and unit/API execution is **verified on merged main**; this uncommitted
-rubric follow-up has only local verification. See the dated [CI and review audit](docs/FINAL_VALIDATION.md#rubric-gap-closure-follow-up--2026-11-02). The [demo guide](docs/DEMONSTRATION.md)
+state. Remote lint and unit/API execution is **verified on merged main**; the docstring/rubric follow-up merged as PR #12 with successful remote checks. See the dated [CI and review audit](docs/FINAL_VALIDATION.md#final-acceptance--2026-11-02). The [demo guide](docs/DEMONSTRATION.md)
 explains prerequisites and source/ML limitations. Diagrams.net `.drawio` files accompany
 SVG exports. `make install` supplies pinned `nbformat`, `nbclient`, `ipykernel` and
 its IPython dependencies from `requirements.lock.txt`; `make notebook` uses the container's
@@ -234,14 +251,19 @@ from Neel's explicit whole-Chunk approval. The final two packages are coordinate
 AI-assisted preparation; uploading a package does not create independent authorship
 or review evidence. Both students must understand and defend the implementation.
 
-## Public API image: ready for a separately authorized release
+## Public API image: authorized, publication blocked
 
-The API builds locally with the pinned base/dependency versions and retained third-party
-notices. [GHCR publication instructions](docs/IMAGE_PUBLICATION.md) specify the proposed
-image name, exact build/login/push/anonymous-pull commands and required permissions.
-**No image has been published.** The repository is private and has no project license;
-public distribution/reuse terms require the owners' explicit decision. The custom
-Neo4j/GDS image, PDFs and model weights are excluded.
+The API image builds locally; all 15 layers passed the scoped private-content/secret
+scan. **No image has been published and no registry digest is claimed.** The owner
+has authorized API-only public distribution, while keeping the source repository
+private. Publication is blocked by missing GHCR package-write authentication and
+incomplete exact-version third-party source-availability verification. Retaining
+license notices alone does not close that gate. No project license was added.
+
+[Publication checks and operator steps](docs/IMAGE_PUBLICATION.md) identify the intended
+package name, minimum permissions, remaining redistribution checks, build/push commands
+and anonymous-pull verification. The custom Neo4j/GDS image, PDFs, gold/labels, database,
+backups and model weights are excluded from publication.
 
 PRs [#10](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10)
 and [#11](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11)

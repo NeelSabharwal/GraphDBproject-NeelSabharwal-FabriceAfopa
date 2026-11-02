@@ -2,7 +2,12 @@
 
 Project 8 — Document-to-Graph GraphRAG Assistant, academic Level 3+.
 
-**Status: PROPOSED. Planning only; no working application or evaluated dataset is claimed.**
+**Historical planning brief (2026-10-19), preserved for design provenance.** The
+original proposals below are not current implementation status. The three-paper
+application and fixed METHOD/EVALUATION Chunk-classification pilot are implemented;
+citation-link prediction and larger corpus targets were superseded. Start with
+[README.md](README.md), [current architecture](docs/ARCHITECTURE.md) and the
+[dated rubric evidence](docs/FINAL_RUBRIC_AUDIT.md).
 
 The authoritative requirements are [the professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md). This brief specializes Project 8 in AI research papers. [PROJECT_PLAN.md](PROJECT_PLAN.md) maps every grading criterion to future work and evidence.
 

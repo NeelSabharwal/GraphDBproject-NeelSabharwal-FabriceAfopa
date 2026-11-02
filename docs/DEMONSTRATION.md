@@ -3,8 +3,9 @@
 The tracked `demo.ipynb` is executable source with no cached results. `make notebook`
 uses the locked Python 3.12 environment and writes authentic outputs to ignored
 `data/processed/demo.executed.ipynb`. It does not train a model, ingest documents,
-apply reviews or mutate the persisted graph. All 18 cells executed successfully on
-2026-11-02. An initial live agent issue and its correction are retained in the validation
+apply reviews or mutate the persisted graph. The final 22-cell version executed successfully on
+2026-11-02, including SVG views of the actual directed citation path and PageRank
+scores. The earlier 18-cell run is retained as historical evidence. An initial live agent issue and its correction are retained in the validation
 report; no failed result is presented as a success.
 
 ## Preparation on the existing reviewed deployment

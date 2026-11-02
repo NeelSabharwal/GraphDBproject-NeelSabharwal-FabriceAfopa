@@ -1,9 +1,44 @@
-# API image publication — prepared, not published
+# API image publication — authorized, blocked before publication
 
-Only the root API Dockerfile is eligible for this procedure. Publication is **not
-authorized by the rubric-completion task**. No GHCR package URL or registry digest
-is claimed. Proposed image reference:
+The owner explicitly authorizes **only the API image** to become public once all
+security/content/redistribution checks pass. The source repository must remain
+**PRIVATE**. No package was pushed, visibility changed or anonymous pull claimed.
+Intended package name (not an existing published-image claim):
 `ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api`.
+
+## Current blockers and actual checks — 2026-11-02
+
+1. **Authentication:** the authorized Windows GitHub CLI account is NeelSabharwal,
+   with `gist`, `read:org`, `repo`, `workflow` OAuth scopes, but no `write:packages`.
+   Docker's desktop credential store lists no registry logins. No token was printed,
+   requested in chat, refreshed to broader scopes or used for a failed upload.
+2. **Redistribution evidence:** 94 installed Python distributions and 105 base-system
+   copyright files were inventoried. All Python wheels retain notices except the
+   two MIT notices supplied separately below. This is not a complete source-delivery
+   compliance record. The image includes pylint 3.3.8 (GPL-2.0-or-later), astroid
+   3.3.11 (LGPL-2.1-or-later), certifi 2026.10.18 (MPL-2.0), orjson 3.13.0
+   (MPL-2.0 AND Apache-2.0-or-MIT), and Debian/native binary components. In particular,
+   orjson's wheel contains license texts and a general upstream source URL, but no
+   Cargo/source tree; an accessible exact-version corresponding-source route and
+   recipient notice were not verified. Debian package source/build coverage likewise
+   has not been established for every included binary. **Do not treat unknown or
+   unverified obligations as permission.** This is an evidence gap, not a finding that
+   these open-source licenses prohibit redistribution or require this GitHub repository
+   to become public. Complete the source/notice mapping before any push. Mozilla's
+   [MPL distribution FAQ, Q7–Q8](https://www.mozilla.org/en-US/MPL/2.0/FAQ/)
+   explains the relevant source-availability checks for libraries.
+
+The final local API image is `linux/amd64`, 794,328,467 bytes, with 15 layers and
+non-root `appuser` (UID 10001). Local image ID:
+`sha256:422b77a9635d5b585385c241a39668674827cef0c2959ef0eaee20a46c3e4477`.
+This is **not a registry manifest digest**. Every regular file in all saved layers
+was checked for configured secret bytes; workspace token/private-key signatures and
+forbidden paths had zero matches. No PDFs, raw exports, gold/ML annotation tables,
+Neo4j data/GDS binaries, model weights, Git history or private reports were found in
+the copied project files. Tests and tiny synthetic fixtures remain intentionally
+included for the documented test workflow. This scoped scan is not a vulnerability
+assessment or proof against every possible secret format. Details remain in ignored
+`data/processed/final-acceptance/image-audit.json` and `license-inventory.json`.
 
 ## Build and contents
 
@@ -20,16 +55,15 @@ answers, ML annotations/models, database volumes, backups and generated reports.
 No build secret arguments or host credentials are used. The image runs as `appuser`
 (UID 10001); its Neo4j and Ollama dependencies remain separate services.
 
-The local `project8-api:rubric-audit` build, offline endpoint smoke and filesystem
-inspection are recorded in [FINAL_VALIDATION.md](FINAL_VALIDATION.md). This tag is
-local only. Do not confuse a local image ID with a published registry digest.
+The earlier `project8-api:rubric-audit` checks and the new final API build are
+recorded separately in [FINAL_VALIDATION.md](FINAL_VALIDATION.md). Both are local only.
 
 ## Licensing and visibility gates
 
 - The repository is currently **private** and has no project LICENSE. A public API
   image exposes the copied application, scripts and tests. The owners must explicitly
-  authorize this distribution and choose/document reuse terms; this task does not
-  invent a license or change repository visibility.
+  authorize this distribution; that authorization is now explicit. No new reuse
+  license is inferred or added, and repository visibility is unchanged.
 - The pinned image contains 94 Python distributions. Preserve their bundled notices
   and the Debian/Python base notices. Two wheels omit separate notices; the exact
   upstream MIT notices for langchain-core 0.3.76 and langsmith 0.4.27 are retained in
@@ -39,18 +73,22 @@ local only. Do not confuse a local image ID with a published registry digest.
   [INFRASTRUCTURE.md](INFRASTRUCTURE.md) remains outside this release. Model/PDF terms
   do not grant redistribution rights, and none of those assets are in the API image.
 
-## Exact operator procedure after separate approval
+## Exact operator procedure after both blockers are resolved
 
-First review/commit/merge this branch through the normal PR workflow (not performed
-by this task). Use the approved clean revision. Publication needs a GHCR account
+First complete the exact-version source/notice checks above and retain the evidence.
+Use the reviewed clean revision; this branch is not automatically merged. Publication
+authorization already exists and need not be requested again. Publication needs a GHCR account
 with permission to create/write this package and a personal access token (classic)
-with `write:packages` (and required SSO authorization if applicable). Do not reuse a
+with `write:packages` (and required SSO authorization if applicable). Create it via
+[GitHub’s minimal package-write token form](https://github.com/settings/tokens/new?scopes=write:packages);
+enter it only at the local `docker login` password prompt, never in chat. Avoid adding
+`repo` or `delete:packages` merely for this operation. Do not reuse a
 source-control token assuming it has package permissions. A future GitHub Actions
 publisher can instead use its repository `GITHUB_TOKEN` with `contents: read` and
 `packages: write`; no automatic publisher is enabled here.
 
 ```bash
-# Run only after separate explicit publication approval, from a clean approved checkout.
+# Run only after source/notice verification and package authentication are resolved.
 test -z "$(git status --porcelain)" || exit 1
 release_revision=$(git rev-parse HEAD)
 release_image=ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api
@@ -63,8 +101,9 @@ docker login ghcr.io --username NeelSabharwal
 docker push "${release_image}:${release_tag}"
 ```
 
-GHCR packages are initially private. After approval, the package administrator must
-change this package's visibility to **Public** in its GitHub package settings; linking
+GHCR packages are initially private. After a successful authorized push, the package administrator must
+open the account’s Packages → this API package → Package settings → Danger Zone,
+and change **this package only** to **Public**. Do not change repository settings; linking
 a private source repository does not prove anonymous image access. Public GHCR pulls
 are free and support anonymous access. Check current account policies before release.
 See [GitHub's container registry instructions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)

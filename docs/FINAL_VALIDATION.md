@@ -295,3 +295,114 @@ was inspected separately from empty review-submission records:
 No comments, approvals, author identities or retrospective review timestamps were
 created. Students can conduct genuine follow-up reviews and document their real dates;
 these cannot establish that pre-merge reviews occurred when they did not.
+
+## Final acceptance — 2026-11-02
+
+Isolated worktree `/tmp/project8-final-acceptance`, branch `feat/final-acceptance`,
+base `b782bbfcfcbebf6ae3a66074a1502036a3428a66` (merged PR #12). PRs #10/#11/#12
+are all ancestors. The original `feat/final-core-ml` checkout and its locally edited
+and untracked teammate files were preserved. Cleanup preceded this build/test run;
+see [REPOSITORY_CLEANUP.md](REPOSITORY_CLEANUP.md). No file/dependency was deleted or
+renamed. One unused import was removed, historical/current navigation clarified,
+and two notebook visualizations added using existing dependencies.
+
+### Actual fresh local checks
+
+| Command/check | Observed result |
+|---|---|
+| `make format` | Black passed; existing Python formatting retained |
+| `make docker-build` | API and local-only Neo4j/GDS builds completed; neither published |
+| `make docker-run` | Three services healthy using existing named volumes |
+| `make health` | live 200 / ready 200; Neo4j/GDS and Ollama checks both ok |
+| `make models-check` | Both installed model digests match models.lock.json |
+| `make lint` | **9.55/10** on app and scripts; minimum 9.5 passed |
+| `make unit` | **303 passed, 55 deselected**, one warning, 10.46 s; **75.84%** coverage |
+| `make test` | **358 passed**, zero failures, one warning, 44.61 s; **94.61%** coverage |
+| `make notebook` | **22 cells executed**, all 11 code cells have execution counts; no cell errors; two actual SVG outputs |
+| `make help tree clean status stats` | All completed; clean removes only documented caches; data preserved |
+| Git/document checks | Diff whitespace, 49 exact rubric rows/100 points, local Markdown file links, output-free notebook and protected-file hashes checked |
+
+These Make commands used an operational wrapper in `/tmp`: `COMPOSE_ENV_FILES` points
+to the existing ignored `.env`; PYRUN mounts the acceptance source/data read-only,
+the existing pinned Python 3.12 `.venv` read-only, raw PDFs and original ML artifacts
+read-only, and only acceptance `data/processed` writable. No credentials were copied
+into tracked files or printed. The source lock/Makefile are unchanged. Historical
+`venv`, `install` and `run` checks above remain evidence; dependencies were not
+reinstalled into the original checkout for this documentation/notebook change.
+Full/unit coverage files are separate; each test container has its own `/tmp/.coverage`.
+The warning is upstream TestClient deprecation. Notebook warnings concerned an
+unwritable IPython home falling back to `/tmp`; execution succeeded.
+
+### Graph, agent, security and frozen experiment
+
+Before and after tests and notebook, the persisted graph fingerprint is:
+`0a17d318be0066b5b7fb20a88e1821586cc3135c07dbbd9a27012ebfe363d62f`.
+Actual state: **3 Papers, 153 Chunks, 17 Entities, 25 Claims (22 SOURCE_VERIFIED /
+3 EXTRACTED), 2 CITES, 148 MENTIONS and 153 embeddings**. Other relationships:
+153 PART_OF, 150 NEXT, 25 SUBJECT, 25 OBJECT, 60 SUPPORTED_BY. All 11 indexes are
+ONLINE and four uniqueness constraints exist. Neo4j is 5.26.32; GDS is 2.13.2.
+
+Live Swagger, corpus, concept-neighborhood, directed path, shared-dataset, PageRank
+and Louvain requests succeeded. The actual path remains GraphRAG → RAG → DPR; the
+four shared DPR/RAG datasets remain Natural Questions, TriviaQA, WebQuestions and
+CuratedTREC. GDS streams over three nodes / one logical weight-.75 edge (two stored
+projection directions), with GraphRAG isolated. No persisted GDS write or reimport
+was performed. Import authentication returned missing 401, wrong 403, configured
+200 with **ALREADY_PRESENT**, and a post-request fingerprint comparison passed.
+The authenticated request exercised the existing-corpus early return, not fresh ingestion.
+
+The notebook's live Q04 returned ANSWERED/HYPOTHESIS in **44,598.934 ms** with actual
+`paper_catalog → search_chunks → get_source_excerpt → get_source_excerpt` trace.
+It selected the page-5 Leiden/community figure caption, mechanically source-located;
+relevance/completeness remain subject to student assessment, not a new scientific
+approval. The unsafe request was REJECTED by `input_guard`. Page-999 forged citation
+and other action/budget/quote controls passed in the automated suite; this does not
+mean every possible model response is safe or semantically correct.
+
+The frozen ML report was read, not regenerated: logistic accuracy **0**, macro-F1 **0**,
+confusion matrix `[[0,2],[3,0]]`; majority accuracy **0.6**, macro-F1 **0.375**,
+`[[0,2],[0,3]]`. All 23 protected source/review/requirement/gold/label/model artifact
+hashes match the pre-task inventory. No labels, decisions or results were changed.
+One post-demo resource snapshot: API 100.6 MiB/1 GiB, Neo4j 1.789 GiB/4 GiB, Ollama
+4.269 GiB/6 GiB. This is a snapshot, not measured peak usage.
+
+### Remote CI and collaboration evidence
+
+The prior completion branch is merged. All three associated quality runs succeeded:
+[PR #12 push](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41486094364),
+[PR #12 pull-request run](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41486168603),
+and [merged main b782bbf](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210).
+Main [lint job](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210/job/125421711673)
+reported **9.54/10**; main [unit/API job](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210/job/125421711774)
+reported **303 passed / 55 deselected / 75.84% / 17.36 s**. These are actual remote
+results, distinct from the new local 9.55/358-test run. Acceptance-branch CI is checked
+after push and reported on its PR; a successful main run does not substitute for it.
+
+The previous PR #1–#11 review audit remains valid; #12 adds zero issue/review comments.
+At b782bbf, Git records Neel's spelling variants separately (12 `Neel Sabharwal` +
+12 `NeelSabharwal`) and 11 Fabrice commits including merges; non-merge totals are
+Neel 12 / Fabrice 11. No authorship was rewritten. Counts and actual merged PRs support
+participation but cannot establish balanced substantive work or meet the two-comments
+rule retroactively. No closed PR metadata was edited for cosmetic uniformity.
+
+### Public image and privacy
+
+The source repository API returned `private: true`, `visibility: private`.
+API-only publication authorization is recorded, but publication stopped before any
+external upload because the existing OAuth credential lacks package-write scope and
+Docker has no registry login. Source/notice verification is also incomplete for all
+redistributed compiled components. [IMAGE_PUBLICATION.md](IMAGE_PUBLICATION.md)
+records exact blockers and operator steps; no token is requested in chat.
+
+Final local API ID is `sha256:422b77a9635d5b585385c241a39668674827cef0c2959ef0eaee20a46c3e4477`,
+linux/amd64, 794,328,467 bytes, appuser UID 10001. All **15 layers** were inspected,
+with zero configured-secret, workspace token/private-key signature or forbidden-path
+matches. The inventory contains 94 Python distributions and 105 base copyright files;
+two missing wheel notices are supplied from pinned upstream sources. No GHCR tag,
+package page, registry digest, public visibility or anonymous pull is claimed. The
+custom Neo4j/GDS image remains local. This is not a complete vulnerability audit.
+
+Private logs/inventories/image archive/executed notebook remain ignored under
+`data/processed/`. No such artifacts are part of the acceptance commit. Final remaining
+human steps are genuine reviews, publication gate resolution, contribution assessment,
+oral defense and academic submission/late-delivery acceptance. No 100/100 grade is claimed.
