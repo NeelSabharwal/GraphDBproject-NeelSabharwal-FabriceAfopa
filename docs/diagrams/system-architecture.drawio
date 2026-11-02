@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="System architecture — local, zero paid services" id="system-architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="1200" pageHeight="800">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="e0" value="HTTP requests" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="user" target="api">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="fixed Cypher / Bolt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="api" target="neo">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" value="bounded workflow" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="api" target="agent">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" value="JSON actions / embeddings" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="agent" target="ollama">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e4" value="scoped audited operations" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="operator" target="neo">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e5" value="shared application modules" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="operator" target="api">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="user" value="Research user / student&#xa;Swagger / notebook&#xa;localhost:8000" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="120" width="200" height="120" />
+        </mxCell>
+        <mxCell id="api" value="FastAPI / Python 3.12&#xa;ask + graph + health&#xa;authenticated fixed import" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d1fae5;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="470" y="120" width="200" height="120" />
+        </mxCell>
+        <mxCell id="neo" value="Neo4j 5.26.32&#xa;GDS 2.13.2&#xa;4 GiB / persistent data" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fef3c7;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="870" y="120" width="200" height="120" />
+        </mxCell>
+        <mxCell id="agent" value="LangGraph StateGraph&#xa;typed selection + routing&#xa;exact source validation" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="470" y="390" width="200" height="120" />
+        </mxCell>
+        <mxCell id="ollama" value="Ollama CPU&#xa;Qwen 3B / Nomic&#xa;6 GiB / model volume" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ede9fe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="870" y="390" width="200" height="120" />
+        </mxCell>
+        <mxCell id="operator" value="Operator CLI&#xa;pinned PDFs → evidence&#xa;mentions / ML / GDS refresh" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffedd5;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="390" width="200" height="120" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

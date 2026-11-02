@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Neo4j evidence schema — actual persisted model" id="graph-schema">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="1200" pageHeight="800">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="e0" value="CITES (approved claims only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="paper" target="cited">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e1" value="PART_OF" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="chunk" target="paper">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e2" value="SUBJECT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="paper">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e3" value="OBJECT (citation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="cited">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e4" value="OBJECT (scientific)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="entity">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e5" value="SUPPORTED_BY: quote + offsets" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="chunk">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e6" value="MENTIONS: exact occurrence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="chunk" target="entity">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="paper" value="Paper&#xa;id / work_id / version&#xa;PDF hash / title" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="130" width="200" height="120" />
+        </mxCell>
+        <mxCell id="cited" value="Paper (cited)&#xa;work-level citation&#xa;pinned local version" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="860" y="130" width="200" height="120" />
+        </mxCell>
+        <mxCell id="chunk" value="Chunk&#xa;page / offsets / hashes&#xa;text / pinned embedding" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#d1fae5;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="430" width="200" height="120" />
+        </mxCell>
+        <mxCell id="claim" value="Claim&#xa;predicate / review history&#xa;qualifications / status" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fef3c7;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="470" y="280" width="200" height="120" />
+        </mxCell>
+        <mxCell id="entity" value="Entity&#xa;Method / Dataset / Task&#xa;scoped canonical identity" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ede9fe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="860" y="430" width="200" height="120" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
