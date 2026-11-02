@@ -91,6 +91,7 @@ def verify_applied(importer, state, plan):
 
 
 def main(argv=None):
+    """Default to a read-only proposal; require an inspected fingerprint for explicit apply."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     mode = parser.add_mutually_exclusive_group()

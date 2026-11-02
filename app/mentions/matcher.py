@@ -63,10 +63,12 @@ def rules():
 
 def pattern(surface):
     # Scientific tokens/hyphenated variants are not substrings of approved names.
+    """Match an exact surface form without splitting word or hyphenated tokens."""
     return re.compile(r"(?<![\w-])" + re.escape(surface) + r"(?![\w-])")
 
 
 def sha(value):
+    """Hash exact UTF-8 text without normalization."""
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
@@ -107,6 +109,7 @@ def section_reason(page, page_number, first_references, start, end):
 
 
 def scope_reason(rule, paper, page, start, end):
+    """Return a rejection reason for occurrences outside the approved alias context."""
     if rule["papers"] and paper not in rule["papers"]:
         return "OUTSIDE_APPROVED_PAPER_SCOPE"
     mode = rule["mode"]
@@ -131,6 +134,7 @@ def scope_reason(rule, paper, page, start, end):
 
 
 def generate(snapshot, policy):
+    """Produce deterministic source-located candidates, retaining rejection reasons without writes."""
     entities, decisions = snapshot["entities"], snapshot["decisions"]["aliases"]
     references = {}
     for paper, pages in snapshot["pages"].items():

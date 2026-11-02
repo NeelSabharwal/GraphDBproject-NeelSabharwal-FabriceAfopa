@@ -22,10 +22,12 @@ class GraphUnavailable(ValueError):
 
 
 def canonical(value):
+    """Serialize snapshot values deterministically for comparison and hashing."""
     return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str)
 
 
 def approved(claim):
+    """Require explicit human approval metadata under the current review policy."""
     return (
         claim.get("status") == "SOURCE_VERIFIED"
         and claim.get("human_reviewed") is True
@@ -61,10 +63,12 @@ class GraphService:
             raise ValueError("Select between one and sixteen distinct Papers")
 
     def require_paper(self, ident):
+        """Reject IDs outside the selected corpus before executing a query."""
         if ident not in self.paper_ids:
             raise UnknownPaper("Paper ID is not in the selected corpus")
 
     async def records(self):
+        """Read bounded Paper assertions and fail on missing Papers or excessive results."""
         rows = await self.tools.read(queries.SNAPSHOT, papers=self.paper_ids)
         if [r["paper"]["id"] for r in rows] != self.paper_ids:
             raise GraphUnavailable("Selected Paper missing from database")
@@ -146,16 +150,19 @@ class GraphService:
         )
 
     async def ensure_review_unchanged(self, snapshot):
+        """Reject results if review state changed after source validation."""
         if canonical(await self.records()) != snapshot["review_state"]:
             raise GraphUnavailable("Review state changed during exploration")
 
     @staticmethod
     def support_subset(snapshot, ids):
+        """Select complete supports and deduplicated Chunks for the requested claim IDs."""
         parts = [p for p in snapshot["supports"] if p["claim_id"] in ids]
         chunks = sorted({p["chunk_id"] for p in parts})
         return dict(supports=parts, evidence=[snapshot["evidence"][c] for c in chunks])
 
     async def path(self, source, target, hops):
+        """Retrieve a bounded directed citation path between distinct selected Papers."""
         self.require_paper(source)
         self.require_paper(target)
         if source == target:
@@ -163,6 +170,7 @@ class GraphService:
         return await self.tools.execute("find_citation_path", dict(source_id=source, target_id=target, max_hops=hops))
 
     async def shared(self, source, target, kind=None, limit=20, offset=0):
+        """Return paginated shared identities after validating both Papers and source supports."""
         self.require_paper(source)
         self.require_paper(target)
         if source == target:
@@ -184,6 +192,7 @@ class GraphService:
         )
 
     async def related(self, source, limit=20, offset=0):
+        """Rank corpus Papers by reviewed entity overlap and attach the supporting evidence."""
         self.require_paper(source)
         snap = await self.snapshot()
         rows = await self.tools.read(

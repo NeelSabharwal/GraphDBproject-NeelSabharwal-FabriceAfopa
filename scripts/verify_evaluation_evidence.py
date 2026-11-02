@@ -119,6 +119,7 @@ def check_evidence(gold: dict, pdf_dir: Path) -> int:
 
 
 def main() -> int:
+    """Verify pinned-parser PDF coordinates; return nonzero for invalid inputs or evidence."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gold", type=Path, required=True, help="Path to unchanged evaluation_gold.json")
     parser.add_argument("--pdf-dir", type=Path, required=True, help="Folder containing the three pinned v1 PDF files")

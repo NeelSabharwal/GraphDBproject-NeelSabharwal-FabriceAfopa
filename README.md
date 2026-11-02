@@ -1,10 +1,15 @@
 # AI Research GraphRAG Assistant — Project 8, Level 3+
 
-[![Quality workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml/badge.svg)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml)
+[![Quality workflow](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/workflows/quality.yml)
 
-The workflow badge reflects GitHub's actual state once these changes are pushed;
-it is not a claim of a successful remote run. **Local delivery verified November 2,
-2026.** The historical October 23 deadline has passed; no extension/submission is claimed.
+[![API build: local 2026-11-02](https://img.shields.io/badge/API_build-local_2026--11--02-blue)](docs/FINAL_VALIDATION.md#rubric-gap-closure-follow-up--2026-11-02)
+[![Unit/API coverage: 75.84% at f46b2a9](https://img.shields.io/badge/unit_API_coverage-75.84%25_at_f46b2a9-blue)](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111/job/125398557775)
+
+The quality badge follows `main` in this repository. The other two badges are dated
+measurements, not live build/coverage services. The repository is private: sign in
+with repository access to view CI links; the GitHub badge may be unavailable to anonymous
+viewers. **Merged-main CI verified November 2, 2026:** lint and unit/API jobs passed
+at `f46b2a9` ([run](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111)). The historical October 23 deadline has passed; no extension/submission is claimed.
 
 This zero-paid-services application helps students inspect AI research papers through
 source-grounded answers, directed citation paths, shared datasets/methods, and graph
@@ -207,9 +212,13 @@ make notebook   # executes demo.ipynb; private output data/processed/demo.execut
 
 GitHub Actions defines lint and unit/API coverage jobs using the lock and Python 3.12.
 The integration suite is separate because it needs local models and reviewed corpus
-state. Remote execution is **not yet verified**. The [demo guide](docs/DEMONSTRATION.md)
+state. Remote lint and unit/API execution is **verified on merged main**; this uncommitted
+rubric follow-up has only local verification. See the dated [CI and review audit](docs/FINAL_VALIDATION.md#rubric-gap-closure-follow-up--2026-11-02). The [demo guide](docs/DEMONSTRATION.md)
 explains prerequisites and source/ML limitations. Diagrams.net `.drawio` files accompany
-SVG exports. Genuine screenshots from the running API:
+SVG exports. `make install` supplies pinned `nbformat`, `nbclient`, `ipykernel` and
+its IPython dependencies from `requirements.lock.txt`; `make notebook` uses the container's
+`python3` kernel and the existing API/Neo4j/Ollama services. Source notebooks stay output-free;
+executed output belongs under ignored `data/processed/`. Genuine screenshots from the running API:
 
 ![Actual Swagger](docs/screenshots/swagger.png)
 ![Actual readiness](docs/screenshots/health.png)
@@ -225,23 +234,17 @@ from Neel's explicit whole-Chunk approval. The final two packages are coordinate
 AI-assisted preparation; uploading a package does not create independent authorship
 or review evidence. Both students must understand and defend the implementation.
 
-## Public image release remains an operator action
+## Public API image: ready for a separately authorized release
 
-The API build context is allowlisted: source, tests, dependency files, pinned manifest,
-citation locators and model manifest. It excludes secrets, raw PDFs, full exports,
-annotations/gold, backups, model weights and volumes. No image was published.
-After explicit publication approval, choose your actual registry namespace/tag:
+The API builds locally with the pinned base/dependency versions and retained third-party
+notices. [GHCR publication instructions](docs/IMAGE_PUBLICATION.md) specify the proposed
+image name, exact build/login/push/anonymous-pull commands and required permissions.
+**No image has been published.** The repository is private and has no project license;
+public distribution/reuse terms require the owners' explicit decision. The custom
+Neo4j/GDS image, PDFs and model weights are excluded.
 
-```bash
-docker build -t ai-research-graphrag-api:final .
-# Replace YOUR_NAMESPACE with an account you control; operator login may be needed.
-docker tag ai-research-graphrag-api:final docker.io/YOUR_NAMESPACE/ai-research-graphrag-api:final
-docker login
-# Publication requires separate explicit authorization:
-docker push docker.io/YOUR_NAMESPACE/ai-research-graphrag-api:final
-```
-
-Do not publish the custom Neo4j/GDS binary image without resolving redistribution
-terms. The exact registry URL/digest must be added only after a real successful push.
-Public-image publication, remote CI, final human review and any late academic submission
-remain open; the final rubric audit does not award a self-assessed grade.
+PRs [#10](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10)
+and [#11](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11)
+are now merged, with successful lint and unit/API runs. The [rubric audit](docs/FINAL_RUBRIC_AUDIT.md)
+retains the remaining publication, review and contribution-assessment gaps. Final human
+review, oral demonstration and acceptance of late academic submission cannot be automated.

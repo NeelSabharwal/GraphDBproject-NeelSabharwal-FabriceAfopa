@@ -1,6 +1,22 @@
 # Project plan — AI Research GraphRAG Assistant
 
-**Status: dated implementation records below supersede the original PROPOSED milestone map; the authorized final local implementation and educational ML pilot are complete; publication, remote CI and academic submission remain unverified.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+**Status: dated implementation records below supersede the original PROPOSED milestone map; the authorized final local implementation and educational ML pilot are complete; PRs #10/#11 are merged and remote lint/unit CI is verified; public-image publication and academic submission remain unverified.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+
+## Final rubric follow-up — 2026-11-02
+
+Current `origin/main` is `f46b2a9`, including merged PRs #10/#11. The isolated
+`feat/final-rubric-completion` branch documents six successful remote quality runs,
+adds 52 public docstrings with docstring lint enabled, and prepares the API-only GHCR
+release without publishing. Fresh local checks: 358 tests, 94.61% coverage, pylint
+9.54; the graph fingerprint and scientific/label sources are unchanged. Exact evidence
+and limitations are in `docs/FINAL_VALIDATION.md` and `docs/FINAL_RUBRIC_AUDIT.md`.
+
+Remaining sequence: students review this uncommitted follow-up; separately authorize
+public API source/image distribution and resolve reuse terms; publish and anonymously
+verify GHCR access; record genuine missing reviews and assess substantive contributions;
+perform the oral demonstration and clarify late academic submission. No new labels,
+corpus changes or rerun of the frozen failed ML experiment is authorized by this update.
+The historical planning tables and dated execution records below are preserved.
 
 ## Final completion execution — 2026-11-02
 

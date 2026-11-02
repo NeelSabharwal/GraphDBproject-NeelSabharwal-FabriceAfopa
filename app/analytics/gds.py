@@ -63,13 +63,16 @@ class Analytics(GraphService):
 
     @property
     def prefix(self):
+        """Derive the managed projection namespace from the selected Paper IDs."""
         scope = hashlib.sha256("\n".join(self.paper_ids).encode()).hexdigest()[:12]
         return "research_sim_" + scope + "_"
 
     def name(self, snapshot):
+        """Bind a projection name to its corpus scope and validated fingerprint."""
         return self.prefix + snapshot["fingerprint"]
 
     async def projection(self, snapshot):
+        """Check catalog size, Paper identities, orientation and weights against the snapshot."""
         name = self.name(snapshot)
         exists = await self.tools.read("RETURN gds.graph.exists($name) AS exists", name=name)
         if not exists[0]["exists"]:
@@ -113,6 +116,7 @@ class Analytics(GraphService):
         return record
 
     async def run(self, algorithm, limit=20, offset=0):
+        """Validate a prepared projection, enforce memory bounds and stream an approved algorithm."""
         if algorithm not in ALGORITHMS:
             raise ValueError("Unsupported analytical operation")
         started = perf_counter()
@@ -200,11 +204,13 @@ class ProjectionManager(Analytics):
     """Local operator only: explicit bounded catalog refresh/drop, no persisted writes."""
 
     async def drop(self, name):
+        """Drop only an explicitly named in-memory projection in this corpus namespace."""
         if not NAME.fullmatch(name) or not name.startswith(self.prefix):
             raise ValueError("Projection name is outside this selected corpus scope")
         return await self.tools.read("CALL gds.graph.drop($name,false) YIELD graphName RETURN graphName", name=name)
 
     async def refresh(self):
+        """Reuse or rebuild the validated analytical cache without writing scientific evidence."""
         snap = await self.snapshot()
         name = self.name(snap)
         exists = (await self.tools.read("RETURN gds.graph.exists($name) AS exists", name=name))[0]["exists"]

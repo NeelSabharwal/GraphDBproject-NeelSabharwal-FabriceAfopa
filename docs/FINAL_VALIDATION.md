@@ -170,3 +170,128 @@ diagrams, screenshots, demonstration guide and final rubric. Paths are disjoint.
 Operator publication, commits/PRs/merges, remote CI, final human review, public API image
 publication and any academic submission remain outstanding. No private backup, PDF,
 credential, full export or trained model is carried by either patch.
+
+## Rubric gap closure follow-up — 2026-11-02
+
+This section supersedes the earlier *publication/remote-CI status*, not the historical
+local execution record. PR #10 merged as `b85e035d27ed6898aa035f40d5fdb4d6d5e280a6`;
+PR #11 merged as `f46b2a9757522ea7809e8e02df6d5431729e8727`. The isolated worktree
+`/tmp/project8-final-rubric-completion` on `feat/final-rubric-completion` starts at the
+latter `origin/main`. The original `feat/final-core-ml` checkout's modified README,
+10-file documentation package and `.vscode/settings.json` were preserved. WSL had no
+Git credentials; the existing authenticated Windows GitHub CLI was used for a single
+fetch without persisting credential changes. No commit/push/merge or image publication
+was performed in this follow-up.
+
+### Actual remote CI
+
+GitHub API job results and logs were inspected, not inferred from workflow YAML.
+Every listed run completed successfully, with both `lint` and `unit-api` successful:
+
+| Revision / event | Actual GitHub run |
+|---|---|
+| PR #10 head `873ef25`, push | [41469574427](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41469574427) |
+| PR #10 head `873ef25`, pull request | [41469794934](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41469794934) |
+| PR #10 merge `b85e035`, main push | [41470070441](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41470070441) |
+| PR #11 head `a2f73d4`, pull request | [41478861875](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41478861875) |
+| PR #11 head `a2f73d4`, push | [41479013723](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41479013723) |
+| PR #11 merge `f46b2a9`, main push | [41480888111](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111) |
+
+The last run's [lint log](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111/job/125398556803)
+reports **9.54/10**. Its [unit/API log](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41480888111/job/125398557775)
+reports **303 passed, 55 deselected, one warning, 17.51 s; 75.84% coverage**.
+The unchanged workflow uses Python 3.12.13, the dependency lock, the 9.5 lint gate and
+60% unit/API coverage gate. Live integration tests deliberately remain local. These
+runs verify merged main, not this uncommitted follow-up. README's workflow badge now
+explicitly follows main; its build and coverage badges identify their measured scope
+and date/revision. Private-repository CI links require access; anonymous badge failure
+must not be mistaken for failed tests.
+
+### Scoped changes and fresh local checks
+
+Added **52 useful public class/function docstrings in 11 files**. Module and public
+interface AST inspection finds no missing docstrings. Pylint's three missing-docstring
+checks are now enabled, with no missing-docstring findings. Removing docstrings from
+both ASTs proves all changed Python executable structures equal their merged-main
+versions; no graph query, label, model parameter or scientific review changed.
+
+| Command/check in the isolated worktree | Actual outcome |
+|---|---|
+| `make format` | Black completed; four files reformatted, 65 unchanged |
+| `make lint` | **9.54/10**, exit 0, all app/scripts, missing-docstring checks enabled |
+| `make test` (corrected read-only data mounts) | **358 passed, zero failures**, one upstream warning, **35.01 s** |
+| Full suite coverage | **94.61%**, 2,355 statements / 127 missed |
+| `make unit` | **303 passed, 55 deselected**, one warning, **9.66 s**, **75.84% coverage** |
+| `make help tree clean health status models-check` | Exit 0; both health requests 200, all three services healthy, both pinned model digests match |
+| API-only `docker build` | Completed locally; no push, no running service replacement |
+| Offline final-image smoke | `/health/live`, `/docs`, `/openapi.json` each 200; both supplemental license notices present |
+| Source/annotation protection | Requirements, corpus/review inputs, ML CSV, gold and student review documents unchanged |
+| Git hygiene | `git diff --check` passes; no staged files; private-path ignore probes pass |
+
+Test commands used existing pinned Docker Python/.venv and healthy dependencies,
+mounting this worktree as source, its tracked data read-only, original PDFs read-only,
+and only ignored output paths writable. The first test invocation omitted the tracked
+data mount; the API corpus volume hid `data/ml/chunk_label_candidates.csv`, producing
+**7 failed / 351 passed**. Correcting only the temporary runner mount yielded the
+successful full run above. Both logs are retained under ignored
+`data/processed/rubric-completion/`; no CSV repair or label substitution was made.
+Startup/build/install Make target definitions are unchanged from the earlier actually
+executed record; they were inspected with `make -n` here. This task did not restart the
+live stack or reinstall its environment merely to repeat unchanged startup evidence.
+Notebook dependencies are explicitly documented; the prior successful 18-cell run is
+retained and is not misrepresented as a fresh notebook execution.
+
+Before/after read-only snapshots have identical full fingerprint
+`0a17d318be0066b5b7fb20a88e1821586cc3135c07dbbd9a27012ebfe363d62f`:
+3 Papers, 153 Chunks, 17 Entities, 25 Claims (22 approved / 3 pending), 148 MENTIONS,
+2 CITES, 60 SUPPORTED_BY; all 153 embeddings remain. The full suite exercises and
+cleans synthetic transactional fixtures; it did not reimport the corpus, repeat the
+145-edge enrichment, approve claims or rerun the frozen real ML experiment.
+
+### API image readiness
+
+Final local image ID (not a published registry digest):
+`sha256:dd2db095d68a56e03ea71dbbc72270ac29d0d20dac80984f04df1b8d739d76c3`,
+794,328,354 bytes, non-root `appuser`. The pinned base and dependency lock are unchanged.
+The image gains its repository-source label and two upstream notices missing from
+installed wheels; 94 installed Python distributions were inventoried. No license is
+invented for the students' code. [Publication guide](IMAGE_PUBLICATION.md) documents
+sources, permissions, exact GHCR commands and the private-source disclosure gate.
+
+The offline filesystem audit inspected 24,763 file paths, including 76 workspace
+files: no forbidden private project paths or configured credential values were found.
+The byte scan covers workspace/home/root files below 10 MB; it is not an exhaustive
+base-image vulnerability or historical-layer secret scan. Docker build inputs were
+also reviewed: no secret ARG/COPY or private data path exists. A tracked/nonignored
+source scan and representative ignore checks passed; Git history showed no committed
+`.env`, PDF, model-weight, key, raw or processed-data paths in the checked patterns.
+No Neo4j/GDS image, model or PDF is included or published. R04 stays MISSING until a
+separately authorized push, public visibility, anonymous pull and real README digest/link.
+
+### Actual collaboration record
+
+At merged main `f46b2a9`, `git shortlog -sn HEAD` reports 11 commits under each of
+`NeelSabharwal`, `Neel Sabharwal`, and `Fabrice Afopa`: **Neel 22/33 (66.7%)**, Fabrice
+11/33 (33.3%), including merges. Excluding merges: **11 each (50%/50%)**. These are
+history counts, not measured effort or proof of independent work. PR #10 is Neel's
+core integration; PR #11 is Fabrice's documentation integration. AI-assisted package
+preparation remains disclosed. R47 remains PARTIAL pending substantive assessment.
+
+All PRs #1–#11 were queried for discussion, inline and review records. Nonempty content
+was inspected separately from empty review-submission records:
+
+| PR | Observed substantive review evidence | Limit |
+|---|---|---|
+| [#1](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/1) | Fabrice: dependency-failure health test and malformed Ollama payload handling; Neel replies with fixes | Historical comments are not new independent test runs |
+| [#2](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/2) | Fabrice: entity/Chunk consistency, citation failure handling, atomic PDF saving; Neel replies | Three concrete review concerns preserved |
+| [#3](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/3) | Neel: reproducible evidence verifier and page-999 fixture separation; Fabrice replies | Evaluation review distinct from gold/application success |
+| [#4](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/4) | Fabrice: router wiring, self-match exclusion, bounded paper retrieval; later inspection replies | Formal state COMMENTED, not invented APPROVED; independent run explicitly pending |
+| [#5](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/5) | Neel's requested scientific/alias checks and later documentation-integration review | Two nonempty records; formal review COMMENTED |
+| [#6](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/6) | No returned discussion/inline/review records; not merged | No review credit inferred |
+| [#7](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/7) | No returned discussion/inline/review records | Merged does not establish review |
+| [#8](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/8) | Neel's actual 15 whole-Chunk approval comment | One record; scientific label approval is not two code-review comments |
+| [#9](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/9), [#10](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10), [#11](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11) | No returned discussion/inline/review records | R42 remains PARTIAL |
+
+No comments, approvals, author identities or retrospective review timestamps were
+created. Students can conduct genuine follow-up reviews and document their real dates;
+these cannot establish that pre-merge reviews occurred when they did not.

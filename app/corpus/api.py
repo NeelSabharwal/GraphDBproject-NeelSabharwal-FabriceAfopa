@@ -26,18 +26,24 @@ class ImportOptions(BaseModel):
 
 
 class ConceptNode(BaseModel):
+    """Expose a graph identity and display name without private node properties."""
+
     id: str
     label: Literal["Entity", "Claim", "Paper"]
     name: str
 
 
 class ConceptEdge(BaseModel):
+    """Preserve an actual directed SUBJECT or OBJECT relationship."""
+
     source: str
     target: str
     type: Literal["OBJECT", "SUBJECT"]
 
 
 class ConceptGraph(BaseModel):
+    """Return bounded concept exploration with reviewed supports and source Chunks."""
+
     entity_id: str
     depth: int = Field(ge=1, le=2)
     nodes: list[ConceptNode]
