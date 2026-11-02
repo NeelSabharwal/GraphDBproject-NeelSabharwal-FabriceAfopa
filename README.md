@@ -250,6 +250,8 @@ Neel's evidence-review comments. PR #8 preserves Fabrice's recommendations separ
 from Neel's explicit whole-Chunk approval. The final two packages are coordinated,
 AI-assisted preparation; uploading a package does not create independent authorship
 or review evidence. Both students must understand and defend the implementation.
+See the [team contributions report](docs/CONTRIBUTIONS.md) for responsibilities,
+merged PR evidence and review chronology.
 
 ## Public API image
 
