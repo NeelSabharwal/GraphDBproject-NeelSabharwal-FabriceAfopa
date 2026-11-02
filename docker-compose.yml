@@ -72,6 +72,9 @@ services:
       AGENT_CONTEXT_CHARS: ${AGENT_CONTEXT_CHARS:-6500}
       LANGSMITH_TRACING: 'false'
       LANGCHAIN_TRACING_V2: 'false'
+      CORPUS_IMPORT_TOKEN: ${CORPUS_IMPORT_TOKEN:-}
+    volumes:
+      - corpus_files:/workspace/data
     ports:
       - 127.0.0.1:8000:8000
     depends_on:
@@ -93,3 +96,4 @@ volumes:
   neo4j_data:
   neo4j_logs:
   ollama_models:
+  corpus_files:

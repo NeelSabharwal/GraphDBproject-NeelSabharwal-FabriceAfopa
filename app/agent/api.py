@@ -21,8 +21,9 @@ def get_agent(request: Request):
 
 
 @router.get("/api/ask", response_model=AskResponse)
-async def ask(request: Request, q: str = Query(min_length=1, max_length=1000),
-              agent: EvidenceAgent = Depends(get_agent)):
+async def ask(
+    request: Request, q: str = Query(min_length=1, max_length=1000), agent: EvidenceAgent = Depends(get_agent)
+):
     """Return source-grounded generation or an explicit bounded failure/abstention."""
     if not q.strip():
         raise HTTPException(422, detail="Question must not be blank")

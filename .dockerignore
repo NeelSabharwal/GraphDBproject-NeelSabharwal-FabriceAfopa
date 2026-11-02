@@ -12,5 +12,9 @@
 !scripts/**
 !tests/
 !tests/**
+!corpus/
+!corpus/corpus_manifest.json
+!corpus/citation_evidence.csv
+!models.lock.json
 **/__pycache__/
 **/*.pyc

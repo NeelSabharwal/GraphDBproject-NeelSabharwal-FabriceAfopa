@@ -95,7 +95,14 @@ def run_ollama_case(client: httpx.Client, name: str, path: str, payload: dict) -
         if not isinstance(loaded, dict) or not isinstance(loaded.get("models"), list):
             raise ValueError("Ollama /api/ps response must contain a models list")
         case["loaded_models"] = loaded["models"]
-        for key in ["total_duration", "load_duration", "prompt_eval_count", "prompt_eval_duration", "eval_count", "eval_duration"]:
+        for key in [
+            "total_duration",
+            "load_duration",
+            "prompt_eval_count",
+            "prompt_eval_duration",
+            "eval_count",
+            "eval_duration",
+        ]:
             if key in data:
                 case[key] = data[key]
         case["passed"] = True
@@ -123,13 +130,18 @@ def main() -> None:
     ) as driver:
         started = time.perf_counter()
         driver.verify_connectivity()
-        records, _, _ = driver.execute_query("CALL dbms.components() YIELD versions, edition RETURN versions[0] AS version, edition")
+        records, _, _ = driver.execute_query(
+            "CALL dbms.components() YIELD versions, edition RETURN versions[0] AS version, edition"
+        )
         report["neo4j"] = dict(records[0])
         records, _, _ = driver.execute_query("RETURN gds.version() AS version")
         report["gds_version"] = records[0]["version"]
         records, _, _ = driver.execute_query("RETURN gds.isLicensed() AS licensed")
         report["gds_enterprise_licensed"] = records[0]["licensed"]
-        records, _, _ = driver.execute_query("SHOW PROCEDURES YIELD name WHERE name IN $names RETURN name ORDER BY name", names=["gds.graph.list", "gds.graph.project", "gds.pageRank.stream", "gds.louvain.stream"])
+        records, _, _ = driver.execute_query(
+            "SHOW PROCEDURES YIELD name WHERE name IN $names RETURN name ORDER BY name",
+            names=["gds.graph.list", "gds.graph.project", "gds.pageRank.stream", "gds.louvain.stream"],
+        )
         report["gds_procedures"] = [record["name"] for record in records]
         records, _, _ = driver.execute_query("CALL gds.graph.list() YIELD graphName RETURN graphName")
         report["gds_graph_list_count"] = len(records)
@@ -147,15 +159,73 @@ def main() -> None:
         report["models"] = client.get("/api/tags").json()["models"]
         options = {"num_ctx": 2048, "num_predict": 96, "temperature": 0, "seed": 42, "num_gpu": 0, "num_thread": 8}
         base = {"model": config.chat_model, "stream": False, "options": options, "keep_alive": "2m"}
-        tools = [{"type": "function", "function": {
-            "name": "lookup_paper", "description": "Look up a paper by its exact identifier.",
-            "parameters": {"type": "object", "properties": {"paper_id": {"type": "string"}}, "required": ["paper_id"], "additionalProperties": False},
-        }}]
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "lookup_paper",
+                    "description": "Look up a paper by its exact identifier.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"paper_id": {"type": "string"}},
+                        "required": ["paper_id"],
+                        "additionalProperties": False,
+                    },
+                },
+            }
+        ]
         specs = [
-            ("text", "/api/chat", {**base, "messages": [{"role": "user", "content": "Reply with one short sentence confirming that you can answer locally."}]}),
-            ("structured_json", "/api/chat", {**base, "format": StructuredProbe.model_json_schema(), "messages": [{"role": "user", "content": 'Return project="GraphRAG" and local_only=true according to the supplied JSON schema.'}]}),
-            ("tool_call", "/api/chat", {**base, "tools": tools, "messages": [{"role": "user", "content": "Use the lookup_paper tool to look up paper_id 2005.11401. Do not answer from memory."}]}),
-            ("embedding", "/api/embed", {"model": config.embed_model, "input": ["search_query: What is graph retrieval?"], "keep_alive": "30s", "options": {"num_gpu": 0, "num_thread": 8}}),
+            (
+                "text",
+                "/api/chat",
+                {
+                    **base,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": "Reply with one short sentence confirming that you can answer locally.",
+                        }
+                    ],
+                },
+            ),
+            (
+                "structured_json",
+                "/api/chat",
+                {
+                    **base,
+                    "format": StructuredProbe.model_json_schema(),
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": 'Return project="GraphRAG" and local_only=true according to the supplied JSON schema.',
+                        }
+                    ],
+                },
+            ),
+            (
+                "tool_call",
+                "/api/chat",
+                {
+                    **base,
+                    "tools": tools,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": "Use the lookup_paper tool to look up paper_id 2005.11401. Do not answer from memory.",
+                        }
+                    ],
+                },
+            ),
+            (
+                "embedding",
+                "/api/embed",
+                {
+                    "model": config.embed_model,
+                    "input": ["search_query: What is graph retrieval?"],
+                    "keep_alive": "30s",
+                    "options": {"num_gpu": 0, "num_thread": 8},
+                },
+            ),
         ]
         for name, path, payload in specs:
             report["cases"].append(run_ollama_case(client, name, path, payload))

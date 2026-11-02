@@ -6,14 +6,15 @@ from app.agent.models import Evidence
 
 
 class Model(BaseModel):
-    model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
 class Support(BaseModel):
     """Existing retrieval provenance plus optional scientific qualifications."""
-    model_config = ConfigDict(extra='allow', allow_inf_nan=False)
+
+    model_config = ConfigDict(extra="allow", allow_inf_nan=False)
     claim_id: str
-    predicate: Literal['CITES', 'USES', 'EVALUATED_ON', 'ADDRESSES']
+    predicate: Literal["CITES", "USES", "EVALUATED_ON", "ADDRESSES"]
     subject_id: str
     object_id: str
     chunk_id: str
@@ -21,7 +22,7 @@ class Support(BaseModel):
     start_char: int = Field(ge=0)
     end_char: int = Field(gt=0)
     quote_sha256: str
-    status: Literal['SOURCE_VERIFIED']
+    status: Literal["SOURCE_VERIFIED"]
 
 
 class CitationEdge(Model):
@@ -31,13 +32,13 @@ class CitationEdge(Model):
 
 
 class CitationRoute(Model):
-    type: Literal['CITES']
+    type: Literal["CITES"]
     papers: list[str]
     edges: list[CitationEdge]
 
 
 class PathResponse(Model):
-    status: Literal['ok', 'unavailable']
+    status: Literal["ok", "unavailable"]
     paths: list[CitationRoute]
     evidence: list[Evidence]
     limitation: str | None = None
@@ -46,7 +47,7 @@ class PathResponse(Model):
 class SharedEntity(Model):
     entity_id: str
     name: str
-    kind: Literal['Method', 'Dataset', 'Task']
+    kind: Literal["Method", "Dataset", "Task"]
     source_claim_ids: list[str]
     target_claim_ids: list[str]
 
@@ -105,7 +106,7 @@ class Adjacency(Model):
 
 
 class AnalyticsResponse(Model):
-    algorithm: Literal['pagerank', 'louvain']
+    algorithm: Literal["pagerank", "louvain"]
     projection: str
     snapshot: str
     node_count: int = Field(ge=1, le=16)

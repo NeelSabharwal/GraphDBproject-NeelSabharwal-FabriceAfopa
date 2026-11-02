@@ -9,6 +9,9 @@ COPY app ./app
 COPY scripts ./scripts
 COPY tests ./tests
 COPY pyproject.toml ./
+COPY corpus/corpus_manifest.json corpus/citation_evidence.csv ./corpus/
+COPY models.lock.json ./
+RUN mkdir -p /workspace/data && chown appuser:appuser /workspace/data
 USER appuser
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

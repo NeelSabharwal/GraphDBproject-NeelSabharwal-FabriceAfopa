@@ -82,8 +82,9 @@ def save_pdf(path: Path, data: bytes, paper: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
     try:
-        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp",
-                                         delete=False) as output:
+        with tempfile.NamedTemporaryFile(
+            dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False
+        ) as output:
             temporary = Path(output.name)
             output.write(data)
             output.flush()
@@ -136,11 +137,18 @@ def parse_pdf(path: Path, paper: dict) -> tuple[list[dict], list[dict]]:
         if any(unicodedata.category(char) == "Cc" and not char.isspace() for char in raw):
             problems.append({"page": number, "kind": "control_characters"})
         text, starts, ends = normalize(raw)
-        pages.append({
-            "page": number, "page_label": reader.page_labels[number - 1],
-            "raw_text": raw, "raw_sha256": digest(raw), "text": text,
-            "text_sha256": digest(text), "raw_starts": starts, "raw_ends": ends,
-        })
+        pages.append(
+            {
+                "page": number,
+                "page_label": reader.page_labels[number - 1],
+                "raw_text": raw,
+                "raw_sha256": digest(raw),
+                "text": text,
+                "text_sha256": digest(text),
+                "raw_starts": starts,
+                "raw_ends": ends,
+            }
+        )
     marker = paper["paper_id"].removeprefix("arxiv:")
     if not re.search(r"arXiv:\s*" + re.escape(marker) + r"(?!\d)", "".join(p["raw_text"] for p in pages)):
         raise ValueError(f"Expected arXiv identity/version marker not found: {marker}")
@@ -160,15 +168,34 @@ def make_chunks(paper: dict, pages: list[dict]) -> list[dict]:
                     end = boundary + 1
             body = text[start:end]
             if body.strip():
-                chunks.append({
-                    "id": stable_id(paper["paper_id"], paper["pdf_access"]["sha256"],
-                                    PARSER, CHUNKER, page["page"], start, end, digest(body)),
-                    "paper_id": paper["paper_id"], "pdf_sha256": paper["pdf_access"]["sha256"],
-                    "page": page["page"], "page_label": page["page_label"], "ordinal": len(chunks),
-                    "start_char": start, "end_char": end, "text": body, "text_sha256": digest(body),
-                    "raw_start_char": page["raw_starts"][start], "raw_end_char": page["raw_ends"][end - 1],
-                    "page_raw_sha256": page["raw_sha256"], "parser_version": PARSER, "chunker_version": CHUNKER,
-                })
+                chunks.append(
+                    {
+                        "id": stable_id(
+                            paper["paper_id"],
+                            paper["pdf_access"]["sha256"],
+                            PARSER,
+                            CHUNKER,
+                            page["page"],
+                            start,
+                            end,
+                            digest(body),
+                        ),
+                        "paper_id": paper["paper_id"],
+                        "pdf_sha256": paper["pdf_access"]["sha256"],
+                        "page": page["page"],
+                        "page_label": page["page_label"],
+                        "ordinal": len(chunks),
+                        "start_char": start,
+                        "end_char": end,
+                        "text": body,
+                        "text_sha256": digest(body),
+                        "raw_start_char": page["raw_starts"][start],
+                        "raw_end_char": page["raw_ends"][end - 1],
+                        "page_raw_sha256": page["raw_sha256"],
+                        "parser_version": PARSER,
+                        "chunker_version": CHUNKER,
+                    }
+                )
             if end == len(text):
                 break
             start = end - 200

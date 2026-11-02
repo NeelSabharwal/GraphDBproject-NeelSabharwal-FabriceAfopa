@@ -23,6 +23,8 @@ class Settings(BaseModel):
     agent_model_timeout: float = Field(default=45, ge=0.1, le=90)
     agent_query_timeout: float = Field(default=5, ge=0.1, le=10)
     agent_context_chars: int = Field(default=6500, ge=500, le=9000)
+    corpus_import_token: SecretStr | None = Field(default=None, min_length=32)
+    corpus_root: str = "/workspace"
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -41,4 +43,6 @@ class Settings(BaseModel):
             agent_model_timeout=os.getenv("AGENT_MODEL_TIMEOUT", "45"),
             agent_query_timeout=os.getenv("AGENT_QUERY_TIMEOUT", "5"),
             agent_context_chars=os.getenv("AGENT_CONTEXT_CHARS", "6500"),
+            corpus_import_token=os.getenv("CORPUS_IMPORT_TOKEN") or None,
+            corpus_root=os.getenv("CORPUS_ROOT", "/workspace"),
         )

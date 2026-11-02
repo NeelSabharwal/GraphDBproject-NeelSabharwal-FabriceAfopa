@@ -98,10 +98,14 @@ def ollama_schema(method_only: bool = False) -> dict:
     The first trial timed out with bounded-string grammar; its cause is not proven.
     Output tokens remain bounded independently by num_predict.
     """
+
     def simplify(value):
         if isinstance(value, dict):
-            return {key: simplify(item) for key, item in value.items()
-                    if key not in {"minLength", "maxLength", "minItems", "maxItems"}}
+            return {
+                key: simplify(item)
+                for key, item in value.items()
+                if key not in {"minLength", "maxLength", "minItems", "maxItems"}
+            }
         if isinstance(value, list):
             return [simplify(item) for item in value]
         return value
@@ -115,8 +119,10 @@ def validate_extraction(content: str, chunk: dict, model: dict) -> tuple[list[di
         method_output = MethodExtractionOutput.model_validate_json(content)
         output = ExtractionOutput(
             entities=[EntityOutput(**r.entity.model_dump()) for r in method_output.relations],
-            relations=[RelationOutput(predicate=r.predicate, object_name=r.entity.name,
-                                      quote=r.quote, qualifiers=r.qualifiers) for r in method_output.relations],
+            relations=[
+                RelationOutput(predicate=r.predicate, object_name=r.entity.name, quote=r.quote, qualifiers=r.qualifiers)
+                for r in method_output.relations
+            ],
         )
     else:
         output = ExtractionOutput.model_validate_json(content)
@@ -127,9 +133,13 @@ def validate_extraction(content: str, chunk: dict, model: dict) -> tuple[list[di
         # Paper-scoped candidates avoid silently resolving ambiguous cross-paper aliases.
         identifier = stable_id(chunk["paper_id"], entity.kind, entity.name.casefold())
         record = {
-            "id": identifier, "paper_id": chunk["paper_id"], "canonical_name": entity.name,
-            "normalized_name": entity.name.casefold(), "kind": entity.kind,
-            "resolution_status": "UNREVIEWED_PAPER_SCOPED", "chunk_id": chunk["id"],
+            "id": identifier,
+            "paper_id": chunk["paper_id"],
+            "canonical_name": entity.name,
+            "normalized_name": entity.name.casefold(),
+            "kind": entity.kind,
+            "resolution_status": "UNREVIEWED_PAPER_SCOPED",
+            "chunk_id": chunk["id"],
             "start_char": chunk["text"].index(entity.name),
             "end_char": chunk["text"].index(entity.name) + len(entity.name),
         }
@@ -145,17 +155,29 @@ def validate_extraction(content: str, chunk: dict, model: dict) -> tuple[list[di
         start = chunk["text"].find(relation.quote, lower, upper)
         if start < 0 or relation.object_name not in relation.quote:
             raise ValueError("Supporting quote must occur exactly in the source and include its object")
-        claims.append({
-            "id": stable_id(chunk["id"], model["digest"], PROMPT_VERSION, relation.model_dump()),
-            "paper_id": chunk["paper_id"], "subject_id": chunk["paper_id"], "object_id": entity["id"],
-            "predicate": relation.predicate, "status": "EXTRACTED", "origin": "LLM",
-            "source_location_status": "SOURCE_LOCATED",
-            "student_review_status": "pending", "qualifiers": relation.qualifiers,
-            "model_id": model["name"], "model_digest": model["digest"], "prompt_version": PROMPT_VERSION,
-            "chunk_id": chunk["id"], "quote": relation.quote, "start_char": start,
-            "end_char": start + len(relation.quote), "quote_sha256": digest(relation.quote),
-            "validation_checks": ["schema", "entity_surface", "predicate_range", "exact_quote"],
-        })
+        claims.append(
+            {
+                "id": stable_id(chunk["id"], model["digest"], PROMPT_VERSION, relation.model_dump()),
+                "paper_id": chunk["paper_id"],
+                "subject_id": chunk["paper_id"],
+                "object_id": entity["id"],
+                "predicate": relation.predicate,
+                "status": "EXTRACTED",
+                "origin": "LLM",
+                "source_location_status": "SOURCE_LOCATED",
+                "student_review_status": "pending",
+                "qualifiers": relation.qualifiers,
+                "model_id": model["name"],
+                "model_digest": model["digest"],
+                "prompt_version": PROMPT_VERSION,
+                "chunk_id": chunk["id"],
+                "quote": relation.quote,
+                "start_char": start,
+                "end_char": start + len(relation.quote),
+                "quote_sha256": digest(relation.quote),
+                "validation_checks": ["schema", "entity_surface", "predicate_range", "exact_quote"],
+            }
+        )
     return entities, claims
 
 
@@ -164,8 +186,13 @@ def extract_sample(client: httpx.Client, chunk: dict, model: dict) -> dict:
     started = time.perf_counter()
     method_only = "sample_start_char" in chunk
     prompt = METHOD_PROMPT if method_only else SYSTEM_PROMPT
-    record = {"chunk_id": chunk["id"], "model": model, "prompt_version": PROMPT_VERSION,
-              "prompt_sha256": digest(prompt), "status": "FAILED"}
+    record = {
+        "chunk_id": chunk["id"],
+        "model": model,
+        "prompt_version": PROMPT_VERSION,
+        "prompt_sha256": digest(prompt),
+        "status": "FAILED",
+    }
     # A first-page abstract can otherwise be dominated by author/affiliation text.
     # Source offsets continue to refer to the unchanged full chunk.
     abstract = chunk["text"].find("Abstract")
@@ -174,13 +201,20 @@ def extract_sample(client: httpx.Client, chunk: dict, model: dict) -> dict:
     record["input_start_char"] = input_start
     record["input_end_char"] = input_end
     try:
-        response = client.post("/api/chat", json={
-            "model": model["name"], "stream": False, "format": ollama_schema(method_only),
-            "messages": [{"role": "system", "content": prompt},
-                         {"role": "user", "content": json.dumps({"passage": chunk["text"][input_start:input_end]})}],
-            "options": {"temperature": 0, "seed": 42, "num_ctx": 2048, "num_predict": 400, "num_thread": 8},
-            "keep_alive": "2m",
-        })
+        response = client.post(
+            "/api/chat",
+            json={
+                "model": model["name"],
+                "stream": False,
+                "format": ollama_schema(method_only),
+                "messages": [
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": json.dumps({"passage": chunk["text"][input_start:input_end]})},
+                ],
+                "options": {"temperature": 0, "seed": 42, "num_ctx": 2048, "num_predict": 400, "num_thread": 8},
+                "keep_alive": "2m",
+            },
+        )
         response.raise_for_status()
         data = response.json()
         record["response"] = data

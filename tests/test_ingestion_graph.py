@@ -19,14 +19,23 @@ def graph_fixture():
     """Delete only this test's UUID-scoped records; preserve the student's corpus."""
     config = Settings.from_environment()
     prefix = f"test-ingestion-{uuid.uuid4().hex}"
-    driver = GraphDatabase.driver(config.neo4j_uri,
-                                 auth=(config.neo4j_user, config.neo4j_password.get_secret_value()))
+    driver = GraphDatabase.driver(config.neo4j_uri, auth=(config.neo4j_user, config.neo4j_password.get_secret_value()))
     graph = EvidenceGraph(driver)
     graph.ensure_schema()
-    papers = [{"paper_id": prefix + suffix, "work_id": prefix + suffix, "version": "v1",
-               "title": "Original fixture", "authors": ["Test Author"], "year": 2026,
-               "pdf_url": "https://example.invalid/fixture", "pdf_access": {"sha256": "fixture"},
-               "reuse_note": "Original test prose"} for suffix in ("-a", "-b")]
+    papers = [
+        {
+            "paper_id": prefix + suffix,
+            "work_id": prefix + suffix,
+            "version": "v1",
+            "title": "Original fixture",
+            "authors": ["Test Author"],
+            "year": 2026,
+            "pdf_url": "https://example.invalid/fixture",
+            "pdf_access": {"sha256": "fixture"},
+            "reuse_note": "Original test prose",
+        }
+        for suffix in ("-a", "-b")
+    ]
     ids = [p["paper_id"] for p in papers]
     try:
         driver.verify_connectivity()
@@ -34,27 +43,64 @@ def graph_fixture():
         yield driver, graph, ids
     finally:
         driver.execute_query(
-            "MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids DETACH DELETE n", ids=ids)
+            "MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids DETACH DELETE n", ids=ids
+        )
         driver.close()
 
 
 def fixture_records(ids):
     """Two ordered chunks, one unreviewed Topic and one verified fixture citation."""
     text = "Our fixture addresses retrieval. Target reference."
-    chunks = [{"id": ids[0] + f"-chunk{i}", "paper_id": ids[0], "text": text,
-               "text_sha256": digest(text), "page": i + 1, "ordinal": i} for i in range(2)]
-    entity = {"id": ids[0] + "-topic", "paper_id": ids[0], "kind": "Topic",
-              "canonical_name": "retrieval", "normalized_name": "retrieval",
-              "resolution_status": "UNREVIEWED_PAPER_SCOPED", "chunk_id": chunks[0]["id"],
-              "start_char": text.index("retrieval"), "end_char": text.index("retrieval") + len("retrieval")}
-    base = {"paper_id": ids[0], "subject_id": ids[0], "chunk_id": chunks[0]["id"],
-            "quote": text, "quote_sha256": digest(text), "start_char": 0, "end_char": len(text)}
+    chunks = [
+        {
+            "id": ids[0] + f"-chunk{i}",
+            "paper_id": ids[0],
+            "text": text,
+            "text_sha256": digest(text),
+            "page": i + 1,
+            "ordinal": i,
+        }
+        for i in range(2)
+    ]
+    entity = {
+        "id": ids[0] + "-topic",
+        "paper_id": ids[0],
+        "kind": "Topic",
+        "canonical_name": "retrieval",
+        "normalized_name": "retrieval",
+        "resolution_status": "UNREVIEWED_PAPER_SCOPED",
+        "chunk_id": chunks[0]["id"],
+        "start_char": text.index("retrieval"),
+        "end_char": text.index("retrieval") + len("retrieval"),
+    }
+    base = {
+        "paper_id": ids[0],
+        "subject_id": ids[0],
+        "chunk_id": chunks[0]["id"],
+        "quote": text,
+        "quote_sha256": digest(text),
+        "start_char": 0,
+        "end_char": len(text),
+    }
     claims = [
-        {**base, "id": ids[0] + "-citation", "object_id": ids[1], "predicate": "CITES",
-         "status": "EXTRACTED", "origin": "BIBLIOGRAPHY_VALIDATOR", "location_policy": POLICY,
-         "source_location_status": "SOURCE_LOCATED"},
-        {**base, "id": ids[0] + "-claim", "object_id": entity["id"], "predicate": "ADDRESSES",
-         "status": "EXTRACTED", "origin": "LLM"},
+        {
+            **base,
+            "id": ids[0] + "-citation",
+            "object_id": ids[1],
+            "predicate": "CITES",
+            "status": "EXTRACTED",
+            "origin": "BIBLIOGRAPHY_VALIDATOR",
+            "location_policy": POLICY,
+            "source_location_status": "SOURCE_LOCATED",
+        },
+        {
+            **base,
+            "id": ids[0] + "-claim",
+            "object_id": entity["id"],
+            "predicate": "ADDRESSES",
+            "status": "EXTRACTED",
+            "origin": "LLM",
+        },
     ]
     return chunks, [entity], claims
 
@@ -72,18 +118,28 @@ def test_real_import_idempotency_direction_and_review_preservation(graph_fixture
     assert fingerprint == graph.fingerprint(ids)
     assert before["nodes"] == {"Paper": 2, "Chunk": 2, "Entity": 1, "Topic": 1, "Claim": 2}
     assert before["relationships"] == {
-        "CITES": 1, "MENTIONS": 1, "NEXT": 1, "OBJECT": 2, "PART_OF": 2, "SUBJECT": 2, "SUPPORTED_BY": 2}
+        "CITES": 1,
+        "MENTIONS": 1,
+        "NEXT": 1,
+        "OBJECT": 2,
+        "PART_OF": 2,
+        "SUBJECT": 2,
+        "SUPPORTED_BY": 2,
+    }
     result, _, _ = driver.execute_query(
-        "MATCH (a:Paper {id:$a})-[:CITES]->(b:Paper {id:$b}) RETURN b.id AS id", a=ids[0], b=ids[1])
+        "MATCH (a:Paper {id:$a})-[:CITES]->(b:Paper {id:$b}) RETURN b.id AS id", a=ids[0], b=ids[1]
+    )
     assert len(result) == 1
     reverse, _, _ = driver.execute_query(
-        "MATCH (:Paper {id:$b})-[:CITES]->(:Paper {id:$a}) RETURN 1", a=ids[0], b=ids[1])
+        "MATCH (:Paper {id:$b})-[:CITES]->(:Paper {id:$a}) RETURN 1", a=ids[0], b=ids[1]
+    )
     assert reverse == []
     graph.review_claim(claims[0]["id"], "Fixture Student", "Rejecting fixture assertion", approved=False)
     graph.import_paper(ids[0], chunks, entities, claims, "FIXTURE")
     assert "CITES" not in graph.counts(ids)["relationships"]
-    status, _, _ = driver.execute_query("MATCH (c:Claim {id:$id}) RETURN c.status AS status, c.reviewer AS reviewer",
-                                        id=claims[0]["id"])
+    status, _, _ = driver.execute_query(
+        "MATCH (c:Claim {id:$id}) RETURN c.status AS status, c.reviewer AS reviewer", id=claims[0]["id"]
+    )
     assert dict(status[0]) == {"status": "REJECTED", "reviewer": "Fixture Student"}
 
 
@@ -93,9 +149,11 @@ def test_uniqueness_constraints_reject_duplicates(graph_fixture, label):
     graph.import_paper(ids[0], *fixture_records(ids), "FIXTURE")
     # label is an internal test constant, never an LLM or user-supplied query fragment.
     with pytest.raises(ConstraintError):
-        driver.execute_query(f"MATCH (n:{label}) WHERE n.id STARTS WITH $prefix "
-                             f"WITH n LIMIT 1 CREATE (duplicate:{label} {{id:n.id}})",
-                             prefix=ids[0])
+        driver.execute_query(
+            f"MATCH (n:{label}) WHERE n.id STARTS WITH $prefix "
+            f"WITH n LIMIT 1 CREATE (duplicate:{label} {{id:n.id}})",
+            prefix=ids[0],
+        )
 
 
 def test_invalid_quote_never_writes_claims(graph_fixture):
@@ -114,16 +172,14 @@ def test_invalid_entity_source_rejects_entire_batch_before_writes(graph_fixture,
     invalid = {**entities[0], "id": ids[0] + "-invalid", "chunk_id": ids[0] + "-absent"}
     if reference == "foreign_existing":
         invalid["chunk_id"] = ids[1] + "-foreign-chunk"
-        driver.execute_query("CREATE (:Chunk {id:$id, paper_id:$paper})",
-                             id=invalid["chunk_id"], paper=ids[1])
+        driver.execute_query("CREATE (:Chunk {id:$id, paper_id:$paper})", id=invalid["chunk_id"], paper=ids[1])
     elif reference == "different_paper":
         invalid.update(chunk_id=chunks[0]["id"], paper_id=ids[1])
     before = graph.fingerprint(ids)
     with pytest.raises(ValueError, match="Entity source chunk|different source paper"):
         graph.import_paper(ids[0], chunks, [*entities, invalid], claims, "FIXTURE")
     assert graph.fingerprint(ids) == before
-    records, _, _ = driver.execute_query(
-        "MATCH (n) WHERE n.paper_id=$id RETURN labels(n) AS labels", id=ids[0])
+    records, _, _ = driver.execute_query("MATCH (n) WHERE n.paper_id=$id RETURN labels(n) AS labels", id=ids[0])
     assert records == []  # No chunks, valid entities, invalid entities or claims leaked through.
 
 
@@ -148,7 +204,10 @@ def test_legacy_automatic_approval_retains_evidence_pending_student_review(graph
     graph.import_paper(ids[0], chunks, entities, claims, "FIXTURE")
     driver.execute_query(
         "MATCH (c:Claim {id:$id}) SET c.status='SOURCE_VERIFIED', c.review_policy=$policy, "
-        "c.reviewer='automated-bibliography-validator', c.reviewed_at='2026-10-20'", id=claims[0]["id"], policy=POLICY)
+        "c.reviewer='automated-bibliography-validator', c.reviewed_at='2026-10-20'",
+        id=claims[0]["id"],
+        policy=POLICY,
+    )
     driver.execute_query("MATCH (a:Paper {id:$a}), (b:Paper {id:$b}) MERGE (a)-[:CITES]->(b)", a=ids[0], b=ids[1])
     graph.import_paper(ids[0], chunks, entities, claims, "FIXTURE")
     rows, _, _ = driver.execute_query("MATCH (c:Claim {id:$id}) RETURN properties(c) AS c", id=claims[0]["id"])

@@ -1,6 +1,44 @@
-# Proposed architecture — AI Research GraphRAG Assistant
+# Architecture — AI Research GraphRAG Assistant
 
-**Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; ML and remaining delivery tasks remain PROPOSED.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
+**Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; the fixed ML pilot, protected corpus API and local delivery tooling are now implemented; external publication/CI execution remain outstanding.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
+
+### Final implementation update — 2026-11-02 (D24)
+
+The protected persisted graph now has 3 Papers, 153 Chunks, 17 Entities and 25 Claims
+(22 student-approved, three pending), with two CITES, 60 SUPPORTED_BY, 150 NEXT,
+153 PART_OF, 25 SUBJECT, 25 OBJECT and 148 MENTIONS relationships. All 153 embeddings
+remain present. The 145 new deterministic occurrence edges carry source/policy hashes
+and `NOT_REVIEWED`; they do not alter Claims, canonical identities or student histories.
+See [MENTIONS_ENRICHMENT.md](MENTIONS_ENRICHMENT.md).
+
+`app/ml` extracts eight local graph features from the controlled canonical mention
+layer and actual same-paper NEXT. The fixed 10-train/5-test supervised experiment ran
+without changing Neo4j. Its zero logistic accuracy is retained alongside the majority
+baseline; this is a failed exploratory generalization result, not a useful classifier
+claim. The earlier eight-paper proposal is unmet. [GRAPH_ML.md](GRAPH_ML.md) records
+all metrics, feature distributions, fixed settings, source/label gates and limitations.
+
+The API adds `GET /api/corpus`, `POST /api/corpus/import` and
+`GET /api/topics/{ident}/graph?depth=2`. Import is disabled without an environment
+secret and allows only the pinned prototype, with zero or one optional extraction
+sample per paper. HTTP cannot replay reviews; already-present papers return without
+writes, partial/inconsistent state returns 409. The existing CLI preserves detailed
+per-paper audit and partial-extraction behavior. One API import runs at a time;
+this is a single-worker localhost deployment, not multi-tenant production scheduling.
+A named `corpus_files` volume stores HTTP import files. It is separate from the
+host-mounted operator corpus; no source PDFs or annotation data enter the image.
+
+Concept exploration traverses actual Entity <- OBJECT - approved Claim - SUBJECT ->
+Paper relationships to depth one/two, using complete source-support validation and
+review snapshot checks. It is a bounded response, not unrestricted neighborhood Cypher.
+The existing agent remains model-directed; after a successful citation path it must
+explicitly read every supporting Chunk before returning exact bibliography quotes.
+The graph path itself is always the real retrieved directed path, never model text.
+
+Editable/viewable diagrams, a live executable notebook and final quality/CI evidence
+are linked from README. GDS projection lifecycle and algorithms remain unchanged.
+Historical status paragraphs below describe their original milestones; the dated
+records and [FINAL_RUBRIC_AUDIT.md](FINAL_RUBRIC_AUDIT.md) determine current scope.
 
 ### Implemented advanced graph and GDS slice — prompt #7B
 

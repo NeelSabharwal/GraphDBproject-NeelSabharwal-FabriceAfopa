@@ -9,9 +9,20 @@ def main() -> None:
     """Inspect model metadata through the API container without exposing a port."""
     expected = json.loads(Path("models.lock.json").read_text())["models"]
     result = subprocess.run(
-        ["docker", "compose", "exec", "-T", "api", "python", "-c",
-         "import httpx; print(httpx.get('http://ollama:11434/api/tags',timeout=5).text)"],
-        capture_output=True, text=True, check=True, timeout=15,
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "api",
+            "python",
+            "-c",
+            "import httpx; print(httpx.get('http://ollama:11434/api/tags',timeout=5).text)",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=15,
     )
     installed = {item["name"]: item for item in json.loads(result.stdout)["models"]}
     for model in expected:
