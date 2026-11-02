@@ -10,7 +10,14 @@ from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
 from app.ingestion.citations import verify_citation
 from app.ingestion.documents import (
-    digest, download_pdf, make_chunks, normalize, parse_pdf, prototype_manifest, save_pdf, verify_pdf,
+    digest,
+    download_pdf,
+    make_chunks,
+    normalize,
+    parse_pdf,
+    prototype_manifest,
+    save_pdf,
+    verify_pdf,
 )
 from app.ingestion.extraction import extract_sample, ollama_schema, validate_extraction
 from app.ingestion.graph import validate_claims
@@ -22,19 +29,27 @@ def paper_pdf(tmp_path):
     writer = PdfWriter()
     for text in ("arXiv:2004.04906v1 Test paper uses Widget method.", "Second page has original test text."):
         page = writer.add_blank_page(width=600, height=800)
-        font = DictionaryObject({NameObject("/Type"): NameObject("/Font"),
-                                 NameObject("/Subtype"): NameObject("/Type1"),
-                                 NameObject("/BaseFont"): NameObject("/Helvetica")})
-        page[NameObject("/Resources")] = DictionaryObject({
-            NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})})
+        font = DictionaryObject(
+            {
+                NameObject("/Type"): NameObject("/Font"),
+                NameObject("/Subtype"): NameObject("/Type1"),
+                NameObject("/BaseFont"): NameObject("/Helvetica"),
+            }
+        )
+        page[NameObject("/Resources")] = DictionaryObject(
+            {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+        )
         stream = DecodedStreamObject()
         stream.set_data(f"BT /F1 12 Tf 50 700 Td ({text}) Tj ET".encode())
         page[NameObject("/Contents")] = writer._add_object(stream)
     path = tmp_path / "test.pdf"
     writer.write(path)
-    paper = {"paper_id": "arxiv:2004.04906v1", "work_id": "arxiv:2004.04906", "version": "v1",
-             "pdf_access": {"sha256": digest(path.read_bytes()), "size_bytes": path.stat().st_size,
-                            "page_count": 2}}
+    paper = {
+        "paper_id": "arxiv:2004.04906v1",
+        "work_id": "arxiv:2004.04906",
+        "version": "v1",
+        "pdf_access": {"sha256": digest(path.read_bytes()), "size_bytes": path.stat().st_size, "page_count": 2},
+    }
     return path, paper
 
 
@@ -50,7 +65,7 @@ def test_real_pdf_parser_pages_hashes_and_deterministic_chunks(paper_pdf):
     assert len({c["id"] for c in chunks}) == 2
     for chunk in chunks:
         page = pages[chunk["page"] - 1]
-        assert chunk["text"] == page["text"][chunk["start_char"]:chunk["end_char"]]
+        assert chunk["text"] == page["text"][chunk["start_char"] : chunk["end_char"]]
         assert digest(chunk["text"]) == chunk["text_sha256"]
         assert chunk["paper_id"] == paper["paper_id"]
         assert chunk["page_raw_sha256"] == digest(page["raw_text"])
@@ -67,8 +82,14 @@ def test_long_chunks_cover_page_without_crossing_or_losing_text(paper_pdf):
     _, paper = paper_pdf
     raw = "word ﬁ more words\n" * 400
     text, starts, ends = normalize(raw)
-    page = {"page": 7, "page_label": "5", "text": text, "raw_sha256": digest(raw),
-            "raw_starts": starts, "raw_ends": ends}
+    page = {
+        "page": 7,
+        "page_label": "5",
+        "text": text,
+        "raw_sha256": digest(raw),
+        "raw_starts": starts,
+        "raw_ends": ends,
+    }
     chunks = make_chunks(paper, [page])
     assert len(chunks) > 2
     assert all(c["page"] == 7 and len(c["text"]) <= 1400 for c in chunks)
@@ -99,6 +120,7 @@ def test_non_pdf_rejected(paper_pdf):
 
 def test_parser_empty_page_is_recorded(paper_pdf, monkeypatch):
     from pypdf._page import PageObject
+
     original = PageObject.extract_text
 
     def empty_second(page, *args, **kwargs):
@@ -114,9 +136,11 @@ def test_parser_empty_page_is_recorded(paper_pdf, monkeypatch):
 def test_download_failure_does_not_create_or_replace_file(tmp_path, paper_pdf):
     _, paper = paper_pdf
     paper.update(pdf_url="https://arxiv.org/pdf/2004.04906v1", suggested_download_path="data/raw/test.pdf")
-    with httpx.Client(transport=httpx.MockTransport(
-        lambda request: httpx.Response(200, content=b"%PDF-wrong", headers={"content-type": "application/pdf"})
-    )) as client:
+    with httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, content=b"%PDF-wrong", headers={"content-type": "application/pdf"})
+        )
+    ) as client:
         with pytest.raises(ValueError, match="checksum mismatch"):
             download_pdf(tmp_path, paper, client)
         assert not (tmp_path / paper["suggested_download_path"]).exists()
@@ -130,8 +154,9 @@ def test_download_failure_does_not_create_or_replace_file(tmp_path, paper_pdf):
 
 def test_manifest_rejects_unapproved_prototype(tmp_path):
     (tmp_path / "corpus").mkdir()
-    (tmp_path / "corpus/corpus_manifest.json").write_text(json.dumps({
-        "papers": [{"selection_stage": "prototype", "paper_id": "arxiv:unapproved"}]}))
+    (tmp_path / "corpus/corpus_manifest.json").write_text(
+        json.dumps({"papers": [{"selection_stage": "prototype", "paper_id": "arxiv:unapproved"}]})
+    )
     with pytest.raises(ValueError, match="exactly the three"):
         prototype_manifest(tmp_path)
 
@@ -139,6 +164,7 @@ def test_manifest_rejects_unapproved_prototype(tmp_path):
 @pytest.mark.parametrize("failure", ["interrupted_write", "publish", "short_write"])
 def test_atomic_save_failure_preserves_valid_pdf_and_cleans_temporary(paper_pdf, monkeypatch, failure):
     import app.ingestion.documents as documents
+
     path, paper = paper_pdf
     previous = path.read_bytes()
 
@@ -161,9 +187,11 @@ def test_download_atomically_publishes_complete_pdf(tmp_path, paper_pdf):
     original, paper = paper_pdf
     data = original.read_bytes()
     paper.update(pdf_url="https://example.invalid/fixture", suggested_download_path="data/raw/download.pdf")
-    with httpx.Client(transport=httpx.MockTransport(
-        lambda request: httpx.Response(200, content=data, headers={"content-type": "application/pdf"})
-    )) as client:
+    with httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, content=data, headers={"content-type": "application/pdf"})
+        )
+    ) as client:
         path = download_pdf(tmp_path, paper, client)
     assert path.read_bytes() == data
     assert list(path.parent.iterdir()) == [path]
@@ -172,9 +200,17 @@ def test_download_atomically_publishes_complete_pdf(tmp_path, paper_pdf):
 @pytest.fixture
 def extraction_case():
     chunk = {"id": "chunk", "paper_id": "paper", "text": "Our paper uses Widget for question answering."}
-    output = {"entities": [{"name": "Widget", "kind": "Method"}],
-              "relations": [{"predicate": "USES", "object_name": "Widget",
-                             "quote": chunk["text"], "qualifiers": "Author assertion; not independently true"}]}
+    output = {
+        "entities": [{"name": "Widget", "kind": "Method"}],
+        "relations": [
+            {
+                "predicate": "USES",
+                "object_name": "Widget",
+                "quote": chunk["text"],
+                "qualifiers": "Author assertion; not independently true",
+            }
+        ],
+    }
     model = {"name": "test-model", "digest": "test-digest"}
     return chunk, output, model
 
@@ -226,13 +262,20 @@ def test_malformed_or_unsupported_extraction_is_rejected(extraction_case, mutati
         validate_extraction(content, chunk, model)
 
 
-@pytest.mark.parametrize("payload", [None, [], {}, {"message": []}, {"message": {"content": ""}},
-                                   {"message": {"content": "{}"}, "done": False}])
+@pytest.mark.parametrize(
+    "payload",
+    [None, [], {}, {"message": []}, {"message": {"content": ""}}, {"message": {"content": "{}"}, "done": False}],
+)
 def test_malformed_ollama_preserves_failure(extraction_case, payload):
     chunk, _, model = extraction_case
-    with httpx.Client(base_url="http://test", transport=httpx.MockTransport(
-        lambda request: httpx.Response(200, content=json.dumps(payload), headers={"content-type": "application/json"})
-    )) as client:
+    with httpx.Client(
+        base_url="http://test",
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(
+                200, content=json.dumps(payload), headers={"content-type": "application/json"}
+            )
+        ),
+    ) as client:
         result = extract_sample(client, chunk, model)
     assert result["status"] == "FAILED"
     assert result["error"] == "ValueError"
@@ -246,18 +289,39 @@ def citation_case():
     title = "A Test Retrieval Method"
     start, end = raw.index(title), raw.index(title) + len(title)
     source = {"paper_id": "source", "pdf_url": "https://example/source.pdf", "pdf_access": {"sha256": "sourcehash"}}
-    target = {"paper_id": "targetv1", "work_id": "arxiv:1234.56789", "title": title,
-              "authors": ["Alice Example"], "year": 2020}
+    target = {
+        "paper_id": "targetv1",
+        "work_id": "arxiv:1234.56789",
+        "title": title,
+        "authors": ["Alice Example"],
+        "year": 2020,
+    }
     text, starts, ends = normalize(raw)
     page = {"raw_text": raw, "raw_sha256": digest(raw), "text": text, "raw_starts": starts, "raw_ends": ends}
-    chunk = {"id": "citationchunk", "paper_id": "source", "page": 1, "start_char": 0,
-             "end_char": len(text), "text": text}
-    row = {"source_paper_id": "source", "target_work_id": target["work_id"],
-           "selected_target_paper_id": "targetv1", "relation": "CITES", "evidence_id": "TEST-C",
-           "source_pdf_url": source["pdf_url"], "source_pdf_sha256": "sourcehash", "pdf_page_1based": "1",
-           "page_text_sha256": digest(raw), "title_start_char_0based": str(start),
-           "title_end_char_exclusive": str(end), "target_version_as_cited": "unspecified",
-           "reference_locator": "Reference [22]", "identity_resolution": "explicit arXiv ID"}
+    chunk = {
+        "id": "citationchunk",
+        "paper_id": "source",
+        "page": 1,
+        "start_char": 0,
+        "end_char": len(text),
+        "text": text,
+    }
+    row = {
+        "source_paper_id": "source",
+        "target_work_id": target["work_id"],
+        "selected_target_paper_id": "targetv1",
+        "relation": "CITES",
+        "evidence_id": "TEST-C",
+        "source_pdf_url": source["pdf_url"],
+        "source_pdf_sha256": "sourcehash",
+        "pdf_page_1based": "1",
+        "page_text_sha256": digest(raw),
+        "title_start_char_0based": str(start),
+        "title_end_char_exclusive": str(end),
+        "target_version_as_cited": "unspecified",
+        "reference_locator": "Reference [22]",
+        "identity_resolution": "explicit arXiv ID",
+    }
     return row, source, target, [page], [chunk]
 
 
@@ -273,11 +337,18 @@ def test_citation_independently_verified_with_work_direction(citation_case):
     validate_claims(citation_case[-1], [], [claim])
 
 
-@pytest.mark.parametrize("field,value", [
-    ("page_text_sha256", "wrong"), ("source_pdf_sha256", "wrong"), ("target_work_id", "wrong"),
-    ("title_start_char_0based", "-1"), ("pdf_page_1based", "9"),
-    ("reference_locator", "Reference [23]"), ("target_version_as_cited", "v1"),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("page_text_sha256", "wrong"),
+        ("source_pdf_sha256", "wrong"),
+        ("target_work_id", "wrong"),
+        ("title_start_char_0based", "-1"),
+        ("pdf_page_1based", "9"),
+        ("reference_locator", "Reference [23]"),
+        ("target_version_as_cited", "v1"),
+    ],
+)
 def test_citation_tampering_rejected(citation_case, field, value):
     citation_case[0][field] = value
     with pytest.raises(ValueError):
@@ -351,14 +422,17 @@ def test_author_date_citation_resolves_work_without_claiming_target_version(cita
     row, source, target, _, _ = citation_case
     raw = "References\nExample, A. (2020). A Test Retrieval Method. Proceedings of Fictional Tests.\n"
     text, starts, ends = normalize(raw)
-    row.update(reference_locator="References: Alice Example (2020)",
-               identity_resolution="matching title/authors; published-work reference",
-               page_text_sha256=digest(raw), title_start_char_0based=str(raw.index(target["title"])),
-               title_end_char_exclusive=str(raw.index(target["title"]) + len(target["title"])))
-    pages = [{"raw_text": raw, "raw_sha256": digest(raw), "text": text,
-              "raw_starts": starts, "raw_ends": ends}]
-    chunks = [{"id": "test", "paper_id": source["paper_id"], "page": 1,
-               "start_char": 0, "end_char": len(text), "text": text}]
+    row.update(
+        reference_locator="References: Alice Example (2020)",
+        identity_resolution="matching title/authors; published-work reference",
+        page_text_sha256=digest(raw),
+        title_start_char_0based=str(raw.index(target["title"])),
+        title_end_char_exclusive=str(raw.index(target["title"]) + len(target["title"])),
+    )
+    pages = [{"raw_text": raw, "raw_sha256": digest(raw), "text": text, "raw_starts": starts, "raw_ends": ends}]
+    chunks = [
+        {"id": "test", "paper_id": source["paper_id"], "page": 1, "start_char": 0, "end_char": len(text), "text": text}
+    ]
     result = verify_citation(row, source, target, pages, chunks)
     assert result["target_version_as_cited"] == "unspecified"
     assert result["status"] == "EXTRACTED"
@@ -380,19 +454,28 @@ def test_graphrag_repaired_hyphenation_is_not_fabricated_as_exact_quote(extracti
     output["relations"][0]["quote"] = "uses Widget on an in- dexed corpus"
     _, claims = validate_extraction(json.dumps(output), chunk, model)
     claim = claims[0]
-    assert chunk["text"][claim["start_char"]:claim["end_char"]] == claim["quote"]
+    assert chunk["text"][claim["start_char"] : claim["end_char"]] == claim["quote"]
     assert claim["status"] == "EXTRACTED"
 
 
-@pytest.mark.parametrize("core_failure,optional_failure,strict,expected", [
-    (False, False, False, 0), (False, True, False, 0), (False, True, True, 2),
-    (True, False, False, 1), (True, True, True, 1),
-])
+@pytest.mark.parametrize(
+    "core_failure,optional_failure,strict,expected",
+    [
+        (False, False, False, 0),
+        (False, True, False, 0),
+        (False, True, True, 2),
+        (True, False, False, 1),
+        (True, True, True, 1),
+    ],
+)
 def test_import_and_optional_extraction_exit_contract(core_failure, optional_failure, strict, expected):
     from scripts.ingest import exit_code, finish_status
-    report = {"failures": [{"error": "core"}] if core_failure else [],
-              "import_status": "FAILED" if core_failure else "SUCCEEDED",
-              "extractions": [{"status": "FAILED" if optional_failure else "VALIDATED_UNREVIEWED"}]}
+
+    report = {
+        "failures": [{"error": "core"}] if core_failure else [],
+        "import_status": "FAILED" if core_failure else "SUCCEEDED",
+        "extractions": [{"status": "FAILED" if optional_failure else "VALIDATED_UNREVIEWED"}],
+    }
     finish_status(report)
     assert exit_code(report, strict) == expected
     if optional_failure and not core_failure:
@@ -402,17 +485,26 @@ def test_import_and_optional_extraction_exit_contract(core_failure, optional_fai
 
 def test_method_samples_keep_original_chunk_coordinates():
     from scripts.ingest import select_samples
+
     chunk = {"id": "fixture", "page": 4, "text": "Context. In our pipeline, we use Leiden for communities."}
     sample = select_samples({"short_name": "GraphRAG"}, [chunk], 1)[0]
     assert sample["id"] == chunk["id"] and sample["text"] == chunk["text"]
-    assert "Leiden" in sample["text"][sample["sample_start_char"]:sample["sample_end_char"]]
+    assert "Leiden" in sample["text"][sample["sample_start_char"] : sample["sample_end_char"]]
 
 
 def test_method_schema_has_one_target_and_preserves_quote_checks(extraction_case):
     chunk, _, model = extraction_case
     chunk.update(sample_start_char=0, sample_end_char=len(chunk["text"]))
-    output = {"relations": [{"entity": {"name": "Widget", "kind": "Method"}, "predicate": "USES",
-                             "quote": "paper uses Widget for question answering.", "qualifiers": ""}]}
+    output = {
+        "relations": [
+            {
+                "entity": {"name": "Widget", "kind": "Method"},
+                "predicate": "USES",
+                "quote": "paper uses Widget for question answering.",
+                "qualifiers": "",
+            }
+        ]
+    }
     entities, claims = validate_extraction(json.dumps(output), chunk, model)
     assert claims[0]["object_id"] == entities[0]["id"]
     assert claims[0]["status"] == "EXTRACTED"

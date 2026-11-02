@@ -20,7 +20,9 @@ def test_authenticated_bolt_and_gds_procedures():
         max_transaction_retry_time=0,
     ) as driver:
         driver.verify_connectivity()
-        records, _, _ = driver.execute_query("CALL dbms.components() YIELD versions, edition RETURN versions[0] AS version, edition")
+        records, _, _ = driver.execute_query(
+            "CALL dbms.components() YIELD versions, edition RETURN versions[0] AS version, edition"
+        )
         assert records[0]["version"] == "5.26.32"
         assert records[0]["edition"] == "community"
         records, _, _ = driver.execute_query("RETURN gds.version() AS version")

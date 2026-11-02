@@ -112,7 +112,9 @@ def check_evidence(gold: dict, pdf_dir: Path) -> int:
     if checked != expected or failures:
         print("RESULT: FAILED / NOT READY for offset-based grading")
         return 1
-    print("RESULT: evidence registry coordinate/hash checks passed; semantic review and application testing STILL PENDING")
+    print(
+        "RESULT: evidence registry coordinate/hash checks passed; semantic review and application testing STILL PENDING"
+    )
     return 0
 
 
@@ -122,7 +124,10 @@ def main() -> int:
     parser.add_argument("--pdf-dir", type=Path, required=True, help="Folder containing the three pinned v1 PDF files")
     args = parser.parse_args()
     if pypdf.__version__ != EXPECTED_PYPDF_VERSION:
-        print(f"STOP: installed pypdf {pypdf.__version__}; required {EXPECTED_PYPDF_VERSION} for reproducible offsets.", file=sys.stderr)
+        print(
+            f"STOP: installed pypdf {pypdf.__version__}; required {EXPECTED_PYPDF_VERSION} for reproducible offsets.",
+            file=sys.stderr,
+        )
         return 2
     try:
         gold = json.loads(args.gold.read_text(encoding="utf-8"))

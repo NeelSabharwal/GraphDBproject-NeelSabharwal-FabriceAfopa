@@ -24,8 +24,9 @@ pytestmark = pytest.mark.integration
 async def with_tools(operation):
     """Run one bounded operation against actual Compose dependencies."""
     config = Settings.from_environment()
-    async with AsyncGraphDatabase.driver(config.neo4j_uri,
-            auth=(config.neo4j_user, config.neo4j_password.get_secret_value())) as driver:
+    async with AsyncGraphDatabase.driver(
+        config.neo4j_uri, auth=(config.neo4j_user, config.neo4j_password.get_secret_value())
+    ) as driver:
         async with httpx.AsyncClient(base_url=config.ollama_url, trust_env=False) as client:
             model = Ollama(client, config)
             return await operation(RetrievalTools(driver, model, config))
@@ -33,9 +34,14 @@ async def with_tools(operation):
 
 def test_real_semantic_retrieval_and_idempotent_embeddings():
     async def exercise(tools):
-        result = await tools.execute("search_chunks", {
-            "query": "DPR dense passage retrieval two encoders dot product similarity",
-            "paper_id": "arxiv:2004.04906v1", "top_k": 4})
+        result = await tools.execute(
+            "search_chunks",
+            {
+                "query": "DPR dense passage retrieval two encoders dot product similarity",
+                "paper_id": "arxiv:2004.04906v1",
+                "top_k": 4,
+            },
+        )
         assert result["status"] == "ok"
         assert 1 <= len(result["evidence"]) <= 4
         assert all(e["paper_id"] == "arxiv:2004.04906v1" for e in result["evidence"])
@@ -48,22 +54,22 @@ def test_real_semantic_retrieval_and_idempotent_embeddings():
         assert report["written"] == 0
         assert report["reused"] >= 153
         assert report["index"]["state"] == "ONLINE"
+
     asyncio.run(with_tools(exercise))
 
 
 def test_q15_forged_page_against_actual_dpr_evidence():
     """Synthetic output only; no PDF, graph property or gold fixture is changed."""
+
     async def exercise(tools):
-        source = await tools.excerpt(
-            "651d3ede4b76912d5aa04aecd2e6a7a4e42008cf3447e928cd13290d584eed0d")
+        source = await tools.excerpt("651d3ede4b76912d5aa04aecd2e6a7a4e42008cf3447e928cd13290d584eed0d")
         assert source["paper_id"] == "arxiv:2004.04906v1"
         assert source["page"] == 3
         evidence = {source["chunk_id"]: source}
         with pytest.raises(ValueError, match="paper/page"):
-            validate_output_citation(
-                {"paper_id": "arxiv:2004.04906v1", "pdf_page_1based": 999}, evidence)
-        validate_output_citation(
-            {"paper_id": source["paper_id"], "pdf_page_1based": source["page"]}, evidence)
+            validate_output_citation({"paper_id": "arxiv:2004.04906v1", "pdf_page_1based": 999}, evidence)
+        validate_output_citation({"paper_id": source["paper_id"], "pdf_page_1based": source["page"]}, evidence)
+
     asyncio.run(with_tools(exercise))
 
 
@@ -78,11 +84,16 @@ def test_real_catalog_resolves_direction_without_vector_discovery():
         approved = await tools.read(
             "MATCH (c:Claim) WHERE c.evidence_id IN ['C03','C09'] "
             "AND c.status='SOURCE_VERIFIED' AND c.human_reviewed=true "
-            "AND c.review_policy=$policy RETURN count(c) AS count", policy=HUMAN_POLICY)
+            "AND c.review_policy=$policy RETURN count(c) AS count",
+            policy=HUMAN_POLICY,
+        )
         if approved[0]["count"] == 2:
             assert result["status"] == "ok"
             assert result["paths"][0]["papers"] == [
-                endpoints["source_id"], "arxiv:2005.11401v1", endpoints["target_id"]]
+                endpoints["source_id"],
+                "arxiv:2005.11401v1",
+                endpoints["target_id"],
+            ]
             assert len(result["paths"][0]["edges"]) == 2
         else:
             assert result["status"] == "unavailable"
@@ -92,6 +103,7 @@ def test_real_catalog_resolves_direction_without_vector_discovery():
         assert reverse["target_id"] == endpoints["source_id"]
         with pytest.raises(ValueError, match="unsupported"):
             resolve_name("Nonexistent paper", catalog)
+
     asyncio.run(with_tools(exercise))
 
 
@@ -103,17 +115,24 @@ def fixture_graph():
     ids = [prefix + suffix for suffix in ("-a", "-b", "-c")]
     text = "Original synthetic citation support for retrieval tests."
     hash_value = hashlib.sha256(text.encode()).hexdigest()
-    with GraphDatabase.driver(config.neo4j_uri,
-            auth=(config.neo4j_user, config.neo4j_password.get_secret_value())) as driver:
+    with GraphDatabase.driver(
+        config.neo4j_uri, auth=(config.neo4j_user, config.neo4j_password.get_secret_value())
+    ) as driver:
         try:
-            driver.execute_query("""
+            driver.execute_query(
+                """
 UNWIND $ids AS id CREATE (p:Paper {id:id, title:'Synthetic fixture', pdf_sha256:'fixture',
 source_url:'https://example.invalid', source_version:'v1'})
 CREATE (chunk:Chunk {id:id+'-chunk', paper_id:id, text:$text, text_sha256:$hash,
 pdf_sha256:'fixture', page_raw_sha256:'fixture', page:1, start_char:0, end_char:size($text),
 parser_version:'fixture', chunker_version:'fixture'})-[:PART_OF]->(p)
-""", ids=ids, text=text, hash=hash_value)
-            driver.execute_query("""
+""",
+                ids=ids,
+                text=text,
+                hash=hash_value,
+            )
+            driver.execute_query(
+                """
 UNWIND [0,1] AS i MATCH (a:Paper {id:$ids[i]}), (b:Paper {id:$ids[i+1]}),
 (chunk:Chunk {id:$ids[i]+'-chunk'})
 CREATE (c:Claim {id:$ids[i]+'-claim', paper_id:a.id, predicate:'CITES',
@@ -122,77 +141,96 @@ review_policy:$policy, reviewer:'SYNTHETIC TEST ONLY', reviewed_at:'fixture'})
 CREATE (c)-[:SUBJECT]->(a), (c)-[:OBJECT]->(b),
 (c)-[:SUPPORTED_BY {quote:$text,quote_sha256:$hash,start_char:0,end_char:size($text)}]->(chunk),
 (a)-[:CITES {claim_ids:[c.id]}]->(b)
-""", ids=ids, policy=HUMAN_POLICY, text=text, hash=hash_value)
+""",
+                ids=ids,
+                policy=HUMAN_POLICY,
+                text=text,
+                hash=hash_value,
+            )
             yield driver, ids
         finally:
-            driver.execute_query(
-                "MATCH (n) WHERE n.id IN $ids OR n.paper_id IN $ids DETACH DELETE n", ids=ids)
+            driver.execute_query("MATCH (n) WHERE n.id IN $ids OR n.paper_id IN $ids DETACH DELETE n", ids=ids)
 
 
 def test_real_directed_paths_depth_and_pending_exclusion(fixture_graph):
     driver, ids = fixture_graph
+
     async def exercise(tools):
         base = {"source_id": ids[0], "target_id": ids[2]}
         result = await tools.execute("find_citation_path", base)
         assert result["paths"][0]["papers"] == ids
         assert len(result["evidence"]) == 2
-        assert all(c["status"] == "SOURCE_VERIFIED"
-                   for edge in result["paths"][0]["edges"] for c in edge["claims"])
+        assert all(c["status"] == "SOURCE_VERIFIED" for edge in result["paths"][0]["edges"] for c in edge["claims"])
         assert (await tools.execute("find_citation_path", {**base, "max_hops": 1}))["paths"] == []
-        assert (await tools.execute("find_citation_path",
-            {"source_id": ids[2], "target_id": ids[0]}))["paths"] == []
+        assert (await tools.execute("find_citation_path", {"source_id": ids[2], "target_id": ids[0]}))["paths"] == []
+
     asyncio.run(with_tools(exercise))
     # A stale derived edge and even SOURCE_VERIFIED status must not bypass approval.
-    driver.execute_query("MATCH (c:Claim {id:$id}) SET c.human_reviewed=false",
-                         id=ids[1]+"-claim")
+    driver.execute_query("MATCH (c:Claim {id:$id}) SET c.human_reviewed=false", id=ids[1] + "-claim")
+
     async def pending(tools):
         result = await tools.execute("find_citation_path", {"source_id": ids[0], "target_id": ids[2]})
         assert result["status"] == "unavailable" and result["paths"] == []
+
     asyncio.run(with_tools(pending))
 
 
 def test_real_verified_scientific_expansion_and_corrupt_support(fixture_graph):
     driver, ids = fixture_graph
-    driver.execute_query("""
+    driver.execute_query(
+        """
 CREATE (e:Entity {id:$entity,paper_id:$paper,kind:'Method'})
 WITH e UNWIND $claims AS id
 MATCH (c:Claim {id:id}), (c)-[old:OBJECT]->(:Paper) DELETE old
 CREATE (c)-[:OBJECT]->(e) SET c.predicate='USES'
-""", claims=[i+"-claim" for i in ids[:2]], entity=ids[0]+"-entity", paper=ids[0])
+""",
+        claims=[i + "-claim" for i in ids[:2]],
+        entity=ids[0] + "-entity",
+        paper=ids[0],
+    )
+
     async def valid(tools):
         result = await tools.execute("expand_verified_evidence", {"paper_id": ids[0]})
         path = result["paths"][0]
-        assert path["joins"] == [{"seed_id": ids[0]+"-claim", "claim_id": ids[1]+"-claim",
-                                  "entity_id": ids[0]+"-entity"}]
+        assert path["joins"] == [
+            {"seed_id": ids[0] + "-claim", "claim_id": ids[1] + "-claim", "entity_id": ids[0] + "-entity"}
+        ]
         assert {c["subject_id"] for c in path["claims"]} == set(ids[:2])
         assert all(c["predicate"] == "USES" for c in path["claims"])
         assert {e["paper_id"] for e in result["evidence"]} == set(ids[:2])
+
     asyncio.run(with_tools(valid))
-    driver.execute_query("MATCH (:Claim {id:$id})-[s:SUPPORTED_BY]->() SET s.quote='forged'",
-                         id=ids[0]+"-claim")
+    driver.execute_query("MATCH (:Claim {id:$id})-[s:SUPPORTED_BY]->() SET s.quote='forged'", id=ids[0] + "-claim")
+
     async def corrupt(tools):
         with pytest.raises(ValueError, match="source support"):
             await tools.execute("expand_verified_evidence", {"paper_id": ids[0]})
+
     asyncio.run(with_tools(corrupt))
 
 
 @pytest.mark.parametrize("other_pending", [False, True])
 def test_scientific_expansion_rejects_self_only_or_pending_other_paper(fixture_graph, other_pending):
     driver, ids = fixture_graph
-    driver.execute_query("""
+    driver.execute_query(
+        """
 CREATE (e:Entity {id:$entity,paper_id:$paper,kind:'Method'})
 WITH e UNWIND $claims AS id
 MATCH (c:Claim {id:id})-[old:OBJECT]->(:Paper) DELETE old
 CREATE (c)-[:OBJECT]->(e) SET c.predicate='USES'
-""", entity=ids[0]+"-entity", paper=ids[0],
-        claims=[i+"-claim" for i in ids[:2 if other_pending else 1]])
+""",
+        entity=ids[0] + "-entity",
+        paper=ids[0],
+        claims=[i + "-claim" for i in ids[: 2 if other_pending else 1]],
+    )
     if other_pending:
-        driver.execute_query("MATCH (c:Claim {id:$id}) SET c.human_reviewed=false",
-                             id=ids[1]+"-claim")
+        driver.execute_query("MATCH (c:Claim {id:$id}) SET c.human_reviewed=false", id=ids[1] + "-claim")
+
     async def exercise(tools):
         result = await tools.execute("expand_verified_evidence", {"paper_id": ids[0]})
         assert result["status"] == "unavailable"
         assert result["paths"] == result["evidence"] == []
+
     asyncio.run(with_tools(exercise))
 
 
@@ -200,9 +238,9 @@ def test_paper_search_survives_more_than_64_better_global_candidates(fixture_gra
     """Synthetic vectors isolate ranking from model inference; real Neo4j/index."""
     driver, ids = fixture_graph
     vector = [1.0] + [0.0] * (DIMENSIONS - 1)
-    parameters = dict(model=EMBED_MODEL, digest=EMBED_DIGEST,
-                      dimensions=DIMENSIONS, embedding_policy=EMBED_POLICY)
-    driver.execute_query("""
+    parameters = dict(model=EMBED_MODEL, digest=EMBED_DIGEST, dimensions=DIMENSIONS, embedding_policy=EMBED_POLICY)
+    driver.execute_query(
+        """
 MATCH (p:Paper {id:$other}), (template:Chunk {id:$other+'-chunk'})
 UNWIND range(1,80) AS i
 CREATE (c:Chunk) SET c=template{.*, id:$other+'-competitor-'+toString(i)},
@@ -210,52 +248,81 @@ c.embedding=$vector, c.embedding_model=$model,c.embedding_digest=$digest,
 c.embedding_dimensions=$dimensions,c.embedding_policy=$embedding_policy,
 c.embedding_text_sha256=c.text_sha256
 CREATE (c)-[:PART_OF]->(p)
-""", other=ids[1], vector=vector, **parameters)
-    driver.execute_query("""
+""",
+        other=ids[1],
+        vector=vector,
+        **parameters
+    )
+    driver.execute_query(
+        """
 MATCH (c:Chunk {id:$id}) SET c.embedding=$vector,c.embedding_model=$model,
 c.embedding_digest=$digest,c.embedding_dimensions=$dimensions,
 c.embedding_policy=$embedding_policy,c.embedding_text_sha256=c.text_sha256
-""", id=ids[0]+"-chunk", vector=[0.8, 0.6] + [0.0]*(DIMENSIONS-2), **parameters)
+""",
+        id=ids[0] + "-chunk",
+        vector=[0.8, 0.6] + [0.0] * (DIMENSIONS - 2),
+        **parameters
+    )
     # Establish exact competitors without assuming perfect ANN recall or immediate
     # vector-index visibility for freshly committed synthetic vectors.
-    rows = driver.execute_query("""
+    rows = driver.execute_query(
+        """
 MATCH (p:Paper {id:$other})<-[:PART_OF]-(c:Chunk), (target:Chunk {id:$target})
 WHERE vector.similarity.cosine(c.embedding,$vector) >
       vector.similarity.cosine(target.embedding,$vector)
 RETURN count(c) AS better
-""", other=ids[1], target=ids[0]+"-chunk", vector=vector).records
+""",
+        other=ids[1],
+        target=ids[0] + "-chunk",
+        vector=vector,
+    ).records
     assert rows[0]["better"] == 80
+
     async def exercise(tools):
         tools.ollama = SimpleNamespace(embed=AsyncMock(return_value=[vector]))
         result = await tools.execute("search_chunks", {"query": "synthetic", "paper_id": ids[0]})
         assert result["retrieval_mode"] == "paper_exact"
-        assert [r["chunk_id"] for r in result["matches"]] == [ids[0]+"-chunk"]
+        assert [r["chunk_id"] for r in result["matches"]] == [ids[0] + "-chunk"]
         assert result["evidence"][0]["paper_id"] == ids[0]
         global_result = await tools.execute("search_chunks", {"query": "synthetic"})
         assert global_result["retrieval_mode"] == "global_ann"
         assert 1 <= len(global_result["evidence"]) <= 4
+
     asyncio.run(with_tools(exercise))
-    plan = driver.execute_query("EXPLAIN " + PAPER_SEARCH_QUERY, paper=ids[0],
-        cap=PAPER_CANDIDATE_LIMIT, probe=PAPER_CANDIDATE_LIMIT+1, limit=4,
-        vector=vector, **parameters).summary.plan
+    plan = driver.execute_query(
+        "EXPLAIN " + PAPER_SEARCH_QUERY,
+        paper=ids[0],
+        cap=PAPER_CANDIDATE_LIMIT,
+        probe=PAPER_CANDIDATE_LIMIT + 1,
+        limit=4,
+        vector=vector,
+        **parameters
+    ).summary.plan
+
     def operators(node):
         return [node["operatorType"]] + [op for child in node.get("children", []) for op in operators(child)]
+
     names = operators(plan)
     assert any("NodeUniqueIndexSeek" in op for op in names)
     assert not any("AllNodesScan" in op or "NodeByLabelScan" in op for op in names)
 
 
-@pytest.mark.parametrize("count", [0, PAPER_CANDIDATE_LIMIT, PAPER_CANDIDATE_LIMIT+1])
+@pytest.mark.parametrize("count", [0, PAPER_CANDIDATE_LIMIT, PAPER_CANDIDATE_LIMIT + 1])
 def test_paper_search_bounds_enumeration_before_vector_ranking(fixture_graph, count):
     driver, ids = fixture_graph
     # Remove only this synthetic paper's initial chunk; never touch corpus data.
-    driver.execute_query("MATCH (c:Chunk {id:$id}) DETACH DELETE c", id=ids[2]+"-chunk")
-    driver.execute_query("""
+    driver.execute_query("MATCH (c:Chunk {id:$id}) DETACH DELETE c", id=ids[2] + "-chunk")
+    driver.execute_query(
+        """
 MATCH (p:Paper {id:$id}) UNWIND $numbers AS i
 CREATE (:Chunk {id:$id+'-bounded-'+toString(i),paper_id:$id})-[:PART_OF]->(p)
-""", id=ids[2], numbers=list(range(count)))
+""",
+        id=ids[2],
+        numbers=list(range(count)),
+    )
+
     async def exercise(tools):
-        tools.ollama = SimpleNamespace(embed=AsyncMock(return_value=[[1.0]+[0.0]*(DIMENSIONS-1)]))
+        tools.ollama = SimpleNamespace(embed=AsyncMock(return_value=[[1.0] + [0.0] * (DIMENSIONS - 1)]))
         if count > PAPER_CANDIDATE_LIMIT:
             with pytest.raises(ValueError, match="256-chunk"):
                 await tools.execute("search_chunks", {"query": "synthetic", "paper_id": ids[2]})
@@ -263,17 +330,22 @@ CREATE (:Chunk {id:$id+'-bounded-'+toString(i),paper_id:$id})-[:PART_OF]->(p)
             result = await tools.execute("search_chunks", {"query": "synthetic", "paper_id": ids[2]})
             assert result["status"] == "unavailable"  # no eligible pinned embeddings
             assert result["matches"] == result["evidence"] == []
+
     asyncio.run(with_tools(exercise))
 
 
-@pytest.mark.parametrize("name,args", [
-    ("get_source_excerpt", {"chunk_id": "not-a-real-chunk"}),
-    ("search_chunks", {"query": "text", "paper_id": "invented"}),
-    ("find_citation_path", {"source_id": "invented", "target_id": "also-invented"}),
-    ("expand_verified_evidence", {"paper_id": "invented"}),
-])
+@pytest.mark.parametrize(
+    "name,args",
+    [
+        ("get_source_excerpt", {"chunk_id": "not-a-real-chunk"}),
+        ("search_chunks", {"query": "text", "paper_id": "invented"}),
+        ("find_citation_path", {"source_id": "invented", "target_id": "also-invented"}),
+        ("expand_verified_evidence", {"paper_id": "invented"}),
+    ],
+)
 def test_nonexistent_graph_identities_rejected(name, args):
     async def exercise(tools):
         with pytest.raises(ValueError, match="Unknown"):
             await tools.execute(name, args)
+
     asyncio.run(with_tools(exercise))

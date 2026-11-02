@@ -32,43 +32,67 @@ def synthetic_corpus(tmp_path, monkeypatch):
     papers = []
     for name in ("source", "target"):
         work = prefix + "-" + name
-        paper = {"paper_id": work + "v1", "work_id": work, "version": "v1", "short_name": name,
-                 "title": "Original " + name.title(), "authors": ["Alice Example"], "year": 2026,
-                 "pdf_url": "https://example.invalid/" + name + ".pdf", "reuse_note": "Original test prose",
-                 "suggested_download_path": "data/raw/" + name + ".pdf"}
+        paper = {
+            "paper_id": work + "v1",
+            "work_id": work,
+            "version": "v1",
+            "short_name": name,
+            "title": "Original " + name.title(),
+            "authors": ["Alice Example"],
+            "year": 2026,
+            "pdf_url": "https://example.invalid/" + name + ".pdf",
+            "reuse_note": "Original test prose",
+            "suggested_download_path": "data/raw/" + name + ".pdf",
+        }
         text = ["arXiv:" + paper["paper_id"].removeprefix("arxiv:")]
         if name == "source":
-            text += ["References", "[1] Alice Example. 2026. Original Target. arXiv:" +
-                     (prefix + "-target").removeprefix("arxiv:") + "."]
+            text += [
+                "References",
+                "[1] Alice Example. 2026. Original Target. arXiv:" + (prefix + "-target").removeprefix("arxiv:") + ".",
+            ]
         else:
             text += ["Original target fixture prose."]
         writer = PdfWriter()
         page = writer.add_blank_page(width=600, height=800)
-        font = DictionaryObject({NameObject("/Type"): NameObject("/Font"),
-                                 NameObject("/Subtype"): NameObject("/Type1"),
-                                 NameObject("/BaseFont"): NameObject("/Helvetica")})
-        page[NameObject("/Resources")] = DictionaryObject({NameObject("/Font"): DictionaryObject({
-            NameObject("/F1"): writer._add_object(font)})})
+        font = DictionaryObject(
+            {
+                NameObject("/Type"): NameObject("/Font"),
+                NameObject("/Subtype"): NameObject("/Type1"),
+                NameObject("/BaseFont"): NameObject("/Helvetica"),
+            }
+        )
+        page[NameObject("/Resources")] = DictionaryObject(
+            {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+        )
         stream = DecodedStreamObject()
-        stream.set_data(("BT /F1 10 Tf 12 TL 40 700 Td " +
-                         " ".join("(" + line + ") Tj T*" for line in text) + " ET").encode())
+        stream.set_data(
+            ("BT /F1 10 Tf 12 TL 40 700 Td " + " ".join("(" + line + ") Tj T*" for line in text) + " ET").encode()
+        )
         page[NameObject("/Contents")] = writer._add_object(stream)
         path = tmp_path / paper["suggested_download_path"]
         path.parent.mkdir(parents=True, exist_ok=True)
         writer.write(path)
-        paper["pdf_access"] = {"sha256": digest(path.read_bytes()), "size_bytes": path.stat().st_size,
-                               "page_count": 1}
+        paper["pdf_access"] = {"sha256": digest(path.read_bytes()), "size_bytes": path.stat().st_size, "page_count": 1}
         papers.append(paper)
     pages, _ = parse_pdf(tmp_path / papers[0]["suggested_download_path"], papers[0])
     raw = pages[0]["raw_text"]
     start = raw.index(papers[1]["title"])
-    row = {"source_paper_id": papers[0]["paper_id"], "target_work_id": papers[1]["work_id"],
-           "selected_target_paper_id": papers[1]["paper_id"], "relation": "CITES", "evidence_id": "TEST-REF",
-           "source_pdf_sha256": papers[0]["pdf_access"]["sha256"], "source_pdf_url": papers[0]["pdf_url"],
-           "pdf_page_1based": "1", "page_text_sha256": pages[0]["raw_sha256"],
-           "title_start_char_0based": str(start), "title_end_char_exclusive": str(start + len(papers[1]["title"])),
-           "target_version_as_cited": "unspecified", "reference_locator": "Reference [1]",
-           "identity_resolution": "matching title/authors and explicit arXiv ID"}
+    row = {
+        "source_paper_id": papers[0]["paper_id"],
+        "target_work_id": papers[1]["work_id"],
+        "selected_target_paper_id": papers[1]["paper_id"],
+        "relation": "CITES",
+        "evidence_id": "TEST-REF",
+        "source_pdf_sha256": papers[0]["pdf_access"]["sha256"],
+        "source_pdf_url": papers[0]["pdf_url"],
+        "pdf_page_1based": "1",
+        "page_text_sha256": pages[0]["raw_sha256"],
+        "title_start_char_0based": str(start),
+        "title_end_char_exclusive": str(start + len(papers[1]["title"])),
+        "target_version_as_cited": "unspecified",
+        "reference_locator": "Reference [1]",
+        "identity_resolution": "matching title/authors and explicit arXiv ID",
+    }
     (tmp_path / "corpus").mkdir()
     (tmp_path / "corpus/corpus_manifest.json").write_text(json.dumps({"papers": papers}))
     write_citation(tmp_path, row)
@@ -82,9 +106,14 @@ def assert_citation_failure(report, papers):
     assert report["import_status"] == report["overall_status"] == "FAILED"
     assert [p["import_status"] for p in report["papers"]] == ["FAILED", "NOT_STARTED"]
     assert report["extractions"] == []
-    assert report["failures"] == [{"paper_id": papers[0]["paper_id"], "stage": "citation_validation",
-                                    "evidence_id": "TEST-REF",
-                                    "detail": "Citation page hash mismatch; offsets cannot be trusted"}]
+    assert report["failures"] == [
+        {
+            "paper_id": papers[0]["paper_id"],
+            "stage": "citation_validation",
+            "evidence_id": "TEST-REF",
+            "detail": "Citation page hash mismatch; offsets cannot be trusted",
+        }
+    ]
     assert ingest.exit_code(report) == ingest.exit_code(report, require_extraction=True) == 1
 
 
@@ -108,14 +137,16 @@ def corpus_graph(synthetic_corpus):
     root, papers, row = synthetic_corpus
     settings = Settings.from_environment()
     ids = [p["paper_id"] for p in papers]
-    with GraphDatabase.driver(settings.neo4j_uri,
-                              auth=(settings.neo4j_user, settings.neo4j_password.get_secret_value())) as driver:
+    with GraphDatabase.driver(
+        settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password.get_secret_value())
+    ) as driver:
         graph = EvidenceGraph(driver)
         try:
             yield root, papers, row, graph, ids
         finally:
-            driver.execute_query("MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids "
-                                 "DETACH DELETE n", ids=ids)
+            driver.execute_query(
+                "MATCH (n) WHERE (n:Paper AND n.id IN $ids) OR n.paper_id IN $ids " "DETACH DELETE n", ids=ids
+            )
 
 
 @pytest.mark.integration

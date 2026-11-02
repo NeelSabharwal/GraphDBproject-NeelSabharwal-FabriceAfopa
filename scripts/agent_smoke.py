@@ -30,24 +30,39 @@ def main():
             continue
         start = time.perf_counter()
         try:
-            response = client.open(args.url.rstrip("/") + "/api/ask?" +
-                                   urlencode({"q": row["question"]}), timeout=310)
+            response = client.open(args.url.rstrip("/") + "/api/ask?" + urlencode({"q": row["question"]}), timeout=310)
         except HTTPError as error:
             response = error
         with response:
             payload = json.load(response)
-        entry = {"id": row["id"], "question": row["question"], "http_status": response.code,
-                 "seconds": round(time.perf_counter()-start, 3), "response": payload}
+        entry = {
+            "id": row["id"],
+            "question": row["question"],
+            "http_status": response.code,
+            "seconds": round(time.perf_counter() - start, 3),
+            "response": payload,
+        }
         results.append(entry)
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(results, indent=2)+"\n")
-        print(json.dumps({**{k: v for k, v in entry.items() if k != "response"},
-            "status": payload.get("status"), "answer": payload.get("answer", payload.get("detail")),
-            "citations": [{k: c[k] for k in ("paper_id", "page", "chunk_id", "quote")}
-                          for c in payload.get("citations", [])],
-            "tools": [{"tool": e["tool"], "outcome": e["outcome"],
-                       "duration_ms": round(e["duration_ms"], 2)} for e in payload.get("trace", [])]}),
-            flush=True)
+        args.output.write_text(json.dumps(results, indent=2) + "\n")
+        print(
+            json.dumps(
+                {
+                    **{k: v for k, v in entry.items() if k != "response"},
+                    "status": payload.get("status"),
+                    "answer": payload.get("answer", payload.get("detail")),
+                    "citations": [
+                        {k: c[k] for k in ("paper_id", "page", "chunk_id", "quote")}
+                        for c in payload.get("citations", [])
+                    ],
+                    "tools": [
+                        {"tool": e["tool"], "outcome": e["outcome"], "duration_ms": round(e["duration_ms"], 2)}
+                        for e in payload.get("trace", [])
+                    ],
+                }
+            ),
+            flush=True,
+        )
 
 
 if __name__ == "__main__":

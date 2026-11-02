@@ -1,9 +1,47 @@
-.PHONY: help configure docker-build docker-run status health models-pull models-check test smoke stats docker-stop ingest embed
+.PHONY: help configure configure-auth venv install run docker-build docker-run status health models-pull models-check test unit lint format clean tree notebook smoke stats docker-stop ingest embed
+
+# Host Python stays untouched. The local .venv uses the pinned container's Python 3.12.
+PYRUN = docker compose run --rm --no-deps -T --user "$$(id -u):$$(id -g)" -v "$(CURDIR):/workspace:ro" -v "$(CURDIR)/data:/workspace/data:ro" -v "$(CURDIR)/data/processed:/workspace/data/processed" -w /workspace --entrypoint .venv/bin/python api
+PYWRITE = docker compose run --rm --no-deps -T --user "$$(id -u):$$(id -g)" -v "$(CURDIR):/workspace" -w /workspace --entrypoint python api
+VENVWRITE = docker compose run --rm --no-deps -T --user "$$(id -u):$$(id -g)" -v "$(CURDIR):/workspace" -w /workspace --entrypoint .venv/bin/python api
 
 help:
 	@printf '%s\n' 'configure     Generate ignored local .env (preserves existing file)' 'docker-build  Build pinned API and Neo4j/GDS images' 'docker-run    Start the three local services (pull models separately)' 'models-pull   Download approved model tags, then verify manifest digests' 'models-check  Compare installed models with models.lock.json' 'status        Show Compose service status' 'health        Check live/ready; fails if dependencies/models unavailable' 'stats         Show one container resource snapshot' 'test          Run unit and real-dependency tests with coverage in API container' 'smoke         Run actual CPU inference/JSON/tool/embedding and Bolt/GDS smoke tests' 'docker-stop   Stop this stack without removing data volumes'
 	@printf '%s\n' 'ingest        Verify/import three prototype PDFs; one cached Ollama sample per paper'
 	@printf '%s\n' 'embed         Create/reuse pinned Chunk embeddings and verify the vector index'
+	@printf '%s\n' 'configure-auth Generate an ignored import token; existing setting preserved' 'venv          Create .venv using pinned Docker Python (requires API image)' 'install       Install the dependency lock into the container-managed .venv' 'run           Start the API on localhost:8000 with existing dependencies' 'unit          Unit/API tests without live-dependency cases' 'lint          Pylint app and scripts; minimum score 9.5' 'format        Black application, operator scripts and tests' 'clean         Remove Python/test caches only; preserve all data' 'tree          Show tracked/source tree to depth three' 'notebook      Execute demo.ipynb; output remains ignored'
+
+configure-auth:
+	python3 -m scripts.configure_auth
+
+venv:
+	@mkdir -p data/processed
+	$(PYWRITE) -c "from pathlib import Path; import venv; p=Path('.venv'); venv.EnvBuilder(with_pip=True).create(p) if not p.exists() else print('Existing .venv preserved')"
+
+install: venv
+	$(VENVWRITE) -m pip install --no-cache-dir -r requirements.lock.txt
+
+run:
+	docker compose up -d --wait --wait-timeout 180 api
+
+lint:
+	$(PYRUN) -m pylint --rcfile=.pylintrc --fail-under=9.5 app scripts
+
+format:
+	$(VENVWRITE) -m black --line-length=120 app scripts tests
+
+clean:
+	python3 -m scripts.workspace clean
+
+tree:
+	python3 -m scripts.workspace tree
+
+unit:
+	@mkdir -p data/processed
+	$(PYRUN) -m pytest -m 'not integration' --cov=app --cov-fail-under=60 --cov-report=term-missing --cov-report=xml:data/processed/unit-coverage.xml
+
+notebook:
+	$(PYRUN) -m scripts.execute_notebook
 
 embed:
 	docker compose exec -T api python -m scripts.embed_chunks
@@ -15,7 +53,7 @@ docker-build:
 	docker compose build
 
 docker-run:
-	docker compose up -d --build
+	docker compose up -d --build --wait --wait-timeout 180
 
 status:
 	docker compose ps
@@ -33,17 +71,7 @@ models-check:
 
 test:
 	@mkdir -p data/processed
-	@set -eu; \
-		test_workspace=$$(docker compose exec -T api mktemp -d /tmp/graphrag-tests.XXXXXX); \
-		trap 'docker compose exec -T -u 0 api rm -rf "$$test_workspace"' EXIT; \
-		for item in app scripts tests pyproject.toml; do \
-			docker compose cp "$$item" "api:$$test_workspace/"; \
-		done; \
-		result=0; \
-		docker compose exec -T -w "$$test_workspace" api python -m pytest \
-			--cov=app --cov-report=term-missing --cov-report=xml:coverage.xml || result=$$?; \
-		docker compose cp "api:$$test_workspace/coverage.xml" data/processed/coverage.xml; \
-		exit $$result
+	$(PYRUN) -m pytest --cov=app --cov-fail-under=60 --cov-report=term-missing --cov-report=xml:data/processed/coverage.xml
 
 ingest:
 	@mkdir -p data/raw data/processed

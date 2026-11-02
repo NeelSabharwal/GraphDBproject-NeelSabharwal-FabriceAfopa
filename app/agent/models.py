@@ -76,9 +76,11 @@ class FinishAction(StrictModel):
     arguments: EmptyArguments
 
 
-class NextAction(RootModel[Annotated[
-        SearchAction | ExcerptAction | PathAction | ExpandAction | FinishAction,
-        Field(discriminator="name")]]):
+class NextAction(
+    RootModel[
+        Annotated[SearchAction | ExcerptAction | PathAction | ExpandAction | FinishAction, Field(discriminator="name")]
+    ]
+):
     """The same finite action schema constrains decoding and validates its result."""
 
 

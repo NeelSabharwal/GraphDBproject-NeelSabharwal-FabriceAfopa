@@ -39,7 +39,8 @@ ORDER BY weight DESC,source,target LIMIT $limit
 PAIRS = PAIR_SETS + PAIR_SCORE
 
 # Benchmark-only baseline: repeated per-pair claim joins multiply intermediate rows.
-PAIR_BASELINE = """
+PAIR_BASELINE = (
+    """
 UNWIND $papers AS source_id
 MATCH (a:Paper {id:source_id})
 UNWIND $papers AS target_id
@@ -50,7 +51,9 @@ OPTIONAL MATCH (cb:Claim)-[:SUBJECT]->(b), (cb)-[:OBJECT]->(eb:Entity)
 WHERE cb.id IN $claims
 WITH a.id AS source,b.id AS target,collect(DISTINCT ea.id) AS left_entities,
      collect(DISTINCT eb.id) AS right_entities
-""" + PAIR_SCORE
+"""
+    + PAIR_SCORE
+)
 
 SHARED = """
 MATCH (a:Paper {id:$source})<-[:SUBJECT]-(ca:Claim)-[:OBJECT]->(e:Entity)
@@ -61,7 +64,9 @@ RETURN e.id AS entity_id,e.canonical_name AS name,e.kind AS kind,source_claim_id
 ORDER BY entity_id SKIP $offset LIMIT $limit
 """
 
-RELATED = PAIR_SETS + """
+RELATED = (
+    PAIR_SETS
+    + """
 WITH source,target,left_entities,right_entities,
      [e IN left_entities WHERE e IN right_entities] AS shared
 WITH source,target,shared,size(left_entities)+size(right_entities)-size(shared) AS union_size
@@ -70,6 +75,7 @@ RETURN CASE WHEN source=$source THEN target ELSE source END AS paper_id,
        shared AS entity_ids,toFloat(size(shared))/union_size AS similarity
 ORDER BY similarity DESC,paper_id SKIP $offset LIMIT $limit
 """
+)
 
 PROJECT = """
 UNWIND $rows AS row

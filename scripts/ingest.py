@@ -31,9 +31,11 @@ def select_samples(paper: dict, chunks: list[dict], count: int) -> list[dict]:
     """
     if not count:
         return []
-    anchors = {"DPR": (3, "in this work we use two independent"),
-               "RAG": (3, "We use BART-large"),
-               "GraphRAG": (4, "In our pipeline, we use Leiden")}
+    anchors = {
+        "DPR": (3, "in this work we use two independent"),
+        "RAG": (3, "We use BART-large"),
+        "GraphRAG": (4, "In our pipeline, we use Leiden"),
+    }
     page, anchor = anchors[paper["short_name"]]
     candidates = [c for c in chunks if c["page"] == page and anchor in c["text"]]
     if not candidates:
@@ -42,15 +44,21 @@ def select_samples(paper: dict, chunks: list[dict], count: int) -> list[dict]:
     start = max(0, chunk["text"].index(anchor) - 40)
     sample = {**chunk, "sample_start_char": start, "sample_end_char": min(len(chunk["text"]), start + 500)}
     others = [c for c in chunks if c["page"] == 1 and c["id"] != chunk["id"]]
-    return [sample, *others[:count - 1]]
+    return [sample, *others[: count - 1]]
 
 
 def finish_status(report: dict) -> None:
     """Publish separate machine-readable core-import and optional-extraction outcomes."""
-    report["extraction_status"] = ("FAILED" if any(r["status"] == "FAILED" for r in report["extractions"])
-                                   else "SUCCEEDED" if report["extractions"] else "NOT_REQUESTED")
-    report["overall_status"] = ("FAILED" if report["failures"] else "PARTIAL_SUCCESS"
-                                if report["extraction_status"] == "FAILED" else "SUCCEEDED")
+    report["extraction_status"] = (
+        "FAILED"
+        if any(r["status"] == "FAILED" for r in report["extractions"])
+        else "SUCCEEDED" if report["extractions"] else "NOT_REQUESTED"
+    )
+    report["overall_status"] = (
+        "FAILED"
+        if report["failures"]
+        else "PARTIAL_SUCCESS" if report["extraction_status"] == "FAILED" else "SUCCEEDED"
+    )
 
 
 def exit_code(report: dict, require_extraction: bool = False) -> int:
@@ -65,8 +73,14 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
     started = time.perf_counter()
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     artifact = root / "data/processed/ingestion" / run_id
-    report = {"run_id": run_id, "started_at": datetime.now(timezone.utc).isoformat(),
-              "papers": [], "failures": [], "extractions": [], "import_status": "NOT_STARTED"}
+    report = {
+        "run_id": run_id,
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "papers": [],
+        "failures": [],
+        "extractions": [],
+        "import_status": "NOT_STARTED",
+    }
     try:
         papers = prototype_manifest(root)
         parsed = {}
@@ -78,9 +92,16 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                 parsed[paper["paper_id"]] = (pages, chunks, problems)
                 save_json(artifact / f"{paper['short_name']}-pages.json", pages)
                 save_json(artifact / f"{paper['short_name']}-chunks.json", chunks)
-                report["papers"].append({"id": paper["paper_id"], "sha256": digest(path.read_bytes()),
-                                         "pages": len(pages), "chunks": len(chunks), "parse_problems": problems,
-                                         "import_status": "NOT_STARTED"})
+                report["papers"].append(
+                    {
+                        "id": paper["paper_id"],
+                        "sha256": digest(path.read_bytes()),
+                        "pages": len(pages),
+                        "chunks": len(chunks),
+                        "parse_problems": problems,
+                        "import_status": "NOT_STARTED",
+                    }
+                )
                 print(f"Verified {paper['short_name']}: {len(pages)} pages, {len(chunks)} chunks", flush=True)
         if download_only:
             report["import_status"] = "NOT_REQUESTED"
@@ -104,16 +125,24 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                     claim["run_id"] = run_id
                     citation_claims[paper["paper_id"]].append(claim)
                 except ValueError as error:
-                    report["failures"].append({"paper_id": paper["paper_id"], "stage": "citation_validation",
-                                               "evidence_id": row["evidence_id"], "detail": str(error)})
+                    report["failures"].append(
+                        {
+                            "paper_id": paper["paper_id"],
+                            "stage": "citation_validation",
+                            "evidence_id": row["evidence_id"],
+                            "detail": str(error),
+                        }
+                    )
                     next(p for p in report["papers"] if p["id"] == paper["paper_id"])["import_status"] = "FAILED"
         if report["failures"]:
             report["import_status"] = "FAILED"
             return report
         settings = Settings.from_environment()
         with GraphDatabase.driver(
-            settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password.get_secret_value()),
-            connection_timeout=5, max_transaction_retry_time=0,
+            settings.neo4j_uri,
+            auth=(settings.neo4j_user, settings.neo4j_password.get_secret_value()),
+            connection_timeout=5,
+            max_transaction_retry_time=0,
         ) as driver, httpx.Client(base_url=settings.ollama_url, timeout=90, trust_env=False) as ollama:
             driver.verify_connectivity()
             graph = EvidenceGraph(driver)
@@ -133,8 +162,14 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                         raise ValueError("Installed extraction model digest differs from models.lock.json")
                     model = {"name": model["name"], "digest": model["digest"]}
                 except (httpx.HTTPError, ValueError, KeyError, TypeError, StopIteration) as error:
-                    report["extractions"].append({"status": "FAILED", "stage": "model_availability",
-                                                   "error": type(error).__name__, "detail": str(error)[:500]})
+                    report["extractions"].append(
+                        {
+                            "status": "FAILED",
+                            "stage": "model_availability",
+                            "error": type(error).__name__,
+                            "detail": str(error)[:500],
+                        }
+                    )
                     model = None
             for paper in papers:
                 pages, chunks, problems = parsed[paper["paper_id"]]
@@ -142,13 +177,29 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                 try:
                     samples = select_samples(paper, chunks, sample_per_paper) if model else []
                 except ValueError as error:
-                    report["extractions"].append({"status": "FAILED", "paper_id": paper["paper_id"],
-                                                   "stage": "sample_selection", "detail": str(error)})
+                    report["extractions"].append(
+                        {
+                            "status": "FAILED",
+                            "paper_id": paper["paper_id"],
+                            "stage": "sample_selection",
+                            "detail": str(error),
+                        }
+                    )
                     samples = []
                 for chunk in samples:
-                    cache = root / "data/processed/extraction-cache" / (
-                        stable_id(chunk["id"], model["digest"], PROMPT_VERSION,
-                                  chunk.get("sample_start_char"), chunk.get("sample_end_char")) + ".json"
+                    cache = (
+                        root
+                        / "data/processed/extraction-cache"
+                        / (
+                            stable_id(
+                                chunk["id"],
+                                model["digest"],
+                                PROMPT_VERSION,
+                                chunk.get("sample_start_char"),
+                                chunk.get("sample_end_char"),
+                            )
+                            + ".json"
+                        )
                     )
                     try:
                         if cache.exists():
@@ -156,29 +207,45 @@ def run(root: Path, sample_per_paper: int, download_only: bool = False) -> dict:
                             # Revalidate successful cached raw output against the current source.
                             if result["status"] == "VALIDATED_UNREVIEWED":
                                 result["entities"], result["claims"] = validate_extraction(
-                                    result["response"]["message"]["content"], chunk, model)
+                                    result["response"]["message"]["content"], chunk, model
+                                )
                             result["cache_reused"] = True
                         else:
                             result = extract_sample(ollama, chunk, model)
                             result["run_id"] = run_id
                             save_json(cache, result)
                     except (ValueError, TypeError, KeyError) as error:
-                        result = {"status": "FAILED", "stage": "cache_validation", "chunk_id": chunk["id"],
-                                  "error": type(error).__name__, "detail": str(error)[:500],
-                                  "wall_seconds": 0, "cache_file": cache.name}
+                        result = {
+                            "status": "FAILED",
+                            "stage": "cache_validation",
+                            "chunk_id": chunk["id"],
+                            "error": type(error).__name__,
+                            "detail": str(error)[:500],
+                            "wall_seconds": 0,
+                            "cache_file": cache.name,
+                        }
                         result["run_id"] = run_id
                     for claim in result.get("claims", []):
                         claim["run_id"] = result["run_id"]
                     entities.extend(result.get("entities", []))
                     claims.extend(result.get("claims", []))
-                    report["extractions"].append({k: v for k, v in result.items()
-                                                   if k not in {"response", "entities", "claims"}})
+                    report["extractions"].append(
+                        {k: v for k, v in result.items() if k not in {"response", "entities", "claims"}}
+                    )
                     save_json(artifact / f"extraction-{chunk['id']}.json", result)
-                    print(f"Extraction {paper['short_name']}: {result['status']} "
-                          f"({result['wall_seconds']} s; cached={result.get('cache_reused', False)})", flush=True)
+                    print(
+                        f"Extraction {paper['short_name']}: {result['status']} "
+                        f"({result['wall_seconds']} s; cached={result.get('cache_reused', False)})",
+                        flush=True,
+                    )
                 save_json(artifact / f"{paper['short_name']}-claims.json", claims)
-                graph.import_paper(paper["paper_id"], chunks, entities, claims,
-                                   "PARSED_WITH_WARNINGS" if problems else "PARSED_NOT_VISUALLY_REVIEWED")
+                graph.import_paper(
+                    paper["paper_id"],
+                    chunks,
+                    entities,
+                    claims,
+                    "PARSED_WITH_WARNINGS" if problems else "PARSED_NOT_VISUALLY_REVIEWED",
+                )
                 next(p for p in report["papers"] if p["id"] == paper["paper_id"])["import_status"] = "SUCCEEDED"
             report["import_status"] = "SUCCEEDED"
             report["counts"] = graph.counts(paper_ids)
@@ -202,8 +269,11 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path("/workspace"))
     parser.add_argument("--sample-per-paper", type=int, choices=range(0, 3), default=1)
     parser.add_argument("--download-only", action="store_true")
-    parser.add_argument("--require-extraction", action="store_true",
-                        help="Exit 2 if core import succeeds but an optional extraction fails")
+    parser.add_argument(
+        "--require-extraction",
+        action="store_true",
+        help="Exit 2 if core import succeeds but an optional extraction fails",
+    )
     args = parser.parse_args()
     report = run(args.root.resolve(), args.sample_per_paper, args.download_only)
     raise SystemExit(exit_code(report, args.require_extraction))

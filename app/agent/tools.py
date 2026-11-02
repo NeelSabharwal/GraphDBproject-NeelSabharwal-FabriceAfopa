@@ -18,16 +18,29 @@ TOOL_MODELS = {
     "find_citation_path": (CitationPath, "Find a directed student-approved citation chain; may be pending."),
     "expand_verified_evidence": (ExpandEvidence, "Find reviewed scientific claims and shared-entity evidence."),
 }
-TOOL_SCHEMAS = [{"type": "function", "function": {
-    "name": name, "description": description, "parameters": model.model_json_schema(),
-}} for name, (model, description) in TOOL_MODELS.items()]
+TOOL_SCHEMAS = [
+    {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": description,
+            "parameters": model.model_json_schema(),
+        },
+    }
+    for name, (model, description) in TOOL_MODELS.items()
+]
 
 # An additional early refusal, not the security boundary. There is NO raw query executor.
-UNSAFE = re.compile(r"\b(detach\s+delete|delete\s+\w+|drop\s+(?:database|index|constraint)|"
-                    r"create\s*\(|merge\s*\(|load\s+csv|apoc\.|dbms\.|set\s+\w+\.)", re.I)
-APPROVED = ("c.status='SOURCE_VERIFIED' AND c.human_reviewed=true "
-            "AND c.student_review_status='approved' AND c.review_policy=$policy "
-            "AND trim(coalesce(c.reviewer,''))<>'' AND c.reviewed_at IS NOT NULL")
+UNSAFE = re.compile(
+    r"\b(detach\s+delete|delete\s+\w+|drop\s+(?:database|index|constraint)|"
+    r"create\s*\(|merge\s*\(|load\s+csv|apoc\.|dbms\.|set\s+\w+\.)",
+    re.I,
+)
+APPROVED = (
+    "c.status='SOURCE_VERIFIED' AND c.human_reviewed=true "
+    "AND c.student_review_status='approved' AND c.review_policy=$policy "
+    "AND trim(coalesce(c.reviewer,''))<>'' AND c.reviewed_at IS NOT NULL"
+)
 EVIDENCE_RETURN = """
 RETURN chunk.id AS chunk_id, p.id AS paper_id, p.title AS title, chunk.page AS page,
 chunk.text AS text, chunk.text_sha256 AS text_sha256, p.pdf_sha256 AS pdf_sha256,
@@ -36,17 +49,21 @@ p.source_version AS source_version, chunk.start_char AS start_char,
 chunk.end_char AS end_char, chunk.parser_version AS parser_version,
 chunk.chunker_version AS chunker_version
 """
-PATH_QUERY = """
+PATH_QUERY = (
+    """
 MATCH path=(source:Paper {id:$source})-[:CITES*1..3]->(target:Paper {id:$target})
 WHERE length(path)<=$hops AND all(r IN relationships(path) WHERE EXISTS {
  MATCH (c:Claim {predicate:'CITES'})-[:SUBJECT]->(a:Paper),
        (c)-[:OBJECT]->(b:Paper), (c)-[:SUPPORTED_BY]->(:Chunk)
- WHERE c.id IN r.claim_ids AND a=startNode(r) AND b=endNode(r) AND """ + APPROVED + """
+ WHERE c.id IN r.claim_ids AND a=startNode(r) AND b=endNode(r) AND """
+    + APPROVED
+    + """
 })
 RETURN [p IN nodes(path) | p.id] AS papers,
        [r IN relationships(path) | r.claim_ids] AS edge_claim_ids
 ORDER BY length(path), papers LIMIT 1
 """
+)
 PAPER_CANDIDATE_LIMIT = 256
 # Start with the existing Paper identity index, then stop adjacency enumeration
 # before ranking. Overflow returns no matches, never a silently truncated ranking.
@@ -83,8 +100,9 @@ def validate_call(name, arguments):
 def validate_evidence(row):
     """Detect stale/corrupt source text before returning it as evidence."""
     evidence = Evidence.model_validate(row)
-    if (hashlib.sha256(evidence.text.encode()).hexdigest() != evidence.text_sha256
-            or evidence.end_char - evidence.start_char != len(evidence.text)):
+    if hashlib.sha256(
+        evidence.text.encode()
+    ).hexdigest() != evidence.text_sha256 or evidence.end_char - evidence.start_char != len(evidence.text):
         raise ValueError("Stored evidence hash/coordinates do not match")
     return evidence.model_dump()
 
@@ -110,7 +128,8 @@ class RetrievalTools:
         """Bounded identity metadata only; reject overflow rather than hide ambiguity."""
         rows = await self.read(
             "MATCH (p:Paper) RETURN p.id AS id,p.title AS title,"
-            "coalesce(properties(p).aliases,[]) AS aliases ORDER BY p.id LIMIT 65")
+            "coalesce(properties(p).aliases,[]) AS aliases ORDER BY p.id LIMIT 65"
+        )
         if len(rows) > 64:
             raise ValueError("Paper catalog exceeds the 64-paper resolution budget")
         return [PaperReference.model_validate(row).model_dump() for row in rows]
@@ -126,28 +145,41 @@ class RetrievalTools:
             await self.paper(args.paper_id)
         rows = await self.read(
             "SHOW VECTOR INDEXES YIELD name,state,options,labelsOrTypes,properties WHERE name=$name "
-            "RETURN state,options,labelsOrTypes,properties", name=INDEX)
+            "RETURN state,options,labelsOrTypes,properties",
+            name=INDEX,
+        )
         if not rows or rows[0]["state"] != "ONLINE":
             raise ValueError("Vector index unavailable; run make embed")
         config = rows[0]["options"]["indexConfig"]
-        if (rows[0]["labelsOrTypes"] != ["Chunk"] or rows[0]["properties"] != ["embedding"]
-                or config.get("vector.dimensions") != DIMENSIONS
-                or str(config.get("vector.similarity_function")).lower() != "cosine"):
+        if (
+            rows[0]["labelsOrTypes"] != ["Chunk"]
+            or rows[0]["properties"] != ["embedding"]
+            or config.get("vector.dimensions") != DIMENSIONS
+            or str(config.get("vector.similarity_function")).lower() != "cosine"
+        ):
             raise ValueError("Incompatible vector index")
         vector = (await self.ollama.embed([args.query], query=True))[0]
-        parameters = dict(vector=vector, model=EMBED_MODEL, digest=EMBED_DIGEST,
-                          dimensions=DIMENSIONS, embedding_policy=EMBED_POLICY,
-                          paper=args.paper_id, limit=args.top_k)
+        parameters = dict(
+            vector=vector,
+            model=EMBED_MODEL,
+            digest=EMBED_DIGEST,
+            dimensions=DIMENSIONS,
+            embedding_policy=EMBED_POLICY,
+            paper=args.paper_id,
+            limit=args.top_k,
+        )
         if args.paper_id:
-            result = await self.read(PAPER_SEARCH_QUERY, **parameters,
-                                    cap=PAPER_CANDIDATE_LIMIT, probe=PAPER_CANDIDATE_LIMIT + 1)
+            result = await self.read(
+                PAPER_SEARCH_QUERY, **parameters, cap=PAPER_CANDIDATE_LIMIT, probe=PAPER_CANDIDATE_LIMIT + 1
+            )
             if not result:
                 raise ValueError("Paper disappeared during retrieval")
             if result[0]["candidate_count"] > PAPER_CANDIDATE_LIMIT:
                 raise ValueError("Paper exceeds the 256-chunk exact retrieval budget")
             rows = result[0]["matches"]
         else:
-            rows = await self.read("""
+            rows = await self.read(
+                """
 CALL db.index.vector.queryNodes($index, $candidates, $vector) YIELD node, score
 MATCH (node)-[:PART_OF]->(p:Paper)
 WHERE node.paper_id=p.id AND node.embedding_model=$model AND node.embedding_digest=$digest
@@ -156,7 +188,11 @@ AND node.embedding_text_sha256=node.text_sha256 AND ($paper IS NULL OR p.id=$pap
 RETURN node.id AS chunk_id, p.id AS paper_id, p.title AS title, node.page AS page,
        substring(node.text,0,300) AS preview, score
 ORDER BY score DESC, chunk_id LIMIT $limit
-""", index=INDEX, candidates=64, **parameters)
+""",
+                index=INDEX,
+                candidates=64,
+                **parameters
+            )
         # Search results include authentic complete provenance for the trace, but must
         # still be explicitly read by get_source_excerpt before answer citation.
         evidence = [await self.excerpt(row["chunk_id"]) for row in rows]
@@ -165,16 +201,22 @@ ORDER BY score DESC, chunk_id LIMIT $limit
             choices = candidates(args.query, {source["chunk_id"]: source})
             if choices:
                 row["preview"] = choices[0]["quote"]
-        return {"status": "ok" if rows else "unavailable", "matches": rows,
-                "evidence": evidence, "paths": [],
-                "candidate_limit": PAPER_CANDIDATE_LIMIT if args.paper_id else 64,
-                "retrieval_mode": "paper_exact" if args.paper_id else "global_ann"}
+        return {
+            "status": "ok" if rows else "unavailable",
+            "matches": rows,
+            "evidence": evidence,
+            "paths": [],
+            "candidate_limit": PAPER_CANDIDATE_LIMIT if args.paper_id else 64,
+            "retrieval_mode": "paper_exact" if args.paper_id else "global_ann",
+        }
 
     async def excerpt(self, chunk_id):
         """Identity and source provenance are always assigned from real graph records."""
         rows = await self.read(
             "MATCH (chunk:Chunk {id:$id})-[:PART_OF]->(p:Paper) "
-            "WHERE chunk.paper_id=p.id AND chunk.pdf_sha256=p.pdf_sha256 " + EVIDENCE_RETURN, id=chunk_id)
+            "WHERE chunk.paper_id=p.id AND chunk.pdf_sha256=p.pdf_sha256 " + EVIDENCE_RETURN,
+            id=chunk_id,
+        )
         if len(rows) != 1:
             raise ValueError("Unknown or inconsistent Chunk ID")
         return validate_evidence(rows[0])
@@ -185,89 +227,147 @@ ORDER BY score DESC, chunk_id LIMIT $limit
 
     async def claim_supports(self, ids):
         """Revalidate human approval and exact quote support at traversal time."""
-        rows = await self.read("""
+        rows = await self.read(
+            """
 MATCH (c:Claim)-[:SUBJECT]->(subject), (c)-[:OBJECT]->(object),
       (c)-[support:SUPPORTED_BY]->(chunk:Chunk)
-WHERE c.id IN $ids AND """ + APPROVED + """
+WHERE c.id IN $ids AND """
+            + APPROVED
+            + """
 RETURN c.id AS claim_id, c.predicate AS predicate, subject.id AS subject_id,
        object.id AS object_id, chunk.id AS chunk_id, support.quote AS quote,
        support.start_char AS start_char, support.end_char AS end_char,
        support.quote_sha256 AS quote_sha256, properties(c) AS claim,
        properties(support) AS support
 ORDER BY claim_id LIMIT 129
-""", ids=ids, policy=HUMAN_POLICY)
+""",
+            ids=ids,
+            policy=HUMAN_POLICY,
+        )
         if len(rows) > 128:
-            raise ValueError('Claim source support exceeds retrieval budget')
+            raise ValueError("Claim source support exceeds retrieval budget")
         evidence, claims = {}, []
         for row in rows:
-            chunk = evidence.get(row['chunk_id']) or await self.excerpt(row["chunk_id"])
+            chunk = evidence.get(row["chunk_id"]) or await self.excerpt(row["chunk_id"])
             start, end = row["start_char"], row["end_char"]
-            if (chunk["paper_id"] != row["subject_id"]
-                    or not isinstance(start, int) or not isinstance(end, int)
-                    or not 0 <= start < end <= len(chunk["text"])
-                    or chunk["text"][start:end] != row["quote"]
-                    or hashlib.sha256(row["quote"].encode()).hexdigest() != row["quote_sha256"]):
+            if (
+                chunk["paper_id"] != row["subject_id"]
+                or not isinstance(start, int)
+                or not isinstance(end, int)
+                or not 0 <= start < end <= len(chunk["text"])
+                or chunk["text"][start:end] != row["quote"]
+                or hashlib.sha256(row["quote"].encode()).hexdigest() != row["quote_sha256"]
+            ):
                 raise ValueError("Reviewed claim source support is invalid")
             evidence[chunk["chunk_id"]] = chunk
             # Keep scientific scope and work/version limits in downstream explanations.
-            metadata = {k: row['claim'][k] for k in (
-                'accepted_qualification', 'source_qualifier', 'source_ambiguity', 'review_context_json',
-                'evaluation_stage', 'evaluation_scope', 'target_work_id', 'target_version_as_cited',
-                'reviewer', 'signoff_recorded_date', 'review_applied_at', 'review_document')
-                if k in row['claim']}
-            claims.append({**{k:v for k,v in row.items() if k not in ('claim','support')},
-                           **metadata, 'support_role': row['support'].get('role', 'excerpt'),
-                           "status": "SOURCE_VERIFIED"})
-        for ident in {r['claim_id'] for r in rows}:
-            group = [r for r in rows if r['claim_id'] == ident]
-            claim = group[0]['claim']
-            if claim.get('support_manifest_json'):
-                validate_bundle(claim, [dict(r['support'], chunk_id=r['chunk_id']) for r in group],
-                    {key: dict(value, id=key) for key,value in evidence.items()})
+            metadata = {
+                k: row["claim"][k]
+                for k in (
+                    "accepted_qualification",
+                    "source_qualifier",
+                    "source_ambiguity",
+                    "review_context_json",
+                    "evaluation_stage",
+                    "evaluation_scope",
+                    "target_work_id",
+                    "target_version_as_cited",
+                    "reviewer",
+                    "signoff_recorded_date",
+                    "review_applied_at",
+                    "review_document",
+                )
+                if k in row["claim"]
+            }
+            claims.append(
+                {
+                    **{k: v for k, v in row.items() if k not in ("claim", "support")},
+                    **metadata,
+                    "support_role": row["support"].get("role", "excerpt"),
+                    "status": "SOURCE_VERIFIED",
+                }
+            )
+        for ident in {r["claim_id"] for r in rows}:
+            group = [r for r in rows if r["claim_id"] == ident]
+            claim = group[0]["claim"]
+            if claim.get("support_manifest_json"):
+                validate_bundle(
+                    claim,
+                    [dict(r["support"], chunk_id=r["chunk_id"]) for r in group],
+                    {key: dict(value, id=key) for key, value in evidence.items()},
+                )
         return list(evidence.values()), claims
 
     async def find_citation_path(self, args):
         """Validate every derived edge against an approved, source-supported claim."""
         await self.paper(args.source_id)
         await self.paper(args.target_id)
-        rows = await self.read(PATH_QUERY, source=args.source_id, target=args.target_id,
-                               hops=args.max_hops, policy=HUMAN_POLICY)
+        rows = await self.read(
+            PATH_QUERY, source=args.source_id, target=args.target_id, hops=args.max_hops, policy=HUMAN_POLICY
+        )
         if not rows:
-            return {"status": "unavailable", "evidence": [], "paths": [],
-                    "limitation": "No approved directed path within the hop limit; pending claims are excluded."}
+            return {
+                "status": "unavailable",
+                "evidence": [],
+                "paths": [],
+                "limitation": "No approved directed path within the hop limit; pending claims are excluded.",
+            }
         path = rows[0]
         ids = sorted({cid for group in path["edge_claim_ids"] for cid in group})
         evidence, claims = await self.claim_supports(ids)
         edges = []
         for source, target, group in zip(path["papers"], path["papers"][1:], path["edge_claim_ids"]):
-            support = [c for c in claims if c["claim_id"] in group and c["subject_id"] == source
-                       and c["object_id"] == target and c["predicate"] == "CITES"]
+            support = [
+                c
+                for c in claims
+                if c["claim_id"] in group
+                and c["subject_id"] == source
+                and c["object_id"] == target
+                and c["predicate"] == "CITES"
+            ]
             if not support:
                 raise ValueError("Citation path approval changed or support missing")
             edges.append({"source": source, "target": target, "claims": support})
-        return {"status": "ok", "evidence": evidence,
-                "paths": [{"type": "CITES", "papers": path["papers"], "edges": edges}]}
+        return {
+            "status": "ok",
+            "evidence": evidence,
+            "paths": [{"type": "CITES", "papers": path["papers"], "edges": edges}],
+        }
 
     async def expand_verified_evidence(self, args):
         """One reviewed entity join; no alias guessing or unreviewed mentions."""
         await self.paper(args.paper_id)
-        rows = await self.read("""
+        rows = await self.read(
+            """
 MATCH (seed:Claim)-[:SUBJECT]->(:Paper {id:$id}), (seed)-[:OBJECT]->(entity:Entity)
 WHERE seed.predicate IN ['USES','EVALUATED_ON','ADDRESSES']
 AND seed.status='SOURCE_VERIFIED' AND seed.human_reviewed=true
 AND seed.student_review_status='approved' AND seed.review_policy=$policy
 AND trim(coalesce(seed.reviewer,''))<>'' AND seed.reviewed_at IS NOT NULL
 MATCH (c:Claim)-[:OBJECT]->(entity), (c)-[:SUBJECT]->(p:Paper), (c)-[:SUPPORTED_BY]->(:Chunk)
-WHERE p.id<>$id AND c.predicate IN ['USES','EVALUATED_ON','ADDRESSES'] AND """ + APPROVED + """
+WHERE p.id<>$id AND c.predicate IN ['USES','EVALUATED_ON','ADDRESSES'] AND """
+            + APPROVED
+            + """
 RETURN DISTINCT seed.id AS seed_id, c.id AS claim_id, entity.id AS entity_id
 ORDER BY seed_id, claim_id LIMIT $limit
-""", id=args.paper_id, limit=args.limit, policy=HUMAN_POLICY)
+""",
+            id=args.paper_id,
+            limit=args.limit,
+            policy=HUMAN_POLICY,
+        )
         if not rows:
-            return {"status": "unavailable", "evidence": [], "paths": [],
-                    "limitation": "No student-approved scientific relationships available."}
+            return {
+                "status": "unavailable",
+                "evidence": [],
+                "paths": [],
+                "limitation": "No student-approved scientific relationships available.",
+            }
         ids = sorted({row[key] for row in rows for key in ("seed_id", "claim_id")})
         evidence, claims = await self.claim_supports(ids)
         if set(ids) != {c["claim_id"] for c in claims}:
             raise ValueError("Scientific review changed or source support missing")
-        return {"status": "ok", "evidence": evidence,
-                "paths": [{"type": "VERIFIED_ENTITY", "joins": rows, "claims": claims}]}
+        return {
+            "status": "ok",
+            "evidence": evidence,
+            "paths": [{"type": "VERIFIED_ENTITY", "joins": rows, "claims": claims}],
+        }

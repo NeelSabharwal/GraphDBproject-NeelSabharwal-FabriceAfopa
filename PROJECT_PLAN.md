@@ -1,6 +1,29 @@
 # Project plan — AI Research GraphRAG Assistant
 
-**Status: dated implementation records below supersede the original PROPOSED milestone map; ML and remaining delivery work are incomplete.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+**Status: dated implementation records below supersede the original PROPOSED milestone map; the authorized final local implementation and educational ML pilot are complete; publication, remote CI and academic submission remain unverified.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
+
+## Final completion execution — 2026-11-02
+
+The master task authorizes the remaining local implementation and two transferable
+packages, while forbidding commits, pushes, merges and public image publication.
+D24 records the actual choices. M07 now has a reproducible graph-feature educational
+pilot with 15 approved labels and paper-disjoint evaluation: logistic accuracy 0,
+macro-F1 0, versus majority .6/.375. The original eight-paper target remains unmet.
+No larger-corpus or scientifically useful classification result is claimed.
+
+The frozen mention import passed source/hash, offline-backup, transaction and replay
+gates; 145 occurrences were added without changing reviewed evidence. Missing corpus
+and topic endpoints, authentication, lint/format/install/Make commands, local full
+and CI-equivalent tests, workflow definitions, diagrams, notebook and documentation
+are implemented. Actual verification and every exact rubric row are recorded in
+`docs/FINAL_VALIDATION.md` and `docs/FINAL_RUBRIC_AUDIT.md`; the original planning
+matrix below remains historical, not a claim of earned points.
+
+Remaining operator sequence: inspect Package A → apply/commit/push/review/merge it →
+apply dependent Package B → commit/push/review/merge → run remote CI and final live
+demo → explicitly authorize API registry publication → clarify late submission with
+the professor. Packages are coordinated AI-assisted preparation, not independent
+teammate authorship/review. No new annotations or human approvals were created.
 
 ## Advanced graph/GDS execution — prompt #7B, 2026-10-21
 

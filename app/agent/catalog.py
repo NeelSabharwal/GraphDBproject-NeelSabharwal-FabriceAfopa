@@ -54,8 +54,9 @@ def mentioned_papers(question, catalog):
             pattern = r"(?<!\w)" + r"[\s-]*".join(map(re.escape, parts)) + r"(?!\w)"
             for match in re.finditer(pattern, question, re.I):
                 matches.append((match.start(), match.end(), paper["id"]))
-    maximal = [m for m in matches if not any(
-        n[0] <= m[0] and n[1] >= m[1] and n[1]-n[0] > m[1]-m[0] for n in matches)]
+    maximal = [
+        m for m in matches if not any(n[0] <= m[0] and n[1] >= m[1] and n[1] - n[0] > m[1] - m[0] for n in matches)
+    ]
     for start, end, _ in maximal:
         if len({pid for a, b, pid in maximal if a == start and b == end}) > 1:
             raise ValueError("Paper name is ambiguous")
@@ -65,8 +66,7 @@ def mentioned_papers(question, catalog):
 def resolve_direction(question, catalog):
     """Support explicit 'from X to Y', standalone 'X to Y', and arrows; no guessed direction."""
     pattern = r"(.+?)\s+(to|→|->|←|<-)\s+(.+?)(?=[.!?;](?:\s|$)|$)"
-    match = (re.search(r"\bfrom\s+" + pattern, question, re.I)
-             or re.search("^" + pattern, question, re.I))
+    match = re.search(r"\bfrom\s+" + pattern, question, re.I) or re.search("^" + pattern, question, re.I)
     if not match:
         if re.search(r"\bbetween\b", question, re.I):
             raise ValueError("Citation direction is ambiguous; specify from source to target")

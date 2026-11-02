@@ -2,6 +2,49 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D24 — Authorized final completion, 2026-11-02
+
+- **Status/authority:** IMPLEMENTED under the user's master completion instruction.
+  Work stays on `feat/graph-ml`, base `86c9540`. Historical deadline October 23 has
+  passed; no extension or submission is asserted. Zero paid services remains binding.
+- **Mentions decision:** adapt the frozen label-blind v4 matcher and import exactly
+  145 authenticated occurrences after offline backup and a matching fresh dry-run.
+  Mechanical MENTIONS is not USES/EVALUATED_ON/CITES and never grants human review.
+  Alternatives were retaining constant features or collecting more reviewed entities;
+  only the explicitly authorized batch is applied. Drawbacks: selective alias coverage,
+  conservative exclusions and a snapshot-specific apply gate. See
+  [MENTIONS_ENRICHMENT.md](MENTIONS_ENRICHMENT.md) for actual hashes and rollback scope.
+- **ML decision:** execute the fixed three-paper educational pilot instead of pretending
+  the eight-paper/96-label proposal was met. DPR+RAG train, GraphRAG test; 15 approved
+  whole-Chunk labels, eight local features, L2 logistic C=1/liblinear/seed42, train-only
+  scaler, threshold .5, majority baseline. No search on test results. Alternatives:
+  postpone all training or expand corpus/labels; neither would demonstrate the requested
+  current-data pilot. Actual logistic accuracy/F1 is 0/0, below majority .6/.375.
+  Labels were development-visible; this is explicitly exploratory. [GRAPH_ML.md](GRAPH_ML.md).
+- **API decision:** implement authenticated, fixed-manifest corpus import and bounded
+  approved-concept exploration using existing ingestion/source-validation modules.
+  A local high-entropy bearer secret is sufficient for this localhost demonstration;
+  missing configuration fails closed. Existing complete imports are not repeated;
+  partial imports require operator investigation. No uploads, arbitrary paths or Cypher.
+  Alternatives: OAuth/users/queue/reverse proxy; rejected as unnecessary for this local
+  task. Imports can take time and are per-paper atomic, not corpus-wide atomic.
+- **Agent correction:** a successful path constrains next actions to unread supporting
+  Chunk IDs, requires every path-support Chunk, then returns actual bibliography
+  quotations from the validated path. Qwen still selects the path and source reads in
+  the existing StateGraph. This corrects a measured six-lookup loop without hardcoding
+  a path/answer or adding another model verification pass.
+- **Quality/delivery:** Python 3.12 stays inside Docker; `.venv` is container-managed
+  because host Python 3.14 lacks compatible installed project dependencies. The
+  professor pylint template is preserved and adapted to a valid root configuration;
+  all app and scripts modules are scored. Black formatting preserves behavior.
+  CI runs unit/API tests without private data/services; live integrations run locally.
+  Drawbacks: first install/download requires internet; CI cannot certify private live
+  corpus state. API publication is prepared but remains unauthorized/unperformed.
+- **Approval questions remaining:** registry/account and explicit public-image
+  publication; acceptance of the failed exploratory ML pilot and unmet larger target;
+  any fresh-database authorization must establish its own protected snapshot.
+  No additional scientific review, alias merge or annotation is inferred.
+
 ## D23 — Advanced graph reads and scientific-similarity GDS, prompt #7B
 
 - **Status/authority:** IMPLEMENTED under Prompt #7B on `feat/advanced-cypher-gds`.

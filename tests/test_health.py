@@ -30,12 +30,15 @@ def test_liveness_and_swagger_do_not_require_dependencies(settings):
         assert "/health/ready" in client.get("/openapi.json").json()["paths"]
 
 
-@pytest.mark.parametrize("checks", [
-    {"neo4j_gds": "unavailable", "ollama": "ok"},
-    {"neo4j_gds": "ok", "ollama": "models_missing"},
-    {"neo4j_gds": "ok", "ollama": "unavailable"},
-    {"neo4j_gds": "ok", "ollama": "ok"},
-])
+@pytest.mark.parametrize(
+    "checks",
+    [
+        {"neo4j_gds": "unavailable", "ollama": "ok"},
+        {"neo4j_gds": "ok", "ollama": "models_missing"},
+        {"neo4j_gds": "ok", "ollama": "unavailable"},
+        {"neo4j_gds": "ok", "ollama": "ok"},
+    ],
+)
 def test_readiness_status_contract(settings, checks):
     """Any unavailable dependency produces 503, with a safe structured response."""
     application = create_app(settings)
@@ -79,24 +82,30 @@ def test_readiness_returns_503_when_dependency_connection_fails(settings, monkey
         }
 
 
-@pytest.mark.parametrize("payload,expected", [
-    ({"models": []}, "models_missing"),
-    ({"models": [{"name": "qwen2.5:3b-instruct"}, {"name": "nomic-embed-text:v1.5"}]}, "ok"),
-    ({"unexpected": True}, "unavailable"),
-])
+@pytest.mark.parametrize(
+    "payload,expected",
+    [
+        ({"models": []}, "models_missing"),
+        ({"models": [{"name": "qwen2.5:3b-instruct"}, {"name": "nomic-embed-text:v1.5"}]}, "ok"),
+        ({"unexpected": True}, "unavailable"),
+    ],
+)
 def test_ollama_probe_checks_required_models(settings, payload, expected):
     """A reachable but empty model server cannot make the application ready."""
+
     async def exercise():
         transport = httpx.MockTransport(lambda _: httpx.Response(200, json=payload))
         async with httpx.AsyncClient(base_url="http://ollama", transport=transport) as client:
             application = SimpleNamespace(state=SimpleNamespace(settings=settings, http=client))
             request = Request({"type": "http", "app": application})
             assert await check_ollama(request) == expected
+
     asyncio.run(exercise())
 
 
 def test_database_timeout_is_bounded_and_redacted(settings):
     """An unresponsive dependency cannot hang readiness indefinitely."""
+
     class SlowDriver:
         """Delay session entry past the configured outer probe deadline."""
 
@@ -113,6 +122,7 @@ def test_database_timeout_is_bounded_and_redacted(settings):
         application = SimpleNamespace(state=SimpleNamespace(settings=settings, driver=SlowDriver()))
         request = Request({"type": "http", "app": application})
         assert await asyncio.wait_for(check_neo4j(request), timeout=0.5) == "unavailable"
+
     asyncio.run(exercise())
 
 

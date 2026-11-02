@@ -10,7 +10,10 @@ def main() -> None:
     """Run bounded checks without mounting the Docker socket into any container."""
     process = subprocess.run(
         ["docker", "compose", "exec", "-T", "api", "python", "-m", "scripts.smoke"],
-        text=True, capture_output=True, timeout=600, check=False,
+        text=True,
+        capture_output=True,
+        timeout=600,
+        check=False,
     )
     try:
         report = json.loads(process.stdout)
@@ -22,13 +25,33 @@ def main() -> None:
     report["container_memory"] = {}
     for service in ["neo4j", "api", "ollama"]:
         result = subprocess.run(
-            ["docker", "compose", "exec", "-T", service, "cat", "/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory.peak", "/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory.events"],
-            text=True, capture_output=True, timeout=15, check=False,
+            [
+                "docker",
+                "compose",
+                "exec",
+                "-T",
+                service,
+                "cat",
+                "/sys/fs/cgroup/memory.current",
+                "/sys/fs/cgroup/memory.peak",
+                "/sys/fs/cgroup/memory.max",
+                "/sys/fs/cgroup/memory.events",
+            ],
+            text=True,
+            capture_output=True,
+            timeout=15,
+            check=False,
         )
         report["container_memory"][service] = {"exit_code": result.returncode, "cgroup_output": result.stdout.strip()}
-    report["memory_note"] = "cgroup bytes include charged cache; memory.peak is since container creation, not a per-request peak."
+    report["memory_note"] = (
+        "cgroup bytes include charged cache; memory.peak is since container creation, not a per-request peak."
+    )
     report["service_status"] = subprocess.run(
-        ["docker", "compose", "ps", "--format", "json"], text=True, capture_output=True, timeout=15, check=True,
+        ["docker", "compose", "ps", "--format", "json"],
+        text=True,
+        capture_output=True,
+        timeout=15,
+        check=True,
     ).stdout.strip()
     destination = Path("data/processed/infrastructure-smoke.json")
     destination.parent.mkdir(parents=True, exist_ok=True)

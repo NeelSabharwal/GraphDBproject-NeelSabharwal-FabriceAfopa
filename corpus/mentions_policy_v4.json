@@ -1,0 +1,386 @@
+{
+  "version": "scoped-exact-mentions-audit-v4",
+  "rules": [
+    {
+      "alias": "A01",
+      "surface": "Natural Questions",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A01",
+      "surface": "NQ",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": [
+        "Natural Questions"
+      ]
+    },
+    {
+      "alias": "A02",
+      "surface": "TriviaQA",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A02",
+      "surface": "Trivia",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2004.04906v1"
+      ],
+      "expansion": [
+        "TriviaQA"
+      ]
+    },
+    {
+      "alias": "A02",
+      "surface": "TQA",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": [
+        "TriviaQA"
+      ]
+    },
+    {
+      "alias": "A03",
+      "surface": "WebQuestions",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A03",
+      "surface": "WQ",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": [
+        "WebQuestions"
+      ]
+    },
+    {
+      "alias": "A04",
+      "surface": "CuratedTREC",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A04",
+      "surface": "CuratedTrec",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A04",
+      "surface": "TREC",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2004.04906v1"
+      ],
+      "expansion": [
+        "CuratedTREC"
+      ]
+    },
+    {
+      "alias": "A04",
+      "surface": "CT",
+      "mode": "definition",
+      "papers": [
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": [
+        "CuratedTrec"
+      ]
+    },
+    {
+      "alias": "A05",
+      "surface": "BERT-base",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A05",
+      "surface": "BERT BASE",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A05",
+      "surface": "base-uncased BERT",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A06",
+      "surface": "open-domain question answering",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A06",
+      "surface": "Open-domain question answering",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A06",
+      "surface": "open-domain textual QA",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A06",
+      "surface": "open-domain QA",
+      "mode": "named",
+      "papers": [
+        "arxiv:2004.04906v1",
+        "arxiv:2005.11401v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A07",
+      "surface": "DPR",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A07",
+      "surface": "Dense Passage Retrieval",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A08",
+      "surface": "BART-large",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A09",
+      "surface": "Leiden",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A10",
+      "surface": "map-reduce approach",
+      "mode": "workflow",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A10",
+      "surface": "map-reduce summarization",
+      "mode": "workflow",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A10",
+      "surface": "Map-reduce summarization",
+      "mode": "workflow",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A11",
+      "surface": "query-focused summarization",
+      "mode": "named",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A11",
+      "surface": "Query-focused summarization",
+      "mode": "named",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A11",
+      "surface": "QFS",
+      "mode": "named",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A12",
+      "surface": "podcast transcripts",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A12",
+      "surface": "Podcast transcripts",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A12",
+      "surface": "Behind the Tech",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A13",
+      "surface": "news articles",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A13",
+      "surface": "News articles",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A13",
+      "surface": "MultiHop-RAG",
+      "mode": "corpus_context",
+      "papers": [
+        "arxiv:2404.16130v1"
+      ],
+      "expansion": null
+    },
+    {
+      "alias": "A14",
+      "surface": "HotPotQA",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A14",
+      "surface": "HotpotQA",
+      "mode": "named",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A05",
+      "surface": "BERT",
+      "mode": "ambiguous",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A08",
+      "surface": "BART",
+      "mode": "ambiguous",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A09",
+      "surface": "Louvain",
+      "mode": "rejected_equivalence",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A10",
+      "surface": "Hadoop",
+      "mode": "rejected_equivalence",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A10",
+      "surface": "MapReduce",
+      "mode": "rejected_equivalence",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A03",
+      "surface": "WebQuestionsSP",
+      "mode": "rejected_equivalence",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A12",
+      "surface": "Podcast",
+      "mode": "ambiguous",
+      "papers": null,
+      "expansion": null
+    },
+    {
+      "alias": "A13",
+      "surface": "News",
+      "mode": "ambiguous",
+      "papers": null,
+      "expansion": null
+    }
+  ],
+  "implementation_sha256": "014850bb47febe0fad5859906de844cc2dccec2e56f7931d473dc86776a1d5fe",
+  "structural_policy": "exclude title metadata, reference/post-reference region, numbered headings, isolated/short labels, column headers and complete pre-caption page prefixes"
+}
