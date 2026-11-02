@@ -7,7 +7,7 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R01 | **Docker Infra & Services** | `docker-compose.yml` with ≥3 services | 2 | docker-compose.yml | Three functional healthy services; actual status/health logs | VERIFIED | None locally |
 | R02 | **Docker Infra & Services** | Proper `Dockerfile` / official image | 2 | Dockerfile; docker/neo4j.Dockerfile | Pinned API and Neo4j/GDS builds completed | VERIFIED | Public GDS redistribution remains separate |
 | R03 | **Docker Infra & Services** | `.env.example`, no secrets committed | 2 | .env.example; .gitignore; app/config.py | Known-secret and image-exclusion checks; dummy placeholders only | VERIFIED | Keep operator credentials private |
-| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | Dockerfile; .dockerignore; docs/IMAGE_PUBLICATION.md; docker/licenses | Local API build, offline smoke and exclusions verified; GHCR command/permission guide prepared; no publication | MISSING | Separate authorization for public source/image distribution, reuse terms, push/public visibility/anonymous pull, actual digest/link |
+| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | Dockerfile; .dockerignore; docs/IMAGE_PUBLICATION.md; docker/licenses | Final API build and all 15 layers inspected; explicit publication authorization recorded; no upload/public pull | BLOCKED | GHCR write:packages credential plus exact-version source/notice verification; then public visibility, anonymous pull, digest and README link |
 | R05 | **Docker Infra & Services** | Docker Compose starts cleanly | 1 | Makefile; docker-compose.yml | Bounded startup wait, /health/live and /health/ready both HTTP 200 | VERIFIED | Provision model digests before first API start |
 | R06 | **Neo4j Database** | Schema: ≥3 labels, ≥3 relation types | 3 | app/ingestion/graph.py | Live 4 labels and 7 relationship types | VERIFIED | None |
 | R07 | **Neo4j Database** | ≥2 constraints | 2 | app/ingestion/graph.py | SHOW CONSTRAINTS: four ID uniqueness constraints | VERIFIED | None |
@@ -29,53 +29,77 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R23 | **Schemas & Modeling** | Neo4j graph diagram | 2 | docs/diagrams/graph-schema.drawio; graph-schema.svg | Editable XML and viewable SVG match four labels/seven relation types | VERIFIED | Students must defend schema choices |
 | R24 | **Schemas & Modeling** | System architecture diagram | 2 | docs/diagrams/system-architecture.drawio; system-architecture.svg | Editable XML and SVG match actual services, boundaries and data flow | VERIFIED | None |
 | R25 | **Schemas & Modeling** | Modeling rationale + anti-genericity appendix | 3 | docs/ARCHITECTURE.md; docs/DECISIONS.md; docs/DEMONSTRATION.md | Reified claims, alias scopes, source layers and alternatives explicitly explained | VERIFIED | Student oral defense remains unobserved |
-| R26 | **Documentation** | Complete README + screenshots | 3 | README.md; docs/screenshots | Merged PR #11; setup/API/screenshots/notebook dependencies and real CI links reviewed | VERIFIED | Public image link awaits authorized publication; CI access requires repository permission |
-| R27 | **Documentation** | Demonstration notebook | 2 | demo.ipynb; scripts/execute_notebook.py | All 18 cells executed; final fingerprint unchanged | VERIFIED | Private outputs excluded from public patch |
-| R28 | **Clean Code** | `.pylintrc`, pylint ≥ 9.5, `make lint` | 2 | .pylintrc; Makefile | Fresh make lint 9.54/10; all app/scripts; missing-docstring checks now enabled | VERIFIED | Remaining complexity/style findings remain visible |
+| R26 | **Documentation** | Complete README + screenshots | 3 | README.md; docs/screenshots | Merged PRs #11/#12; final setup/navigation/screenshots/notebook dependency and CI links checked | VERIFIED | Public image link blocked; private CI requires repository access |
+| R27 | **Documentation** | Demonstration notebook | 2 | demo.ipynb; scripts/execute_notebook.py | Final 22 cells executed; actual directed path and PageRank SVG rendered; graph fingerprint unchanged | VERIFIED | Private executed output remains ignored |
+| R28 | **Clean Code** | `.pylintrc`, pylint ≥ 9.5, `make lint` | 2 | .pylintrc; Makefile | Final make lint 9.55/10; all app/scripts; missing-docstring checks enabled | VERIFIED | Remaining complexity/style findings visible |
 | R29 | **Clean Code** | PEP 8 + clean architecture | 1 | app; scripts; tests; Makefile | Black formatting executed; layers retain explicit responsibility | VERIFIED | Some large provenance functions still emit refactoring warnings |
 | R30 | **Clean Code** | Docstrings | 1 | app; scripts | 52 public docstrings added; module/public AST audit complete; enabled docstring lint has no findings; executable AST unchanged | VERIFIED | Maintain docstrings with future interface changes |
 | R31 | **Makefile** | Required commands | 1 | Makefile | help, venv, install, run, docker-build/run, test, lint, format, clean, tree implemented | VERIFIED | Requires Docker, Make and pinned API image |
 | R32 | **Makefile** | Commands functional | 1 | Makefile; scripts/workspace.py | Required targets actually invoked; startup race corrected with --wait | VERIFIED | First startup requires model provisioning |
 | R33 | **Makefile** | Usage documented | 1 | README.md; Makefile help | Usage and container-managed .venv explained | VERIFIED | None |
-| R34 | **Tests** | Unit/API/Neo4j tests | 3 | tests | Fresh complete suite: 358 passed, zero failures, 35.01 s | VERIFIED | One upstream TestClient deprecation warning |
+| R34 | **Tests** | Unit/API/Neo4j tests | 3 | tests | Final complete suite: 358 passed, zero failures, 44.61 s | VERIFIED | One upstream TestClient deprecation warning |
 | R35 | **Tests** | Container health checks | 2 | docker-compose.yml; app/health.py | All three service checks; real liveness/readiness HTTP 200 | VERIFIED | Model presence is required for API readiness |
 | R36 | **Tests** | Cypher tests | 2 | tests/test_retrieval_graph.py; test_advanced_graph.py; test_mentions.py | Real fixed Cypher, projection guards, transactional rollback/idempotency | VERIFIED | Synthetic fixtures do not establish large-corpus quality |
-| R37 | **Tests** | Coverage ≥ 60% | 2 | Makefile; pyproject.toml | Fresh full coverage 94.61%; local and real remote unit/API coverage 75.84% | VERIFIED | Coverage is not semantic correctness |
-| R38 | **Tests** | All tests pass | 1 | tests; docs/FINAL_VALIDATION.md | Fresh full suite 358 passed; corrected isolated test mount, earlier seven failures retained in logs | VERIFIED | Recheck after future source changes |
-| R39 | **SE Best Practices** | Lint workflow | 1 | .github/workflows/quality.yml | Actual lint jobs succeeded on PR #10/#11 and both main merges; final main score 9.54 | VERIFIED | This uncommitted follow-up awaits its own later remote run |
-| R40 | **SE Best Practices** | Test workflow | 1 | .github/workflows/quality.yml | Actual unit-api jobs succeeded on PR #10/#11 and both merges; main 303 passed, 55 deselected, 75.84% | VERIFIED | Live integration remains local; follow-up is not remotely executed yet |
-| R41 | **SE Best Practices** | README badges | 1 | README.md | main workflow badge links to actual successful quality.yml; dated local-build and measured remote-coverage badges link to evidence | VERIFIED | Private-repository badge/CI access requires sign-in; build/coverage snapshots are explicitly not live services |
-| R42 | **SE Best Practices** | Code reviews | 1 | GitHub PR #4/#5/#8/#9; docs/FINAL_VALIDATION.md | All PRs #1–#11 inspected; substantive #1–#5 review records; #8 one label approval; #7/#9/#10/#11 no returned comments | PARTIAL | Actual student follow-up reviews needed; cannot fabricate pre-merge review history |
+| R37 | **Tests** | Coverage ≥ 60% | 2 | Makefile; pyproject.toml | Final full coverage 94.61%; local unit/API and merged-main remote unit/API 75.84% | VERIFIED | Coverage is not semantic correctness |
+| R38 | **Tests** | All tests pass | 1 | tests; docs/FINAL_VALIDATION.md | Final complete suite 358 passed; notebook 22 cells executed; no new failures | VERIFIED | Earlier isolated-mount failures remain documented historically |
+| R39 | **SE Best Practices** | Lint workflow | 1 | .github/workflows/quality.yml | PR #12 push/PR and main b782bbf quality runs succeeded; main lint job 125421711673: 9.54 | VERIFIED | Final acceptance CI is checked after push; local acceptance score 9.55 is separate |
+| R40 | **SE Best Practices** | Test workflow | 1 | .github/workflows/quality.yml | Merged-main run 41487540210 unit-api job 125421711774: 303 passed, 55 deselected, 75.84% | VERIFIED | 55 real-dependency tests run locally; acceptance-branch results reported with its PR |
+| R41 | **SE Best Practices** | README badges | 1 | README.md | main quality.yml badge and dated local-build / b782bbf remote-coverage badges point to actual evidence | VERIFIED | Private repository CI/badges can require sign-in; snapshots are not live coverage services |
+| R42 | **SE Best Practices** | Code reviews | 1 | GitHub PR #4/#5/#8/#9; docs/FINAL_VALIDATION.md | PRs #1–#12 inspected; substantive review records on #1–#5; #8 one label approval; #7/#9–#12 no returned comments | PARTIAL | Genuine constructive student comments still needed; no fabricated or retroactive pre-merge review history |
 | R43 | **SE Best Practices** | Reverse proxy or authentication | 3 | app/corpus/api.py; tests/test_corpus.py | Fail-closed bearer auth; missing/wrong/correct HTTP 401/403/200 observed | VERIFIED | Local shared secret; not production multi-user authorization |
 | R44 | **SE Best Practices** | `EXPLAIN` / `PROFILE` demonstration | 2 | scripts/advanced_graph.py; demo.ipynb | Actual EXPLAIN/PROFILE plans, DB counters and no persisted updates | VERIFIED | None |
-| R45 | **Git** | Branch workflow | 2 | Existing Git branches/history; handoff instructions | Feature history and merged PRs #10/#11 verified; isolated follow-up from current main | VERIFIED | Review/commit/push this branch only when separately instructed |
+| R45 | **Git** | Branch workflow | 2 | Existing Git branches/history; handoff instructions | Merged PRs #10/#11/#12; isolated feat/final-acceptance from main b782bbf; original checkout preserved | VERIFIED | Final PR merge requires user confirmation |
 | R46 | **Git** | Proper `.gitignore` | 1 | .gitignore; .dockerignore | Private data/secrets excluded; only approved annotation CSV/gold tracked intentionally | VERIFIED | Inspect staged diffs before later authorized commits |
-| R47 | **Git** | Balanced contributions | 3 | git shortlog; README contributions | Merged main: Neel 22/Fabrice 11 including merges; non-merge commits 11 each | PARTIAL | Balanced non-merge counts support participation; substantive effort/independence requires human assessment |
+| R47 | **Git** | Balanced contributions | 3 | git shortlog; README contributions | Merged main b782bbf: Neel 24 / Fabrice 11 commits including merges; non-merge 12 / 11; author spelling variants retained | PARTIAL | Counts do not establish balanced substantive effort or independent authorship; human assessment remains |
 | R48 | **Git** | ≥1 substantial merged PR/member | 3 | GitHub PR #4 and #5/#8 | Merged implementation PRs by Neel and evidence/label PRs by Fabrice; final PR #10 Neel and #11 Fabrice confirmed | VERIFIED | AI-assisted package preparation remains disclosed |
-| R49 | **Git** | Clear commit messages | 1 | git log; handoff instructions | Current main history includes descriptive core and documentation integration messages | VERIFIED | No commit created by this follow-up |
+| R49 | **Git** | Clear commit messages | 1 | git log; handoff instructions | Main includes descriptive core/docs/rubric commits; final branch uses genuine configured identity | VERIFIED | No history rewritten or authorship manufactured |
 
 ## Open evidence and penalty risks
 
-- Public registry publication (2 points) is missing. The API-only GHCR procedure and local checks are ready; separate publication authorization, public visibility and real anonymous-pull evidence remain necessary. The private-source repository has no project LICENSE; owners must decide distribution/reuse terms.
-- Six real remote quality runs passed, including both final PRs and main merges. New follow-up changes are locally tested but uncommitted; no new remote run is claimed.
-- The specification requires at least two constructive comments per PR. Prior review threads exist, but this condition is not demonstrated for every PR; merged final PRs #10/#11 return no review comments.
-- ML workflow mechanics are implemented, but the 0/5 result is not useful generalization evidence. Only 15 development-visible labels and three papers exist; the original eight-paper/96-label design remains unmet.
-- The instructor may apply −3 for broken required Make commands, −8 for missing/sub-9.5 pylint, up to −25 for nonfunctional startup/endpoints, −15 for no functional agent, and up to −5 for an undefended generic graph. Local checks mitigate these risks; they do not guarantee a grade.
-- Contribution below 10% can incur −5; no substantial merged PR can incur −3 per member; cosmetic-only activity may be reevaluated. Existing PR evidence is documented honestly; package upload is not independent authorship.
-- Each exposed secret/file can incur −5. Credentials/private artifacts are excluded; maintain that boundary during operator publishing. Plagiarism can incur 0/100 and an administrative report. AI assistance is disclosed and students remain responsible for understanding the work.
-- Live academic demonstration, acceptance of late delivery, image-publication authorization and final student review cannot be manufactured by these local artifacts.
+- R04 (2 points) is **BLOCKED**, not satisfied: publication is authorized, but current
+  credentials cannot write GHCR packages and full source-availability compliance is
+  not verified. The [publication guide](IMAGE_PUBLICATION.md) records the concrete
+  image scan, license inventory and operator steps. No image URL/digest is invented.
+- Actual quality runs passed for PRs #10–#12 and their main merges. Latest merged-main
+  evidence: [run 41487540210](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210).
+  Local final-acceptance tests are separate; its own CI is checked after push.
+- R42 requires at least two constructive comments per PR. This is not evidenced for
+  every PR; #10/#11/#12 have no returned review or issue comments. Human reviews must
+  be genuine and dated as performed, without inventing pre-merge history.
+- R47 remains PARTIAL: balanced non-merge counts support participation but do not
+  determine substantive effort, independence or the professor's assessment.
+- ML mechanics are verified, but logistic 0/5 versus majority 3/5 is weak evidence.
+  Only 15 development-visible labels and three papers exist. The original larger
+  eight-paper/96-label design remains unmet; no retraining or corpus expansion occurred.
+- Live oral defense, understanding of modeling choices, academic submission and
+  acceptance after the historical October 23 deadline cannot be verified by code.
+  Diagrams, demonstration script/notebook and contribution records are prepared.
+- Course penalties remain applicable: broken required Make commands −3; missing or
+  sub-9.5 pylint −8; nonfunctional project up to −25; no functional agent −15;
+  undefended generic schema up to −5; contribution below 10% −5; no substantial merged
+  PR −3/member; exposed secrets −5/file; plagiarism can result in 0/100. These checks
+  are evidence, not a promise about the instructor's decision. AI assistance is disclosed.
 
-Actual logs, failures and final outcomes: [FINAL_VALIDATION.md](FINAL_VALIDATION.md). Historical planning statuses are superseded only by this dated evidence, not by intention.
+## Final evidence totals — not awarded marks
 
-## Before/after evidence status (not points awarded)
+All **49 criteria and their exact allocations total 100 points**. The table's
+requirement text and point values were compared row-for-row with the professor's
+unchanged checklist.
 
-All 49 exact criteria and their original allocations still total 100. Before this
-follow-up: **42 VERIFIED / 6 PARTIAL / 1 MISSING**. After: **46 VERIFIED / 2 PARTIAL /
-1 MISSING**. R30 (docstrings), R39 (remote lint), R40 (remote tests) and R41 (badges)
-now have concrete evidence. R04 (public image) remains MISSING; R42 (reviews) and R47
-(substantive contribution assessment) remain PARTIAL. Existing VERIFIED rows retain
-their measured scope and limitations; this is not a prediction of the professor's grade.
+| Evidence status | Rows | Allocated points |
+|---|---:|---:|
+| VERIFIED within stated scope | 46 | 94 |
+| PARTIAL: R42, R47 | 2 | 4 |
+| BLOCKED: R04 | 1 | 2 |
+| MISSING | 0 | 0 |
+| Total | 49 | 100 |
 
-The unchanged failed ML result remains 0/5 against a 3/5 baseline. Scientific corpus,
-labels, original reviews, gold and persisted graph fingerprint are unchanged.
-[Follow-up evidence, exact CI URLs and collaboration table](FINAL_VALIDATION.md#rubric-gap-closure-follow-up--2026-11-02).
+Before PR #12: 42 VERIFIED / 6 PARTIAL / 1 MISSING. After PR #12: 46 VERIFIED /
+2 PARTIAL / 1 MISSING. Final acceptance retains the 46 verified rows and changes
+R04 to BLOCKED to explain authorization and the remaining gates. It also closes an
+overlooked notebook evidence gap: the previous text-only exploration now has two
+executed visualizations derived from live results. No additional grading credit is
+self-awarded, and blocked/partial allocations are not counted as verified points.
+
+[Final command results, graph invariants, CI and cleanup](FINAL_VALIDATION.md#final-acceptance--2026-11-02).
+The scientific corpus, approval/label records, gold and failed ML result remain unchanged.

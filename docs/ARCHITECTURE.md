@@ -1,6 +1,6 @@
 # Architecture — AI Research GraphRAG Assistant
 
-**Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; the fixed ML pilot, protected corpus API and local delivery tooling are now implemented; external publication/CI execution remain outstanding.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
+**Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; the fixed ML pilot, protected corpus API and local delivery tooling are now implemented; remote CI is verified through merged PR #12; API publication is authorized conditionally but remains incomplete.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
 
 ### Final implementation update — 2026-11-02 (D24)
 
@@ -201,6 +201,15 @@ Deadline: Friday, October 23, 2026; two students; user is team lead; zero paid A
 For this milestone readiness means authenticated Bolt + the exact GDS version function and reachable Ollama with both selected model tags present, within a 3-second concurrent probe budget. No schema or vector index exists yet, so readiness does not claim either. Model inference is verified separately through bounded explicit smoke commands. Server health and model presence do not prove model quality. Named volumes persist data/logs/model weights; `.env` is ignored and excluded from build context. The historical proposed sections below describe future scope unless explicitly superseded here.
 
 **Verified foundation:** all three containers healthy; Neo4j/GDS 5.26.32/2.13.2, Python/FastAPI 3.12.13/0.115.12 and Ollama 0.40.6; real CPU text/JSON/tool-selection/embedding smoke cases passed. Twelve tests passed with 100% coverage of the current 72 application statements. Detailed timing, memory, licensing and setup limitations are in [INFRASTRUCTURE.md](INFRASTRUCTURE.md); no ingestion, graph schema, LangGraph agent, analytics or ML has been implemented. GDS function/catalog execution is verified, while PageRank/Louvain are only registered, not executed.
+
+## Historical design proposals — retained for comparison
+
+The numbered sections below describe the original planning baseline and its proposed
+acceptance targets. They are not a current setup guide. Implemented differences are
+recorded above and in D13–D24, including the exact pinned versions, complete API, human
+review requirement, two approved citation edges and the failed three-paper ML pilot.
+Use README and FINAL_VALIDATION for current commands and measured state. Larger
+corpus/retrieval evaluation targets remain unmet; they are not silently claimed complete.
 
 ## 1. Smallest proposed service boundary
 

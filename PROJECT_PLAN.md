@@ -2,6 +2,27 @@
 
 **Status: dated implementation records below supersede the original PROPOSED milestone map; the authorized final local implementation and educational ML pilot are complete; PRs #10/#11 are merged and remote lint/unit CI is verified; public-image publication and academic submission remain unverified.** The [professor's specification](docs/requirements/projects_spec.md) and [100-point checklist](docs/requirements/project_checklist.md) are authoritative. No grading credit is claimed without evidence.
 
+## Final acceptance — 2026-11-02
+
+PR #12 is merged at `b782bbf`; its push, PR and merged-main quality workflows passed.
+The separate `feat/final-acceptance` worktree preserves the original dirty checkout.
+Conservative cleanup retains all historical/scientific records and dependencies,
+removes one unused import, clarifies current documentation, and adds actual directed
+path/PageRank visualizations to the notebook. Fresh local verification: 358 passed,
+94.61% full coverage, pylint 9.55/10, 22 notebook cells executed. The graph, approvals,
+gold, labels and frozen failed ML artifacts remain unchanged.
+
+API-only publication is now explicitly authorized, conditional on all checks. It is
+BLOCKED by absent package-write authentication and incomplete redistribution/source
+availability verification; see `docs/IMAGE_PUBLICATION.md`. Commit/push/PR creation
+for this acceptance branch are authorized; its merge requires user confirmation.
+The 49-row audit has 46 VERIFIED, two PARTIAL and one BLOCKED criteria (94/4/2 allocated
+points, not awarded marks). Remaining human work: genuine reviews, substantive
+contribution assessment, oral defense and clarification of late academic submission.
+
+The records below are historical snapshots, including then-current authorization and
+branch states. They do not override this acceptance record.
+
 ## Final rubric follow-up — 2026-11-02
 
 Current `origin/main` is `f46b2a9`, including merged PRs #10/#11. The isolated

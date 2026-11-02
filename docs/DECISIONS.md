@@ -1,6 +1,26 @@
-# Proposed decision register
+# Decision register — current decisions and historical proposals
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
+
+## D25 — Final acceptance and conditional API publication, 2026-11-02
+
+- **Authority:** the team lead authorizes API-only public GHCR publication after
+  security/redistribution checks, while keeping the source repository private. This
+  supersedes D24's publication prohibition; no project-wide reuse license is inferred.
+- **Scope:** conservative cleanup, final local/remote verification and an unmerged
+  acceptance PR. No new corpus, labels, approvals, scientific writes or ML tuning.
+- **Decision:** retain historical/scientific records with clear navigation; remove
+  only the demonstrably unused audit-script import. Add notebook visualizations
+  derived from actual queried path/rank results, without new dependencies.
+- **Alternative:** broad deletion, dependency upgrades or mass renaming would obscure
+  provenance and create unnecessary retesting risk; none is needed for presentation.
+- **Publication status:** BLOCKED before external publication. Existing GitHub OAuth
+  scopes lack `write:packages`; Docker's credential helper has no GHCR credential.
+  License/source-distribution readiness must also be resolved explicitly; see
+  [IMAGE_PUBLICATION.md](IMAGE_PUBLICATION.md). No token is requested in chat.
+- **Drawbacks/open human work:** private source becomes visible inside a public API
+  image; review/contribution judgment, source reuse terms and oral/submission evidence
+  remain student/owner responsibilities. No historical review event is manufactured.
 
 ## D24 — Authorized final completion, 2026-11-02
 

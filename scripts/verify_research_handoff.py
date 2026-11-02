@@ -12,7 +12,7 @@ import pypdf
 from app.config import Settings
 from app.ingestion.documents import digest, parse_pdf, prototype_manifest
 from app.ingestion.graph import EvidenceGraph
-from app.ingestion.research import require, map_supports, verify_record
+from app.ingestion.research import require, verify_record
 
 
 def check_structure(gold, rows, by_id):
