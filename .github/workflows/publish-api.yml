@@ -1,0 +1,103 @@
+name: Publish reviewed API image
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Full 40-character reviewed current-main commit SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: api-ghcr-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api
+      REVISION: ${{ inputs.revision }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the explicit current reviewed main revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$REVISION" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$REVISION"
+          test "$(git rev-parse origin/main)" = "$REVISION"
+      - name: Download and verify public corresponding sources
+        run: python3 -m scripts.release_preflight sources --output data/processed/release-sources
+      - name: Build only the API and its source-notice wrapper
+        run: |
+          set -euo pipefail
+          docker build --platform linux/amd64 --label "org.opencontainers.image.revision=$REVISION" -t project8-api:release-base .
+          docker build --platform linux/amd64 -f docker/api-release.Dockerfile \
+            --build-context redistribution_sources=data/processed/release-sources \
+            -t "$IMAGE:sha-$REVISION" .
+      - name: Mandatory license, inventory and every-layer content gate
+        run: python3 -m scripts.release_preflight check --image "$IMAGE:sha-$REVISION" --revision "$REVISION" --output data/processed/release-preflight
+      - name: Offline liveness and Swagger
+        run: |
+          docker run --rm --network none --read-only \
+            -e NEO4J_PASSWORD=synthetic-offline-smoke-password \
+            --entrypoint python "$IMAGE:sha-$REVISION" -c \
+            'from fastapi.testclient import TestClient; from app.main import create_app; c=TestClient(create_app()); assert c.get("/health/live").status_code == 200; assert c.get("/docs").status_code == 200'
+      - name: Refuse to overwrite a previously published SHA tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.error, urllib.request
+          tag = 'sha-' + os.environ['REVISION']
+          endpoint = 'https://api.github.com/users/neelsabharwal/packages/container/graphdbproject-neelsabharwal-fabriceafopa-api/versions?per_page=100'
+          for page in range(1, 1001):
+              request = urllib.request.Request(endpoint + f'&page={page}', headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'})
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      versions = json.load(response)
+              except urllib.error.HTTPError as error:
+                  if error.code == 404 and page == 1:
+                      break  # First package publication; any push permission failure still stops the job.
+                  raise
+              if any(tag in version['metadata']['container']['tags'] for version in versions):
+                  raise SystemExit('SHA tag already exists; refusing overwrite')
+              if len(versions) < 100:
+                  break
+          else:
+              raise SystemExit('Package pagination budget exhausted')
+          PY
+      - name: Login with the short-lived repository token
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Publish API only and record the real registry digest
+        run: |
+          set -euo pipefail
+          docker push "$IMAGE:sha-$REVISION"
+          reference=$(docker image inspect "$IMAGE:sha-$REVISION" --format '{{range .RepoDigests}}{{println .}}{{end}}' | awk -v prefix="$IMAGE@sha256:" 'index($0,prefix)==1 {print}')
+          [[ "$reference" =~ ^ghcr.io/neelsabharwal/graphdbproject-neelsabharwal-fabriceafopa-api@sha256:[0-9a-f]{64}$ ]]
+          docker buildx imagetools inspect "$reference"
+          printf '%s\n' "$reference" > data/processed/release-preflight/registry-reference.txt
+          printf 'Published API tag: `%s:sha-%s`\n\nRegistry reference: `%s`\n\nPackage visibility and anonymous pull remain separate operator checks.\n' "$IMAGE" "$REVISION" "$reference" >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain preflight evidence in this private repository
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: api-release-evidence
+          path: |
+            data/processed/release-preflight/preflight.json
+            data/processed/release-preflight/registry-reference.txt
+          if-no-files-found: ignore
+      - name: Logout
+        if: always()
+        run: docker logout ghcr.io

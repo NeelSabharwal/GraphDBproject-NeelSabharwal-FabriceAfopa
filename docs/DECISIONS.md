@@ -2,6 +2,29 @@
 
 The D01–D12 entries preserve the original **PROPOSED** design. D13 supersedes conflicting budget, scheduling and runtime assumptions; D14 records the subsequent ingestion authorization and explicit bibliography-policy approval. The professor's [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) remain authoritative. Record approval/rejection, date, participants and supporting evidence when a decision is resolved; update [ARCHITECTURE.md](ARCHITECTURE.md) and [PROJECT_PLAN.md](../PROJECT_PLAN.md) together.
 
+## D26 — Manual API release and corresponding-source delivery, 2026-11-02
+
+- **Authority/status:** authorized release preparation after merged PR #13; public
+  upload awaits release-PR review/merge and a real main workflow run. No new project license.
+- **Decision:** use workflow_dispatch on reviewed current main with GITHUB_TOKEN,
+  contents:read/packages:write; immutable-by-policy full-SHA tags and real digest output.
+  A separate API-only Docker wrapper includes hash-verified public corresponding
+  sources. Ordinary Compose/runtime versions and the scientific experiment stay unchanged.
+- **Rationale:** avoids long-lived PATs and provides sources alongside binaries;
+  GPL/LGPL delivery is distinguished from MPL source access and permissive attribution.
+  The inventory gate prevents changing dependencies/notices or ignoring unresolved issues.
+- **Alternatives/drawbacks:** upstream URLs alone avoid image size growth but are less
+  robust for source delivery. Bundling the complete version-mapped Debian source set
+  increases image size; it does not mean every permissive license requires sources.
+  Removing ML/notebook runtime dependencies could avoid the unidentified libquadmath
+  binaries, but a new runtime-only dependency design was not silently substituted.
+- **Native-source resolution:** all three libquadmath files match official AlmaLinux/
+  CentOS RPM build IDs and code/data hashes. Exact source RPMs with build specs and
+  patches are bundled; the real preflight passes.
+- **Remaining review:** genuine release PR review, main workflow execution and any
+  GitHub package visibility UI confirmation. No new
+  scientific review, authorship or approval is inferred. See IMAGE_PUBLICATION.md.
+
 ## D25 — Final acceptance and conditional API publication, 2026-11-02
 
 - **Authority:** the team lead authorizes API-only public GHCR publication after

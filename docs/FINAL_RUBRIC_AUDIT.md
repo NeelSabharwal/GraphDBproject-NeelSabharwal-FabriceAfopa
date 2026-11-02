@@ -7,7 +7,7 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R01 | **Docker Infra & Services** | `docker-compose.yml` with ≥3 services | 2 | docker-compose.yml | Three functional healthy services; actual status/health logs | VERIFIED | None locally |
 | R02 | **Docker Infra & Services** | Proper `Dockerfile` / official image | 2 | Dockerfile; docker/neo4j.Dockerfile | Pinned API and Neo4j/GDS builds completed | VERIFIED | Public GDS redistribution remains separate |
 | R03 | **Docker Infra & Services** | `.env.example`, no secrets committed | 2 | .env.example; .gitignore; app/config.py | Known-secret and image-exclusion checks; dummy placeholders only | VERIFIED | Keep operator credentials private |
-| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | Dockerfile; .dockerignore; docs/IMAGE_PUBLICATION.md; docker/licenses | Final API build and all 15 layers inspected; explicit publication authorization recorded; no upload/public pull | BLOCKED | GHCR write:packages credential plus exact-version source/notice verification; then public visibility, anonymous pull, digest and README link |
+| R04 | **Docker Infra & Services** | ≥1 image on public registry | 2 | .github/workflows/publish-api.yml; scripts/release_preflight.py; docs/IMAGE_PUBLICATION.md | API source-wrapper build and 16-layer audit; 245 source archives verified; final real preflight exit 0; manual workflow lint/regression tests pass; no publication | BLOCKED | Review/merge workflow; run on explicit main SHA; verify actual push/public visibility/anonymous pull and record digest/link |
 | R05 | **Docker Infra & Services** | Docker Compose starts cleanly | 1 | Makefile; docker-compose.yml | Bounded startup wait, /health/live and /health/ready both HTTP 200 | VERIFIED | Provision model digests before first API start |
 | R06 | **Neo4j Database** | Schema: ≥3 labels, ≥3 relation types | 3 | app/ingestion/graph.py | Live 4 labels and 7 relationship types | VERIFIED | None |
 | R07 | **Neo4j Database** | ≥2 constraints | 2 | app/ingestion/graph.py | SHOW CONSTRAINTS: four ID uniqueness constraints | VERIFIED | None |
@@ -31,7 +31,7 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 | R25 | **Schemas & Modeling** | Modeling rationale + anti-genericity appendix | 3 | docs/ARCHITECTURE.md; docs/DECISIONS.md; docs/DEMONSTRATION.md | Reified claims, alias scopes, source layers and alternatives explicitly explained | VERIFIED | Student oral defense remains unobserved |
 | R26 | **Documentation** | Complete README + screenshots | 3 | README.md; docs/screenshots | Merged PRs #11/#12; final setup/navigation/screenshots/notebook dependency and CI links checked | VERIFIED | Public image link blocked; private CI requires repository access |
 | R27 | **Documentation** | Demonstration notebook | 2 | demo.ipynb; scripts/execute_notebook.py | Final 22 cells executed; actual directed path and PageRank SVG rendered; graph fingerprint unchanged | VERIFIED | Private executed output remains ignored |
-| R28 | **Clean Code** | `.pylintrc`, pylint ≥ 9.5, `make lint` | 2 | .pylintrc; Makefile | Final make lint 9.55/10; all app/scripts; missing-docstring checks enabled | VERIFIED | Remaining complexity/style findings visible |
+| R28 | **Clean Code** | `.pylintrc`, pylint ≥ 9.5, `make lint` | 2 | .pylintrc; Makefile | Release follow-up lint 9.56/10; all app/scripts; missing-docstring checks enabled | VERIFIED | Remaining complexity/style findings visible |
 | R29 | **Clean Code** | PEP 8 + clean architecture | 1 | app; scripts; tests; Makefile | Black formatting executed; layers retain explicit responsibility | VERIFIED | Some large provenance functions still emit refactoring warnings |
 | R30 | **Clean Code** | Docstrings | 1 | app; scripts | 52 public docstrings added; module/public AST audit complete; enabled docstring lint has no findings; executable AST unchanged | VERIFIED | Maintain docstrings with future interface changes |
 | R31 | **Makefile** | Required commands | 1 | Makefile | help, venv, install, run, docker-build/run, test, lint, format, clean, tree implemented | VERIFIED | Requires Docker, Make and pinned API image |
@@ -57,8 +57,8 @@ Exact criteria and allocations are copied from the authoritative checklist: **49
 ## Open evidence and penalty risks
 
 - R04 (2 points) is **BLOCKED**, not satisfied: publication is authorized, but current
-  credentials cannot write GHCR packages and full source-availability compliance is
-  not verified. The [publication guide](IMAGE_PUBLICATION.md) records the concrete
+  the manual GITHUB_TOKEN route and local gates are prepared/passed but reviewed-main
+  publication and anonymous public access have not occurred. The [publication guide](IMAGE_PUBLICATION.md) records the concrete
   image scan, license inventory and operator steps. No image URL/digest is invented.
 - Actual quality runs passed for PRs #10–#12 and their main merges. Latest merged-main
   evidence: [run 41487540210](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/actions/runs/41487540210).
@@ -103,3 +103,17 @@ self-awarded, and blocked/partial allocations are not counted as verified points
 
 [Final command results, graph invariants, CI and cleanup](FINAL_VALIDATION.md#final-acceptance--2026-11-02).
 The scientific corpus, approval/label records, gold and failed ML result remain unchanged.
+
+## GHCR release follow-up — 2026-11-02
+
+PR #13 is merged at d35cd2e. The dedicated release PR adds manual/main-only publishing
+with contents-read/packages-write permissions and a tested fail-closed preflight.
+105 Debian binaries map to 73 source packages; 245 selected source archives were
+actually downloaded, size/hash checked and bundled into the local release candidate.
+Orjson and the identified Python/MPL source gaps are resolved; all three wheel
+libquadmath source mappings are established by official RPM/ELF comparisons and
+matching bundled source RPMs. The final local gate passes. No public push/digest/anonymous pull is claimed.
+R04 therefore remains BLOCKED; totals stay **46 VERIFIED / 2 PARTIAL / 1 BLOCKED**,
+allocated **94 / 4 / 2 points**, not grades. Reviews and contribution assessment remain
+partial. Current offline checks are distinguished from the previous full live suite
+in [FINAL_VALIDATION.md](FINAL_VALIDATION.md); no scientific experiment was rerun.
