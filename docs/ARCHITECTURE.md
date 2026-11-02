@@ -2,6 +2,17 @@
 
 **Status: infrastructure, ingestion, bounded retrieval/agent, advanced graph GET APIs and the three-paper GDS slice implemented; the fixed ML pilot, protected corpus API and local delivery tooling are now implemented; remote CI is verified through merged PR #12; API publication is authorized conditionally but remains incomplete.** The user authorized local infrastructure on 2026-10-19 and three-paper ingestion on 2026-10-20; see D13–D14 and D23 in [DECISIONS.md](DECISIONS.md). The [specification](requirements/projects_spec.md) and [checklist](requirements/project_checklist.md) govern scope. Dated implementation evidence supersedes historical proposals below.
 
+### API distribution boundary (D26)
+
+The manual GHCR workflow builds the existing API and a separate source-delivery wrapper
+(`docker/api-release.Dockerfile`). It adds only public, hash-verified third-party
+sources/notices; it does not alter Compose services, the evidence graph or ML workflow.
+Package-write permissions exist only in the manually invoked release job. Current-main
+revision checks, dependency/content scans and unresolved-license gates precede login.
+The native source mappings and local gates pass; publication awaits release review
+and the manual main workflow. See
+[IMAGE_PUBLICATION.md](IMAGE_PUBLICATION.md). No Neo4j/GDS image is published.
+
 ### Final implementation update — 2026-11-02 (D24)
 
 The protected persisted graph now has 3 Papers, 153 Chunks, 17 Entities and 25 Claims

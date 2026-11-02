@@ -406,3 +406,98 @@ Private logs/inventories/image archive/executed notebook remain ignored under
 `data/processed/`. No such artifacts are part of the acceptance commit. Final remaining
 human steps are genuine reviews, publication gate resolution, contribution assessment,
 oral defense and academic submission/late-delivery acceptance. No 100/100 grade is claimed.
+
+## GHCR release preparation — 2026-11-02
+
+Reviewed baseline: merged PR #13, main
+`d35cd2e5c145f38c5c041f6b05768d6b50b86a32`; isolated worktree
+`/tmp/project8-ghcr-release`, branch `feat/ghcr-release`. Original checkouts were
+preserved. This phase prepares a release PR; it does not merge it or invoke an
+unreviewed publication workflow. No live database operations, ingestion, review
+changes or ML training were performed. All 23 protected file/artifact hashes match
+the previous baseline. Application code, dependency locks, Compose, model manifest,
+scientific records and the frozen failed ML artifacts are unchanged.
+
+### Actual source/redistribution investigation
+
+- Inventoried all **94 Python distributions / 105 Debian binaries**, retained notices,
+  and actual wheel-native libraries. Debian epoch/source-version and binary-only
+  rebuild suffixes are preserved in the mapping.
+- Located **73 exact Debian source-package versions** in official bookworm,
+  bookworm-updates and security Sources indexes. All file URLs responded and all
+  `.dsc` downloads matched their index SHA-256. No missing versions or lookup failures.
+- Downloaded and size/hash-verified **245 public source archives/descriptors** for the
+  Debian set, six selected Python distributions, actual bundled ZeroMQ 4.3.5 and two
+  exact GCC source RPMs.
+  A dedicated API wrapper includes those archives alongside the binaries. The normal
+  Compose image/runtime remains unchanged; source archives remain ignored locally.
+- Verified orjson 3.13.0's exact PyPI sdist, Rust/C source and 22 vendored crate manifests;
+  retained wording from 45 license/notice files (trailing line whitespace normalized). Exact certifi/pathspec/pylint/astroid/
+  pyzmq source archives and ZeroMQ source/build mapping were also checked. Applicable
+  source-delivery requirements and permissive-license attribution are distinguished
+  in `docker/licenses/SOURCE_ACCESS.md`; no project LICENSE was invented.
+- Resolved **LIBQUADMATH-SOURCE** after initially failed checks: SciPy's installed
+  auditwheel SBOM identified AlmaLinux libquadmath 8.5.0-28.el8_10.alma.1. Comparing
+  official RPMs against all wheel libraries found identical ELF build IDs and `.text`,
+  `.rodata`, `.data` hashes. Two files match that Alma version; the third matches CentOS
+  4.8.5-44.el7. Exact source RPMs named by binary headers were downloaded/hash-pinned
+  and inspected for GCC sources, gcc.spec and 59 / 136 patches. They are bundled and
+  required by the preflight; generic GCC URLs/adjacent compiler strings were not used
+  as substitutes. No manifest compliance issue remains for this candidate.
+
+### Actual candidate build/content checks
+
+Root API build and API-only source-wrapper build succeeded. Final candidate ID:
+`sha256:ea688da565fdfdd6bb12981a1809b546fd445af27e77f46b0c5e3271be2ed09e`.
+This is a **local image ID**, not a registry digest. Size **1,713,743,997 bytes**,
+linux/amd64, non-root appuser. Its revision label records the reviewed application
+baseline; release-tooling additions were local PR candidates, not yet merged code.
+The publication workflow instead requires the exact committed current-main revision.
+
+Every layer was inspected: **16 layers / 25,045 regular-file entries**. The first
+signature scan stopped on GnuTLS/SciPy/Tornado upstream bytes. Investigation verified
+all five complete GnuTLS keys against public FIPS self-test vectors in the exact
+bundled source; Tornado's test key against its public pinned sdist; and the SciPy
+HiGHS binary against its exact public PyPI wheel. Only unchanged public artifact
+hashes are exempt from generic signatures; configured secrets always block. A
+synthetic test marker was assembled at runtime to avoid flagging literal test source.
+Initial failure reports remain in ignored operational logs, not presented as passes.
+
+Final real preflight: **exit 0**, `publication_allowed: true`, **zero unknown
+content/secret findings**, three verified upstream-public fixture exceptions, and
+zero unresolved manifest compliance issues. Earlier exit-2 reports are retained. Missing notices/source archives,
+version or native-hash drift, unexpected COPY inputs, private assets, links, and
+configured-secret matches are fatal. Offline candidate `/health/live` and `/docs`
+checks returned HTTP 200. No registry login or push was attempted.
+
+### Tests and workflow checks
+
+- Offline full unit/API selection: **318 passed, 55 deselected**, one upstream warning,
+  **10.26 s**, application coverage **75.84%**. The original 303 cases still pass;
+  15 release regression cases cover source mismatch/cleanup, dependency drift,
+  unresolved licenses, hidden earlier layers, private PDFs, signature boundaries,
+  hash-pinned public-fixture handling, missing native-source mapping even after clearing
+  a generic flag, and manual/main-only workflow gating.
+- Pylint on app/scripts: **9.56/10**; Black formatted the two new Python files.
+- Official checksum-verified **actionlint v1.7.12** passed the publication workflow.
+  No local shellcheck executable was used (`-shellcheck=''`); actionlint still checked
+  Actions syntax/expressions. Workflow behavior beyond local tests remains subject
+  to an actual reviewed-main run.
+- `git diff --check`, local Markdown file links, exact 49-row/100-point allocation and
+  protected-file hashes passed. No generated source archive, image, private report,
+  credential or raw scientific data is staged.
+- The earlier **358-pass / 94.61%** full integration result belongs to PR #13's
+  acceptance phase. It was not rerun or relabeled as a current full-suite result;
+  this task deliberately did not touch Neo4j. New remote quality results are reported
+  on the release PR after push, separately from local checks.
+
+The manual workflow uses only `workflow_dispatch`, checks main and its full input SHA,
+requests contents:read/packages:write, gates before login, refuses existing SHA tags,
+and records a real registry digest only after push. Official checkout/upload-artifact
+commits are pinned. Repository API still reports private; default workflow permissions
+are read and PR-review auto-approval is disabled. No PAT is requested or stored.
+
+Actual publication status: **NOT PUBLISHED**. Registry digest, public package URL and
+anonymous-pull result are unavailable, not inferred from local image success. Obtain genuine release-PR review/merge, then use the exact
+manual workflow/package-only visibility instructions in IMAGE_PUBLICATION.md. R04
+remains BLOCKED; R42 and R47 remain PARTIAL; no grading points are awarded by this audit.

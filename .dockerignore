@@ -2,6 +2,7 @@
 !Dockerfile
 !docker/
 !docker/neo4j.Dockerfile
+!docker/api-release.Dockerfile
 !docker/licenses/
 !docker/licenses/**
 !requirements.txt

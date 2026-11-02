@@ -14,3 +14,11 @@ Other installed Python distributions retain their wheel license/notice files;
 Debian/Python base notices remain in the digest-pinned base image. Recheck this
 inventory whenever the lock or base image changes. No Neo4j server, GDS JAR,
 Ollama binary, model weights or source PDFs are bundled here.
+
+The API release candidate also carries [SOURCE_ACCESS.md](SOURCE_ACCESS.md), the
+exact [release inventory](release-manifest.json), and unchanged orjson vendored notices.
+The separate `docker/api-release.Dockerfile` adds verified public corresponding-source
+archives using a dedicated named build context. The ordinary Compose Dockerfile and
+scientific environment are unchanged. The release preflight requires the established wheel-native source mappings and
+matching bundled archives. Any new unresolved component blocks publication; a source
+URL list alone is not a substitute for matching binary/source evidence.

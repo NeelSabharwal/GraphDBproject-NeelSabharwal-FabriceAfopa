@@ -251,19 +251,22 @@ from Neel's explicit whole-Chunk approval. The final two packages are coordinate
 AI-assisted preparation; uploading a package does not create independent authorship
 or review evidence. Both students must understand and defend the implementation.
 
-## Public API image: authorized, publication blocked
+## Public API image: local gates passed; publication pending
 
-The API image builds locally; all 15 layers passed the scoped private-content/secret
-scan. **No image has been published and no registry digest is claimed.** The owner
-has authorized API-only public distribution, while keeping the source repository
-private. Publication is blocked by missing GHCR package-write authentication and
-incomplete exact-version third-party source-availability verification. Retaining
-license notices alone does not close that gate. No project license was added.
+The API-only release workflow is manual (`workflow_dispatch`) and uses its repository
+`GITHUB_TOKEN`; no personal access token is needed. It accepts an explicit reviewed
+current-main SHA and checks source/notice inventory, every image layer and liveness
+before login/push. The release wrapper supplies 245 hash-verified public third-party
+source archives/descriptors; the ordinary Compose deployment stays unchanged.
 
-[Publication checks and operator steps](docs/IMAGE_PUBLICATION.md) identify the intended
-package name, minimum permissions, remaining redistribution checks, build/push commands
-and anonymous-pull verification. The custom Neo4j/GDS image, PDFs, gold/labels, database,
-backups and model weights are excluded from publication.
+**No image has been published and no registry digest is claimed.** Publication remains
+pending release-PR review/merge and the actual reviewed-main workflow run. Exact
+source mappings for all three libquadmath libraries are now established and bundled;
+the final local preflight exits 0. There is no force/ignore option. The
+repository remains private and no project LICENSE was added. The [publication guide](docs/IMAGE_PUBLICATION.md)
+records the exact blocker, image scan, manual workflow and package-only visibility /
+anonymous-pull steps. Never publish the Neo4j/GDS image, corpus, gold, labels, model
+weights, database volumes or private reports.
 
 PRs [#10](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/10)
 and [#11](https://github.com/NeelSabharwal/GraphDBproject-NeelSabharwal-FabriceAfopa/pull/11)
