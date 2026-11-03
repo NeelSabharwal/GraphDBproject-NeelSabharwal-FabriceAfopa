@@ -46,6 +46,7 @@ retrieval uses only real Neo4j source chunks. Full traces/results remain in igno
 ## Implemented workflow and limits
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 100}}}%%
 flowchart TD
     S[Input guard] --> P[resolve_papers: bounded read-only catalog]
     P --> M[select_tool: local Ollama constrained JSON action]

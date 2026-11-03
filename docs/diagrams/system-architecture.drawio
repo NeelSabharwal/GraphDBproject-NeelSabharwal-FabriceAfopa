@@ -5,23 +5,35 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="e0" value="HTTP requests" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="user" target="api">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e0" value="HTTP requests" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="user" target="api">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="0.11" y="-14.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e1" value="fixed Cypher / Bolt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="api" target="neo">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e1" value="fixed Cypher / Bolt" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="api" target="neo">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="0" y="-14.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e2" value="bounded workflow" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="api" target="agent">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e2" value="bounded workflow" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=0.5;exitY=1.0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryPerimeter=0;" edge="1" parent="1" source="api" target="agent">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="69.96" y="52.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e3" value="JSON actions / embeddings" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="agent" target="ollama">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e3" value="JSON actions / embeddings" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="agent" target="ollama">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="-0.39" y="-14.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e4" value="scoped audited operations" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="operator" target="neo">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e4" value="scoped audited operations" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="operator" target="neo">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="195.11" y="-33.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e5" value="shared application modules" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="operator" target="api">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e5" value="shared application modules" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="operator" target="api">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="-104.78" y="2.5" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="user" value="Research user / student&#xa;Swagger / notebook&#xa;localhost:8000" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="120" width="200" height="120" />
@@ -40,6 +52,18 @@
         </mxCell>
         <mxCell id="operator" value="Operator CLI&#xa;pinned PDFs → evidence&#xa;mentions / ML / GDS refresh" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffedd5;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="390" width="200" height="120" />
+        </mxCell>
+        <mxCell id="annotation-0" value="System architecture — local, zero paid services" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=24;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="21" width="1120" height="32" />
+        </mxCell>
+        <mxCell id="annotation-1" value="API memory cap 1 GiB; one agent request at a time. No direct host Bolt/Ollama exposure." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="676" width="1120" height="22" />
+        </mxCell>
+        <mxCell id="annotation-2" value="PDFs, models, reports and credentials stay outside the public API image; review/ML labels never enter retrieval." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="701" width="1120" height="22" />
+        </mxCell>
+        <mxCell id="annotation-3" value="GDS streams PageRank/Louvain from a validated in-memory projection; local ML uses paper-disjoint features." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="726" width="1120" height="22" />
         </mxCell>
       </root>
     </mxGraphModel>

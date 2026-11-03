@@ -5,26 +5,40 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="e0" value="CITES (approved claims only)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="paper" target="cited">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e0" value="CITES (approved claims only)" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="paper" target="cited">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="0" y="-14.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e1" value="PART_OF" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="chunk" target="paper">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e1" value="PART_OF" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=0.5;exitY=0.0;exitPerimeter=0;entryX=0.5;entryY=1.0;entryPerimeter=0;" edge="1" parent="1" source="chunk" target="paper">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="38.07" y="0.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e2" value="SUBJECT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="paper">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e2" value="SUBJECT" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=0.0;exitY=0.5;exitPerimeter=0;entryX=1.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="claim" target="paper">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="-52.86" y="-7.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e3" value="OBJECT (citation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="cited">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e3" value="OBJECT (citation)" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="claim" target="cited">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="70.61" y="2.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e4" value="OBJECT (scientific)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="entity">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e4" value="OBJECT (scientific)" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="claim" target="entity">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="75.16" y="-7.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e5" value="SUPPORTED_BY: quote + offsets" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="claim" target="chunk">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e5" value="SUPPORTED_BY: quote + offsets" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=0.0;exitY=0.5;exitPerimeter=0;entryX=1.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="claim" target="chunk">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="123.92" y="12.5" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e6" value="MENTIONS: exact occurrence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;html=1;" edge="1" parent="1" source="chunk" target="entity">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="e6" value="MENTIONS: exact occurrence" style="edgeStyle=none;rounded=0;endArrow=block;startArrow=none;html=0;strokeColor=#475569;strokeWidth=2;fontColor=#334155;fontSize=13;fontFamily=Arial;labelBackgroundColor=#f8fafc;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="chunk" target="entity">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="offset" x="0" y="-14.5" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="paper" value="Paper&#xa;id / work_id / version&#xa;PDF hash / title" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#dbeafe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="80" y="130" width="200" height="120" />
@@ -40,6 +54,18 @@
         </mxCell>
         <mxCell id="entity" value="Entity&#xa;Method / Dataset / Task&#xa;scoped canonical identity" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ede9fe;strokeColor=#64748b;fontSize=14;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="860" y="430" width="200" height="120" />
+        </mxCell>
+        <mxCell id="annotation-0" value="Neo4j evidence schema — actual persisted model" style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=24;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="21" width="1120" height="32" />
+        </mxCell>
+        <mxCell id="annotation-1" value="NEXT links successive Chunks within one Paper (same-label edge omitted from layout)." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="676" width="1120" height="22" />
+        </mxCell>
+        <mxCell id="annotation-2" value="3 Papers · 153 Chunks · 17 Entities · 25 Claims. MENTIONS ≠ scientific USES/EVALUATED_ON/CITES." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="701" width="1120" height="22" />
+        </mxCell>
+        <mxCell id="annotation-3" value="GDS shared-entity similarity exists only in memory; ML predictions stay outside the verified graph." style="text;html=0;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#334155;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="726" width="1120" height="22" />
         </mxCell>
       </root>
     </mxGraphModel>

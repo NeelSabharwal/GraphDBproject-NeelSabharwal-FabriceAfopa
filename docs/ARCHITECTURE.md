@@ -235,7 +235,8 @@ Use Python 3.11+, FastAPI, Pydantic, the official Neo4j Python driver and LangGr
 These are three functional services: storage/graph computation, API/agent orchestration, and model inference. GDS runs inside Neo4j, not as a fabricated fourth service. No separate worker is needed for bounded student imports; scripts handle full batches. Authenticate the import endpoint to satisfy the sensitive-endpoint option in the rubric. A reverse proxy is not needed for this local design.
 
 ```mermaid
-flowchart LR
+%%{init: {"flowchart": {"nodeSpacing": 60, "rankSpacing": 70}}}%%
+flowchart TB
     U[Student / Swagger / demo notebook] -->|HTTP localhost:8000| A[FastAPI + LangGraph]
     F[Approved PDF manifest + local PDFs] -->|Authenticated import or CLI batch| A
     A -->|Bolt 7687: templates, graph, vectors| N[Neo4j 5.x + GDS]
@@ -297,7 +298,8 @@ Proposed claim states are `EXTRACTED` (structurally valid, source-located, not s
 Initial predicates: `USES` (Paper → Method), `EVALUATED_ON` (Paper or Method → Dataset), `ADDRESSES` (Paper or Method → Task/Topic), `CITES` (Paper → Paper). Expand only for a demonstrated question. `EVALUATED_ON` claims retain the paper context; using the same dataset does not establish comparable evaluation settings.
 
 ```mermaid
-flowchart LR
+%%{init: {"flowchart": {"nodeSpacing": 60, "rankSpacing": 70}}}%%
+flowchart TB
     C[Chunk] -->|PART_OF| P[Paper]
     C -->|NEXT| C2[Chunk]
     C -->|MENTIONS| E[Entity: Method / Dataset / Task / Topic]
@@ -342,18 +344,19 @@ Use a typed `StateGraph` with state fields: question, resolved IDs, messages/too
 The framework supports tool-calling loops and conditional transitions; see the official [LangGraph workflows and agents guide](https://docs.langchain.com/oss/python/langgraph/workflows-agents). The bounded workflow below is this project's proposed design, to be verified against pinned package versions.
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 100, "rankSpacing": 120}}}%%
 flowchart TD
     S[Validate question + initialize state] --> A[Model selects tool or proposes answer]
     A -->|Tool call| V[Validate tool name + arguments]
     V -->|Valid| T[Execute bounded read-only tool]
-    V -->|Invalid, retry budget remains| A
+    V -->|Invalid,<br/>retry budget<br/>remains| A
     T --> E[Accumulate evidence + tool trace]
     E -->|More evidence needed, budget remains| A
     A -->|Answer candidate| C[Validate structured answer + citation support]
     C -->|Supported| F[Return answer + evidence + trace]
     C -->|Repairable, budget remains| A
-    C -->|Unsupported or budget exhausted| X[Abstain / return partial supported answer]
-    V -->|Unsafe or budget exhausted| X
+    C -->|Unsupported<br/>or budget<br/>exhausted| X[Abstain / return partial supported answer]
+    V -->|Unsafe or<br/>budget<br/>exhausted| X
 ```
 
 Propose at most six tool calls, one malformed-output retry and a configurable wall-clock timeout. The conditional loop must be demonstrated with an actual multi-tool run. Record tool name, validated arguments, timing, query-template ID, returned evidence/paths and outcome. Expose that operational trace rather than private model reasoning. Require a structured answer with supported statements, citations, explicit unverified claims/hypotheses and limitations. An LLM judgment of entailment can flag issues but cannot promote a source claim to verified status.
