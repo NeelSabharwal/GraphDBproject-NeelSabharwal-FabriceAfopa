@@ -1,21 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+<!-- Label placement adapted from the final presentation; editable source: graph-schema.drawio. -->
+<style>.p8-edge{paint-order:stroke;stroke:#f8fafc;stroke-width:5px;stroke-linejoin:round}</style>
 <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#475569"/></marker></defs>
 <rect width="1200" height="800" fill="#f8fafc"/>
 <text x="40" y="45" font-family="sans-serif" font-size="24" fill="#0f172a">Neo4j evidence schema — actual persisted model</text>
 <line x1="280" y1="190" x2="860" y2="190" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="575.0" y="183.0" font-family="sans-serif" font-size="13" fill="#334155">CITES (approved claims only)</text>
+<text x="570" y="180" text-anchor="middle" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">CITES (approved claims only)</text>
 <line x1="180" y1="430" x2="180" y2="250" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="185.0" y="333.0" font-family="sans-serif" font-size="13" fill="#334155">PART_OF</text>
+<text x="190" y="345" text-anchor="start" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">PART_OF</text>
 <line x1="470" y1="340" x2="280" y2="190" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="380.0" y="258.0" font-family="sans-serif" font-size="13" fill="#334155">SUBJECT</text>
+<text x="350" y="262" text-anchor="end" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">SUBJECT</text>
 <line x1="670" y1="340" x2="860" y2="190" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="770.0" y="258.0" font-family="sans-serif" font-size="13" fill="#334155">OBJECT (citation)</text>
+<text x="780" y="272" text-anchor="start" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">OBJECT (citation)</text>
 <line x1="670" y1="340" x2="860" y2="490" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="770.0" y="408.0" font-family="sans-serif" font-size="13" fill="#334155">OBJECT (scientific)</text>
+<text x="780" y="412" text-anchor="start" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">OBJECT (scientific)</text>
 <line x1="470" y1="340" x2="280" y2="490" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="380.0" y="408.0" font-family="sans-serif" font-size="13" fill="#334155">SUPPORTED_BY: quote + offsets</text>
+<text x="395" y="432" text-anchor="start" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">SUPPORTED_BY: quote + offsets</text>
 <line x1="280" y1="490" x2="860" y2="490" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="575.0" y="483.0" font-family="sans-serif" font-size="13" fill="#334155">MENTIONS: exact occurrence</text>
+<text x="570" y="480" text-anchor="middle" class="p8-edge" font-family="sans-serif" font-size="13" fill="#334155">MENTIONS: exact occurrence</text>
 <rect x="80" y="130" width="200" height="120" rx="12" fill="#dbeafe" stroke="#64748b"/>
 <text x="180" y="158" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#0f172a">Paper</text>
 <text x="180" y="180" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#0f172a">id / work_id / version</text>
